@@ -3,9 +3,6 @@ from constants import *
 from utils.files import *
 from components import screen, event_manager
 
-# 用於控制程序視窗，只要為 True，程序視窗就會一直被渲染
-running = True
-
 # 設置視窗圖標、標題，然後初始化視窗
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
 pygame.display.set_caption(TITLE)
