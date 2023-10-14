@@ -190,7 +190,9 @@ class Element(pygame.sprite.Sprite):
         index = self.__children.index(node) + 1
         children = tuple(reversed(children))
         for child in children:
-            self.insert_child(index, child)        
+            self.insert_child(index, child)
+
+    ''' 還差繪製和 .update() 的部分（需要用到 sprite.Group 繪製） '''       
 
 class Character(Element):
     def __init__(self, image: pygame.Surface):
