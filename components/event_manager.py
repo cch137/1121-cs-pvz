@@ -48,24 +48,25 @@ class EventManager():
 
     def handle(self, event: pygame.event.Event):
         now = time.time()
+
         # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             for el in self._elements_of(events.CLICK):
                 if el.rect.collidepoint(x, y):
-                    el.set_attribute('buttondown', (event.button, now))
+                    el.set_attribute(events.BUTTONDOWN, (event.button, now))
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
             click_event = events.ClickEvent(event.pos)
             for el in self._elements_of(events.CLICK):
-                if el.has_attribute('buttondown'):
+                if el.has_attribute(events.BUTTONDOWN):
                     # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
-                    button, mousedown_at = el.get_attribute('buttondown')
+                    button, mousedown_at = el.get_attribute(events.BUTTONDOWN)
                     if el.rect.collidepoint(x, y) \
                         and button == event.button \
                         and now - mousedown_at < 1:
                         if event.button == pygame.BUTTON_LEFT:
                             el.dispatch_event(click_event)
-                    el.remove_attribute('buttondown')
+                    el.remove_attribute(events.BUTTONDOWN)
 
 event_manager = EventManager()

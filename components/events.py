@@ -4,6 +4,8 @@ CLICK = 'click'
 HOVER = 'hover'
 MOUSEENTER = 'mouseenter'
 MOUSELEAVE = 'mouseleave'
+BUTTONDOWN = 'buttondown'
+BUTTONUP = 'buttonup'
 
 class UserEvent():
     def __init__(self, name: str):
