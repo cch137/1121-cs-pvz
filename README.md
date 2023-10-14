@@ -1,6 +1,6 @@
 # 112 Plants VS. Zombies
 
-In this project, we are using `pygame` to attempt to recreate Plants vs. Zombies.
+In this project, we are using (pygame)[https://www.pygame.org/] to attempt to recreate Plants vs. Zombies.
 
 ## Install Python
 
