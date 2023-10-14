@@ -4,7 +4,7 @@ from components.events import *
 
 ROW = 'row'
 COLUMN = 'column'
-CELL = 'column'
+BLOCK = 'block'
 
 class Element(): pass
 
@@ -12,7 +12,7 @@ class Element(pygame.sprite.Sprite):
     __attributes = {}
     __listeners: dict[str, set[Callable]] = {}
     
-    bg_color: str = None
+    background_color: str = None
 
     def __init__(self, image: pygame.Surface | tuple[int, int]):
         pygame.sprite.Sprite.__init__(self)
@@ -60,7 +60,7 @@ class Element(pygame.sprite.Sprite):
         return name in self.__attributes
 
     __children = []
-    __display = CELL
+    __display = BLOCK
 
     '''Space between child elements.'''
     spacing: int = 0
