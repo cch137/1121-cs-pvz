@@ -2,7 +2,7 @@ from components import *
 
 x = Sprite((1,2))
 
-def xOnClick1():
+def xOnClick1(e):
     print('x on click 1')
 
 def xOnClick2():
@@ -11,4 +11,4 @@ def xOnClick2():
 x.addEventListener('click', xOnClick1)
 x.addEventListener('click', xOnClick2)
 
-x.dispatchEvent('click')
+x.dispatchEvent(event_manager.events.ClickEvent((0,0), 0))

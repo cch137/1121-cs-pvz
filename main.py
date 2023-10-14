@@ -1,7 +1,7 @@
 import pygame
 from constants import *
 from utils.files import *
-from components.screen import screen
+from components import screen, event_manager
 
 # 用於控制程序視窗，只要為 True，程序視窗就會一直被渲染
 running = True
@@ -18,20 +18,22 @@ clock = pygame.time.Clock()
 
 clear_caches()
 
-while running:
-    # 設置更新幀數
-    clock.tick(FPS)
+def main():
+    while True:
+        # 設置更新幀數
+        clock.tick(FPS)
 
-    # 讀取使用者的活動
-    for event in pygame.event.get():
-        # 退出遊戲
-        if event.type == pygame.QUIT:
-            running = False
-            break
+        event_manager.init()
+        # 讀取使用者的活動
+        for event in pygame.event.get():
+            # 退出遊戲
+            if event.type == pygame.QUIT: return
+            event_manager.handle(event)
 
-    # 設定視窗背景顏色
-    screen.fill(BACKGROUND_COLOR)
+        # 設定視窗背景顏色
+        screen.fill(BACKGROUND_COLOR)
 
-    # 更新視窗
-    pygame.display.flip()
+        # 更新視窗
+        pygame.display.flip()
 
+main()
