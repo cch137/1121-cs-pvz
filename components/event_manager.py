@@ -23,8 +23,9 @@ class EventManager():
 
         # handle HoverEvent
         hover_event = events.HoverEvent(pos)
-        for sprite in [s for s in self._sprites_of(events.HOVER) if s.rect.collidepoint(x, y)]:
-            sprite.dispatchEvent(hover_event)
+        for sprite in self._sprites_of(events.HOVER):
+            if sprite.rect.collidepoint(x, y):
+                sprite.dispatchEvent(hover_event)
 
         # handle MouseEnterEvent and MouseLeaveEvent
         mouseenter_event = events.MouseEnterEvent(pos)
@@ -45,7 +46,7 @@ class EventManager():
                         sprite.dispatchEvent(mouseleave_event)
 
     def handle(self, event: pygame.event.Event):
-        # handle ClickEvent (按下左鍵)
+        # handle ClickEvent (左鍵)
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             click_event = events.ClickEvent(event.pos, event.button)
