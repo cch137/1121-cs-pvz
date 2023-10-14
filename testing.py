@@ -8,7 +8,7 @@ def xOnClick1(e):
 def xOnClick2():
     print('x on click 2')
 
-x.addEventListener('click', xOnClick1)
-x.addEventListener('click', xOnClick2)
+x.add_event_listener('click', xOnClick1)
+x.add_event_listener('click', xOnClick2)
 
-x.dispatchEvent(event_manager.events.ClickEvent((0,0), 0))
+x.dispatch_event(event_manager.events.ClickEvent((0,0), 0))

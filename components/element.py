@@ -25,20 +25,20 @@ class Element(pygame.sprite.Sprite):
             raise 'Invalid image'
         self.rect = self.image.get_rect()
 
-    def addEventListener(self, eventName: str, listener: Callable):
+    def add_event_listener(self, eventName: str, listener: Callable):
         if eventName not in self.__listeners:
             self.__listeners[eventName] = set()
         self.__listeners[eventName].add(listener)
-        event_manager.addElement(self, eventName)
+        event_manager.add_element(self, eventName)
 
-    def removeEventListener(self, eventName: str, listener: Callable):
+    def remove_event_listener(self, eventName: str, listener: Callable):
         if eventName not in self.__listeners: return
         if listener not in self.__listeners[eventName]: return
         self.__listeners[eventName].remove(listener)
         if self.__listeners[eventName].__len__() == 0:
-            event_manager.removeElement(self, eventName)
+            event_manager.remove_element(self, eventName)
 
-    def dispatchEvent(self, event: UserEvent):
+    def dispatch_event(self, event: UserEvent):
         if event.name in self.__listeners:
             for listener in self.__listeners[event.name]:
                 try:
@@ -47,16 +47,16 @@ class Element(pygame.sprite.Sprite):
                 except Exception as err:
                     print(err)
 
-    def getAttribute(self, name: str):
+    def get_attribute(self, name: str):
         return self.__attributes.get(name)
 
-    def setAttribute(self, name: str, value):
+    def set_attribute(self, name: str, value):
         self.__attributes[name] = value
     
-    def removeAttribute(self, name: str):
+    def remove_attribute(self, name: str):
         del self.__attributes[name]
     
-    def hasAttribute(self, name: str):
+    def has_attribute(self, name: str):
         return name in self.__attributes
 
     __children = []
@@ -112,37 +112,37 @@ class Element(pygame.sprite.Sprite):
     def display(self):
         raise 'Element.mode cannot be deleted'
     
-    def appendChild(self, *children: Element):
+    def append_child(self, *children: Element):
         for child in children:
             if child in self.__children:
-                self.removeChild(child)
+                self.remove_child(child)
             self.__children.append(child)
 
-    def removeChild(self, *children: Element):
+    def remove_child(self, *children: Element):
         for child in children:
             if child in self.__children:
                 self.__children.remove(child)
     
-    def insertChild(self, index: int, *children: Element):
+    def insert_child(self, index: int, *children: Element):
         children = tuple(reversed(children))
         for child in children:
             if child in self.__children:
-                self.removeChild(child)
+                self.remove_child(child)
             self.__children.insert(index, child)
     
-    def insertBefore(self, node: Element, *children: Element):
+    def insert_before(self, node: Element, *children: Element):
         if node not in self.__children: raise 'node is not in children'
         index = self.__children.index(node)
         children = tuple(reversed(children))
         for child in children:
-            self.insertChild(index, child)
+            self.insert_child(index, child)
     
-    def insertAfter(self, node: Element, child: Element):
+    def insert_after(self, node: Element, child: Element):
         if node not in self.__children: raise 'node is not in children'
         index = self.__children.index(node) + 1
         children = tuple(reversed(children))
         for child in children:
-            self.insertChild(index, child)        
+            self.insert_child(index, child)        
 
 class Character(Element):
     def __init__(self, image: pygame.Surface | tuple[int, int]):
