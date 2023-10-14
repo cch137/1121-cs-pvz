@@ -6,11 +6,9 @@ from components import screen, event_manager
 # 用於控制程序視窗，只要為 True，程序視窗就會一直被渲染
 running = True
 
-# 設置視窗 icon
+# 設置視窗圖標、標題，然後初始化視窗
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
-# 設置視窗標題
 pygame.display.set_caption(TITLE)
-# pygame 初始化
 pygame.init()
 
 # 創建視窗渲染時鐘
