@@ -2,9 +2,13 @@ from components import *
 
 x = Sprite((1,2))
 
-def xOnClick():
-    print('x on click')
+def xOnClick1():
+    print('x on click 1')
 
-x.addEventListener('click', xOnClick)
+def xOnClick2():
+    print('x on click 2')
+
+x.addEventListener('click', xOnClick1)
+x.addEventListener('click', xOnClick2)
 
 x.dispatchEvent('click')
