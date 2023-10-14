@@ -5,6 +5,7 @@ from components.events import *
 ROW = 'row'
 COLUMN = 'column'
 BLOCK = 'block'
+DISPLAY_MODES = (ROW, COLUMN, BLOCK)
 
 class Element(): pass
 
@@ -14,7 +15,7 @@ class Element(pygame.sprite.Sprite):
     
     background_color: str = None
 
-    def __init__(self, image: pygame.Surface | tuple[int, int]):
+    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0)):
         pygame.sprite.Sprite.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
@@ -52,15 +53,62 @@ class Element(pygame.sprite.Sprite):
 
     def set_attribute(self, name: str, value):
         self.__attributes[name] = value
-    
+
     def remove_attribute(self, name: str):
         del self.__attributes[name]
     
     def has_attribute(self, name: str):
         return name in self.__attributes
 
-    __children = []
+    __children: list[Element] = []
     __display = BLOCK
+
+    @property
+    def children(self):
+        return self.__children.copy()
+    
+    @property
+    def x(self): return self.rect.x
+    @x.setter
+    def x(self, value: int): self.rect.x = value
+    
+    @property
+    def y(self): return self.rect.y
+    @y.setter
+    def y(self, value: int): self.rect.y = value
+
+    @property
+    def coor(self): return self.rect.topleft
+    @coor.setter
+    def coor(self, value: Tuple[int,int]): self.rect.topleft = value
+
+    @property
+    def computed_width(self) -> int:
+        if self.display == BLOCK:
+            return self.rect.width
+        elif self.display == ROW:
+            children = self.children
+            return sum(child.computed_width for child in children) \
+                + self.spacing * (len(children) - 1) \
+                + self.padding_left + self.padding_right
+        elif self.display == COLUMN:
+            return max(child.computed_width for child in self.children) \
+                + self.padding_left + self.padding_right
+        return 0
+
+    @property
+    def computed_height(self) -> int:
+        if self.display == BLOCK:
+            return self.rect.height
+        elif self.display == ROW:
+            return max(child.computed_height for child in self.children) \
+                + self.padding_top + self.padding_bottom
+        elif self.display == COLUMN:
+            children = self.children
+            return sum(child.computed_height for child in self.children) \
+                + self.spacing * (len(children) - 1) \
+                + self.padding_top + self.padding_bottom
+        return 0
 
     '''Space between child elements.'''
     spacing: int = 0
@@ -104,8 +152,8 @@ class Element(pygame.sprite.Sprite):
 
     @display.setter
     def display(self, value: str):
-        if value not in (ROW, COLUMN):
-            raise 'Invalid Element mode'
+        if value not in DISPLAY_MODES:
+            raise 'Invalid Element display mode'
         self.__display = value
 
     @display.deleter
@@ -145,7 +193,7 @@ class Element(pygame.sprite.Sprite):
             self.insert_child(index, child)        
 
 class Character(Element):
-    def __init__(self, image: pygame.Surface | tuple[int, int]):
-        Element.__init__(image)
+    def __init__(self, image: pygame.Surface):
+        Element.__init__(self, image)
 
 from components.event_manager import event_manager
