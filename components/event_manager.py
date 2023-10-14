@@ -6,17 +6,17 @@ class EventManager():
     events = events
     __sprites_sets: dict[str, set[Sprite]] = {}
 
-    def _sprites_of(self, event: str):
-        if event not in self.__sprites_sets:
-            self.__sprites_sets[event] = set()
-        return self.__sprites_sets[event]
+    def _sprites_of(self, eventName: str):
+        if eventName not in self.__sprites_sets:
+            self.__sprites_sets[eventName] = set()
+        return self.__sprites_sets[eventName]
 
-    def addSprite(self, sprite: Sprite, event: str):
-        self._sprites_of(event).add(sprite)
+    def addSprite(self, sprite: Sprite, eventName: str):
+        self._sprites_of(eventName).add(sprite)
 
-    def removeSprite(self, sprite: Sprite, event: str):
-        self._sprites_of(event).remove(sprite)
-    
+    def removeSprite(self, sprite: Sprite, eventName: str):
+        self._sprites_of(eventName).remove(sprite)
+
     def init(self):
         pos = pygame.mouse.get_pos()
         x, y = pos
