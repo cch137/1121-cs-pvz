@@ -1,6 +1,6 @@
 from components import *
 
-x = Sprite((1,2))
+x = Element((1,2))
 
 def xOnClick1(e):
     print('x on click 1')

@@ -1,21 +1,21 @@
 import pygame
 import components.events as events
-from components.sprite import Sprite
+from components.element import Element
 
 class EventManager():
     events = events
-    __sprites_sets: dict[str, set[Sprite]] = {}
+    __element_sets: dict[str, set[Element]] = {}
 
-    def _sprites_of(self, eventName: str):
-        if eventName not in self.__sprites_sets:
-            self.__sprites_sets[eventName] = set()
-        return self.__sprites_sets[eventName]
+    def _elements_of(self, eventName: str):
+        if eventName not in self.__element_sets:
+            self.__element_sets[eventName] = set()
+        return self.__element_sets[eventName]
 
-    def addSprite(self, sprite: Sprite, eventName: str):
-        self._sprites_of(eventName).add(sprite)
+    def addElement(self, element: Element, eventName: str):
+        self._elements_of(eventName).add(element)
 
-    def removeSprite(self, sprite: Sprite, eventName: str):
-        self._sprites_of(eventName).remove(sprite)
+    def removeElement(self, element: Element, eventName: str):
+        self._elements_of(eventName).remove(element)
 
     def init(self):
         pos = pygame.mouse.get_pos()
@@ -23,34 +23,35 @@ class EventManager():
 
         # handle HoverEvent
         hover_event = events.HoverEvent(pos)
-        for sprite in self._sprites_of(events.HOVER):
-            if sprite.rect.collidepoint(x, y):
-                sprite.dispatchEvent(hover_event)
+        for el in self._elements_of(events.HOVER):
+            if el.rect.collidepoint(x, y):
+                el.dispatchEvent(hover_event)
 
         # handle MouseEnterEvent and MouseLeaveEvent
         mouseenter_event = events.MouseEnterEvent(pos)
         mouseleave_event = events.MouseLeaveEvent(pos)
-        l_mouseenter_spirits = self._sprites_of(events.MOUSEENTER)
-        l_mouseleave_spirits = self._sprites_of(events.MOUSELEAVE)
+        l_mouseenter_spirits = self._elements_of(events.MOUSEENTER)
+        l_mouseleave_spirits = self._elements_of(events.MOUSELEAVE)
         l_mouse_spirits = l_mouseenter_spirits | l_mouseleave_spirits # union
-        for sprite in l_mouse_spirits:
-            if sprite.rect.collidepoint(x, y):
-                if not sprite.hasAttribute(events.HOVER):
-                    sprite.setAttribute(events.HOVER, True)
-                    if sprite in l_mouseenter_spirits:
-                        sprite.dispatchEvent(mouseenter_event)
-            elif sprite.hasAttribute(events.HOVER):
-                if sprite.hasAttribute(events.HOVER):
-                    sprite.removeAttribute(events.HOVER)
-                    if sprite in l_mouseleave_spirits:
-                        sprite.dispatchEvent(mouseleave_event)
+        for el in l_mouse_spirits:
+            if el.rect.collidepoint(x, y):
+                if not el.hasAttribute(events.HOVER):
+                    el.setAttribute(events.HOVER, True)
+                    if el in l_mouseenter_spirits:
+                        el.dispatchEvent(mouseenter_event)
+            elif el.hasAttribute(events.HOVER):
+                if el.hasAttribute(events.HOVER):
+                    el.removeAttribute(events.HOVER)
+                    if el in l_mouseleave_spirits:
+                        el.dispatchEvent(mouseleave_event)
 
     def handle(self, event: pygame.event.Event):
         # handle ClickEvent (左鍵)
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             click_event = events.ClickEvent(event.pos, event.button)
-            for sprite in [s for s in self._sprites_of(events.CLICK) if s.rect.collidepoint(x, y)]:
-                sprite.dispatchEvent(click_event)
+            for el in self._elements_of(events.CLICK):
+                if el.rect.collidepoint(x, y):
+                    el.dispatchEvent(click_event)
 
 event_manager = EventManager()
