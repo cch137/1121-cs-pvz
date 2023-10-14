@@ -12,5 +12,6 @@ def test_event_manager():
     x.add_event_listener('click', xOnClick1)
     x.add_event_listener('click', xOnClick2)
 
-    x.dispatch_event(event_manager.events.ClickEvent((0,0), 0))
+    x.dispatch_event(event_manager.events.ClickEvent((0,0)))
 
+test_event_manager()

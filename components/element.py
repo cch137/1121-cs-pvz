@@ -1,21 +1,33 @@
 from typing import *
 import pygame
 from components.events import *
+from components.scene import Scene
 
 ROW = 'row'
 COLUMN = 'column'
 BLOCK = 'block'
 DISPLAY_MODES = (ROW, COLUMN, BLOCK)
 
+CENTER = 'center'
+START = 'start'
+END = 'end'
+
 class Element(): pass
 
 class Element(pygame.sprite.Sprite):
     __attributes = {}
     __listeners: dict[str, set[Callable]] = {}
+
+    __children: List[Element] = []
+    __display = BLOCK
+
+    @property
+    def children(self):
+        return self.__children.copy()
     
     background_color: str = None
 
-    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0)):
+    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
@@ -25,6 +37,8 @@ class Element(pygame.sprite.Sprite):
         else:
             raise 'Invalid image'
         self.rect = self.image.get_rect()
+        if children.__len__():
+            self.__children = [child for child in children]
 
     def add_event_listener(self, eventName: str, listener: Callable):
         if eventName not in self.__listeners:
@@ -59,13 +73,6 @@ class Element(pygame.sprite.Sprite):
     
     def has_attribute(self, name: str):
         return name in self.__attributes
-
-    __children: list[Element] = []
-    __display = BLOCK
-
-    @property
-    def children(self):
-        return self.__children.copy()
     
     @property
     def x(self): return self.rect.x
@@ -165,11 +172,13 @@ class Element(pygame.sprite.Sprite):
             if child in self.__children:
                 self.remove_child(child)
             self.__children.append(child)
+            child.parent = self
 
     def remove_child(self, *children: Element):
         for child in children:
             if child in self.__children:
                 self.__children.remove(child)
+                child.parent = None
     
     def insert_child(self, index: int, *children: Element):
         children = tuple(reversed(children))
@@ -191,8 +200,61 @@ class Element(pygame.sprite.Sprite):
         children = tuple(reversed(children))
         for child in children:
             self.insert_child(index, child)
+    
+    __justify: str = CENTER
+    @property
+    def justify(self): return self.__justify
+    @justify.setter
+    def justify(self, value: str):
+        if value not in (START, CENTER, END):
+            raise f'"{value}" is not a valid justify format'
+        self.__justify = value
 
-    ''' 還差繪製和 .update() 的部分（需要用到 sprite.Group 繪製） '''       
+    parent: Element | None = None
+
+    @property
+    def parents(self) -> List[Element]:
+        parents = []
+        ele = self.parent
+        while ele != None:
+            parents.append(ele)
+            ele = self.parent
+        return parents
+    
+    @property
+    def z_index(self) -> int:
+        return self.parents.__len__()
+    
+    @property
+    def all_children(self) -> Set[Element]:
+        watched = {}
+        parents = { self }
+        children = set()
+        while len(watched) != len(parents):
+            for parent in parents:
+                if parent in watched:
+                    continue
+                for child in parent.children:
+                    children.add(child)
+                    parents.add(child)
+                watched.add(parent)
+        return children
+    
+    _scene: Scene = None
+    @property
+    def scene(self):
+        if self._scene is None:
+            if self.parent is None:
+                return None
+            return self.parent.scene
+        return self._scene
+    
+    @scene.setter
+    def scene(self, value: Scene):
+        if self.parent is None:
+            self._scene = value
+        else:
+            self.parent.scene = value
 
 class Character(Element):
     def __init__(self, image: pygame.Surface):
