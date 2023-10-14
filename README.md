@@ -1,10 +1,10 @@
 # 112 Plants VS. Zombies
 
-In this project, we are using [pygame](https://www.pygame.org/){target="_blank"} to attempt to recreate Plants vs. Zombies.
+In this project, we are using [pygame](https://www.pygame.org/){:target="_blank"} to attempt to recreate Plants vs. Zombies.
 
 ## Install Python
 
-This project is written in Python. Please make sure that your system has [Python](https://www.python.org){target="_blank"} installed before running this project.
+This project is written in Python. Please make sure that your system has [Python](https://www.python.org){:target="_blank"} installed before running this project.
 
 ## Install Project Dependencies
 
