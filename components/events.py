@@ -27,18 +27,5 @@ class MouseLeaveEvent(MouseEvent):
         MouseEvent.__init__(self, MOUSELEAVE, pos)
 
 class ClickEvent(UserEvent):
-    def __init__(self, pos: tuple[int, int], button: int):
+    def __init__(self, pos: tuple[int, int]):
         MouseEvent.__init__(self, CLICK, pos)
-        self.button = button
-
-    @property
-    def is_button_left(self):
-        return self.button == pygame.BUTTON_LEFT
-
-    @property
-    def is_button_right(self):
-        return self.button == pygame.BUTTON_RIGHT
-
-    @property
-    def is_button_middle(self):
-        return self.button == pygame.BUTTON_MIDDLE

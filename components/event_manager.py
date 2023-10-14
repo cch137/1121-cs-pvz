@@ -1,3 +1,4 @@
+import time
 import pygame
 import components.events as events
 from components.element import Element
@@ -21,13 +22,13 @@ class EventManager():
         pos = pygame.mouse.get_pos()
         x, y = pos
 
-        # handle HoverEvent
+        # dispatch HoverEvent
         hover_event = events.HoverEvent(pos)
         for el in self._elements_of(events.HOVER):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(hover_event)
 
-        # handle MouseEnterEvent and MouseLeaveEvent
+        # dispatch MouseEnterEvent and MouseLeaveEvent
         mouseenter_event = events.MouseEnterEvent(pos)
         mouseleave_event = events.MouseLeaveEvent(pos)
         l_mouseenter_spirits = self._elements_of(events.MOUSEENTER)
@@ -46,12 +47,25 @@ class EventManager():
                         el.dispatch_event(mouseleave_event)
 
     def handle(self, event: pygame.event.Event):
-        # handle ClickEvent (左鍵)
+        now = time.time()
+        # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            click_event = events.ClickEvent(event.pos, event.button)
             for el in self._elements_of(events.CLICK):
                 if el.rect.collidepoint(x, y):
-                    el.dispatch_event(click_event)
+                    el.set_attribute('buttondown', (event.button, now))
+        elif event.type == pygame.MOUSEBUTTONUP:
+            x, y = event.pos
+            click_event = events.ClickEvent(event.pos)
+            for el in self._elements_of(events.CLICK):
+                if el.has_attribute('buttondown'):
+                    # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
+                    button, mousedown_at = el.get_attribute('buttondown')
+                    if el.rect.collidepoint(x, y) \
+                        and button == event.button \
+                        and now - mousedown_at < 1:
+                        if event.button == pygame.BUTTON_LEFT:
+                            el.dispatch_event(click_event)
+                    el.remove_attribute('buttondown')
 
 event_manager = EventManager()
