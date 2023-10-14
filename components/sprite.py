@@ -1,12 +1,14 @@
+from typing import *
 import pygame
 
 class Sprite(pygame.sprite.Sprite):
     __attributes = {}
-    __listeners: dict[str, set[function]] = {}
+    __listeners: dict[str, set[Callable]] = {}
     
     bg_color: str = None
 
-    def __init__(self, image: pygame.Surface | (int, int)):
+    def __init__(self, image: pygame.Surface | tuple[int, int]):
+        pygame.sprite.Sprite.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
         elif type(image) == tuple:
@@ -16,13 +18,13 @@ class Sprite(pygame.sprite.Sprite):
             raise 'Invalid image'
         self.rect = self.image.get_rect()
 
-    def addEventListener(self, event: str, listener: function):
+    def addEventListener(self, event: str, listener: Callable):
         if event not in self.__listeners:
             self.__listeners[event] = set()
         self.__listeners[event].add(listener)
         eventManager.addSprite(self, event)
 
-    def removeEventListener(self, event: str, listener: function):
+    def removeEventListener(self, event: str, listener: Callable):
         if event not in self.__listeners: return
         if listener not in self.__listeners[event]: return
         self.__listeners[event].remove(listener)
@@ -45,9 +47,13 @@ class Sprite(pygame.sprite.Sprite):
         return name in self.__attributes
 
 class Grid(Sprite):
+    def __init__(self, image: pygame.Surface | tuple[int, int]):
+        Sprite.__init__(image)
     pass
 
 class Character(Sprite):
+    def __init__(self, image: pygame.Surface | tuple[int, int]):
+        Sprite.__init__(image)
     pass
 
-from eventManager import eventManager
+from components.eventManager import eventManager

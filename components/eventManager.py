@@ -1,5 +1,5 @@
 import pygame
-from components import Sprite
+from components.sprite import Sprite
 
 class EventManager():
     listeners: dict[str, pygame.sprite.Group] = {}
