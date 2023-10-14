@@ -1,6 +1,7 @@
 import pygame
 
 class Sprite(pygame.sprite.Sprite):
+    listeners: dict[str, set[function]] = {}
     bg_color: str = None
 
     def __init__(self, image: pygame.Surface | (int, int)):
@@ -13,17 +14,29 @@ class Sprite(pygame.sprite.Sprite):
             raise 'Invalid image'
         self.rect = self.image.get_rect()
 
-    def addEventListener(event: str, listener: function):
-        pass
+    def addEventListener(self, event: str, listener: function):
+        if event not in self.listeners:
+            self.listeners[event] = set()
+        self.listeners[event].add(listener)
+        eventManager.addSprite(self, event)
 
-    def removeEventListener(event: str, listener: function):
-        pass
+    def removeEventListener(self, event: str, listener: function):
+        if event not in self.listeners: return
+        if listener not in self.listeners[event]: return
+        self.listeners[event].remove(listener)
+        if self.listeners[event].__len__() == 0:
+            eventManager.removeSprite(self, event)
 
-    def dispatchEvent(event: str):
-        pass
+    def dispatchEvent(self, event: str):
+        if event not in self.listeners: return
+        for listener in self.listeners[event]:
+            try: listener()
+            except: pass
 
 class Grid(Sprite):
     pass
 
 class Character(Sprite):
     pass
+
+from eventManager import eventManager
