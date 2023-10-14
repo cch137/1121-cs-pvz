@@ -45,11 +45,10 @@ class EventManager():
                         sprite.dispatchEvent(mouseleave_event)
 
     def handle(self, event: pygame.event.Event):
-        # handle ClickEvent (按下左鍵) and ClickedEvent
+        # handle ClickEvent (按下左鍵)
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
             click_event = events.ClickEvent(event.pos, event.button)
-            clicked_event = events.ClickedEvent(event.pos)
             for sprite in [s for s in self._sprites_of(events.CLICK) if s.rect.collidepoint(x, y)]:
                 sprite.dispatchEvent(click_event)
 
