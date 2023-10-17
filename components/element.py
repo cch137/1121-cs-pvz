@@ -12,21 +12,16 @@ CENTER = 'center'
 START = 'start'
 END = 'end'
 
-class Element(): pass
+class Element(pygame.sprite.Sprite):
+    pass
 
 class Element(pygame.sprite.Sprite):
-    __attributes = {}
-    __listeners: dict[str, set[Callable]] = {}
+    computed_width: int
+    computed_height: int
+    parent: Element | None
+    scene: Scene | None
 
-    __children: List[Element] = []
-    __display = BLOCK
-
-    @property
-    def children(self):
-        return self.__children.copy()
-    
-    background_color: str = None
-
+class Element(pygame.sprite.Sprite):
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
         if type(image) == pygame.Surface:
@@ -39,6 +34,8 @@ class Element(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         if children.__len__():
             self.__children = [child for child in children]
+
+    __listeners: dict[str, set[Callable]] = {}
 
     def add_event_listener(self, eventName: str, listener: Callable):
         if eventName not in self.__listeners:
@@ -62,6 +59,8 @@ class Element(pygame.sprite.Sprite):
                 except Exception as err:
                     print(err)
 
+    __attributes = {}
+
     def get_attribute(self, name: str):
         return self.__attributes.get(name)
 
@@ -73,27 +72,34 @@ class Element(pygame.sprite.Sprite):
     
     def has_attribute(self, name: str):
         return name in self.__attributes
-    
-    @property
-    def x(self): return self.rect.x
-    @x.setter
-    def x(self, value: int): self.rect.x = value
-    
-    @property
-    def y(self): return self.rect.y
-    @y.setter
-    def y(self, value: int): self.rect.y = value
 
     @property
-    def coor(self): return self.rect.topleft
+    def x(self): 
+        return self.rect.x
+
+    @x.setter
+    def x(self, value: int):
+        self.rect.x = value
+
+    @property
+    def y(self):
+        return self.rect.y
+
+    @y.setter
+    def y(self, value: int):
+        self.rect.y = value
+
+    @property
+    def coor(self):
+        return self.rect.topleft
+
     @coor.setter
-    def coor(self, value: Tuple[int,int]): self.rect.topleft = value
+    def coor(self, value: Tuple[int,int]):
+        self.rect.topleft = value
 
     @property
     def computed_width(self) -> int:
-        if self.display == BLOCK:
-            return self.rect.width
-        elif self.display == ROW:
+        if self.display == ROW:
             children = self.children
             return sum(child.computed_width for child in children) \
                 + self.spacing * (len(children) - 1) \
@@ -101,13 +107,11 @@ class Element(pygame.sprite.Sprite):
         elif self.display == COLUMN:
             return max(child.computed_width for child in self.children) \
                 + self.padding_left + self.padding_right
-        return 0
+        return self.rect.width
 
     @property
     def computed_height(self) -> int:
-        if self.display == BLOCK:
-            return self.rect.height
-        elif self.display == ROW:
+        if self.display == ROW:
             return max(child.computed_height for child in self.children) \
                 + self.padding_top + self.padding_bottom
         elif self.display == COLUMN:
@@ -115,43 +119,11 @@ class Element(pygame.sprite.Sprite):
             return sum(child.computed_height for child in self.children) \
                 + self.spacing * (len(children) - 1) \
                 + self.padding_top + self.padding_bottom
-        return 0
+        return self.rect.height
 
-    '''Space between child elements.'''
-    spacing: int = 0
+    __display = BLOCK
 
-    padding_top: int = 0
-    padding_bottom: int = 0
-    padding_left: int = 0
-    padding_right: int = 0
-
-    '''Padding between self and child elements.'''
-    @property
-    def padding(self):
-        return (self.padding_left + self.padding_right + self.padding_top + self.padding_bottom) / 4
-
-    @padding.setter
-    def padding(self, value: int):
-        self.padding_x = value
-        self.padding_y = value
-    
-    @property
-    def padding_x(self):
-        return (self.padding_left + self.padding_right) / 2
-    
-    @padding_x.setter
-    def padding_x(self, value: int):
-        self.padding_left = value
-        self.padding_right = value
-
-    @property
-    def padding_y(self):
-        return (self.padding_top + self.padding_bottom) / 2
-
-    @padding_y.setter
-    def padding_y(self, value: int):
-        self.padding_top = value
-        self.padding_bottom = value
+    background_color: str = None
 
     @property
     def display(self):
@@ -162,11 +134,103 @@ class Element(pygame.sprite.Sprite):
         if value not in DISPLAY_MODES:
             raise 'Invalid Element display mode'
         self.__display = value
-
+    
     @display.deleter
     def display(self):
         raise 'Element.mode cannot be deleted'
+
+    '''Space between child elements.'''
+    spacing: int = 0
+
+    __paddings: list[int] = [0, 0, 0, 0]
+    '''Paddings (top, right, bottom, left)'''
+
+    @property
+    def padding(self):
+        '''Padding between self and child elements.'''
+        return sum(self.__paddings) / 4
+
+    @padding.setter
+    def padding(self, value: int):
+        self.__paddings = [value] * 4
+
+    @property
+    def padding_top(self):
+        return self.__paddings[0]
     
+    @padding_top.setter
+    def padding_top(self, value: int):
+        self.__paddings[0] = value
+
+    @property
+    def padding_bottom(self):
+        return self.__paddings[2]
+    
+    @padding_bottom.setter
+    def padding_bottom(self, value: int):
+        self.__paddings[2] = value
+
+    @property
+    def padding_left(self):
+        return self.__paddings[3]
+    
+    @padding_left.setter
+    def padding_left(self, value: int):
+        self.__paddings[3] = value
+
+    @property
+    def padding_right(self):
+        return self.__paddings[1]
+    
+    @padding_right.setter
+    def padding_right(self, value: int):
+        self.__paddings[1] = value
+    
+    @property
+    def padding_x(self):
+        return (self.__paddings[1] + self.__paddings[3]) / 2
+    
+    @padding_x.setter
+    def padding_x(self, value: int):
+        self.__paddings[1] = value
+        self.__paddings[3] = value
+
+    @property
+    def padding_y(self):
+        return (self.__paddings[0] + self.__paddings[2]) / 2
+
+    @padding_y.setter
+    def padding_y(self, value: int):
+        self.__paddings[0] = value
+        self.__paddings[2] = value
+
+    justify_content: Literal['start','center','end'] = CENTER
+    '''水平排列，e.g. 靠左、居中、靠右'''
+
+    align_items: Literal['start','center','end'] = CENTER
+    '''縱向排列，e.g. 靠上、居中、靠下'''
+
+    parent: Element | None = None
+
+    @property
+    def parents(self) -> List[Element]:
+        parents = []
+        ele = self.parent
+        while ele != None:
+            parents.append(ele)
+            ele = self.parent
+        return parents
+    
+    @property
+    def z_index(self) -> int:
+        return self.parents.__len__()
+
+    __children: List[Element] = []
+
+    @property
+    def children(self):
+        return self.__children.copy()
+
     def append_child(self, *children: Element):
         for child in children:
             if child in self.__children:
@@ -186,6 +250,7 @@ class Element(pygame.sprite.Sprite):
             if child in self.__children:
                 self.remove_child(child)
             self.__children.insert(index, child)
+            child.parent = self
     
     def insert_before(self, node: Element, *children: Element):
         if node not in self.__children: raise 'node is not in children'
@@ -200,31 +265,7 @@ class Element(pygame.sprite.Sprite):
         children = tuple(reversed(children))
         for child in children:
             self.insert_child(index, child)
-    
-    __justify: str = CENTER
-    @property
-    def justify(self): return self.__justify
-    @justify.setter
-    def justify(self, value: str):
-        if value not in (START, CENTER, END):
-            raise f'"{value}" is not a valid justify format'
-        self.__justify = value
 
-    parent: Element | None = None
-
-    @property
-    def parents(self) -> List[Element]:
-        parents = []
-        ele = self.parent
-        while ele != None:
-            parents.append(ele)
-            ele = self.parent
-        return parents
-    
-    @property
-    def z_index(self) -> int:
-        return self.parents.__len__()
-    
     @property
     def all_children(self) -> Set[Element]:
         watched = {}
@@ -239,7 +280,7 @@ class Element(pygame.sprite.Sprite):
                     parents.add(child)
                 watched.add(parent)
         return children
-    
+
     _scene: Scene = None
     @property
     def scene(self):
@@ -248,7 +289,7 @@ class Element(pygame.sprite.Sprite):
                 return None
             return self.parent.scene
         return self._scene
-    
+
     @scene.setter
     def scene(self, value: Scene):
         if self.parent is None:
