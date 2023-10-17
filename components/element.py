@@ -1,7 +1,6 @@
 from typing import *
 import pygame
 from components.events import *
-from components.scene import Scene
 
 ROW = 'row'
 COLUMN = 'column'
@@ -23,7 +22,6 @@ class Element(pygame.sprite.Sprite):
     computed_width: int
     computed_height: int
     parent: Element | None
-    scene: Scene | None
     auto_locate: Callable
 
 class Element(pygame.sprite.Sprite):
@@ -372,22 +370,6 @@ class Element(pygame.sprite.Sprite):
                     parents.add(child)
                 watched.add(parent)
         return children
-
-    _scene: Scene = None
-    @property
-    def scene(self):
-        if self._scene is None:
-            if self.parent is None:
-                return None
-            return self.parent.scene
-        return self._scene
-
-    @scene.setter
-    def scene(self, value: Scene):
-        if self.parent is None:
-            self._scene = value
-        else:
-            self.parent.scene = value
 
 class Character(Element):
     def __init__(self, image: pygame.Surface):
