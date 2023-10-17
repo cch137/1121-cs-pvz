@@ -360,7 +360,7 @@ class Element(pygame.sprite.Sprite):
 
     @property
     def all_children(self) -> Set[Element]:
-        watched = {}
+        watched = set()
         parents = { self }
         children = set()
         while len(watched) != len(parents):
