@@ -6,7 +6,8 @@ from components.scene import Scene
 ROW = 'row'
 COLUMN = 'column'
 BLOCK = 'block'
-DISPLAY_MODES = (ROW, COLUMN, BLOCK)
+INLINE = 'inline'
+DISPLAY_MODES = (ROW, COLUMN, BLOCK, INLINE)
 
 CENTER = 'center'
 START = 'start'
@@ -16,10 +17,14 @@ class Element(pygame.sprite.Sprite):
     pass
 
 class Element(pygame.sprite.Sprite):
+    rect: pygame.Rect
+    x: int
+    y: int
     computed_width: int
     computed_height: int
     parent: Element | None
     scene: Scene | None
+    auto_locate: Callable
 
 class Element(pygame.sprite.Sprite):
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
@@ -72,6 +77,14 @@ class Element(pygame.sprite.Sprite):
     
     def has_attribute(self, name: str):
         return name in self.__attributes
+    
+    @property
+    def id(self) -> str | None:
+        return self.get_attribute('id')
+
+    @id.setter
+    def id(self, value: str):
+        self.set_attribute('id', value)
 
     @property
     def x(self): 
@@ -98,46 +111,125 @@ class Element(pygame.sprite.Sprite):
         self.rect.topleft = value
 
     @property
-    def computed_width(self) -> int:
-        if self.display == ROW:
+    def __is_end_element(self):
+        '''是否為末端的元素'''
+        return self.display in (BLOCK, INLINE) and len(self.children) > 0
+
+    @property
+    def content_width(self) -> int:
+        if self.display == ROW or self.__is_end_element:
             children = self.children
             return sum(child.computed_width for child in children) \
                 + self.spacing * (len(children) - 1) \
                 + self.padding_left + self.padding_right
-        elif self.display == COLUMN:
+        elif self.display == COLUMN or self.__is_end_element:
             return max(child.computed_width for child in self.children) \
                 + self.padding_left + self.padding_right
-        return self.rect.width
+        return self.width
 
     @property
-    def computed_height(self) -> int:
-        if self.display == ROW:
+    def computed_width(self) -> int:
+        value = self.content_width
+        if self.min_width != None and value < self.min_width:
+            return self.min_width
+        if self.max_width != None and value > self.max_width:
+            return self.max_width
+        return value
+
+    @property
+    def content_height(self) -> int:
+        if self.display == ROW or self.__is_end_element:
             return max(child.computed_height for child in self.children) \
                 + self.padding_top + self.padding_bottom
-        elif self.display == COLUMN:
+        elif self.display == COLUMN or self.__is_end_element:
             children = self.children
             return sum(child.computed_height for child in self.children) \
                 + self.spacing * (len(children) - 1) \
                 + self.padding_top + self.padding_bottom
-        return self.rect.height
-
-    __display = BLOCK
-
-    background_color: str = None
+        return self.height
 
     @property
-    def display(self):
-        return self.__display
+    def computed_height(self) -> int:
+        value = self.content_height
+        if self.min_height != None and value < self.min_height:
+            return self.min_height
+        if self.max_height != None and value > self.max_height:
+            return self.max_height
+        return value
 
-    @display.setter
-    def display(self, value: str):
-        if value not in DISPLAY_MODES:
-            raise 'Invalid Element display mode'
-        self.__display = value
+    min_width: int | None = None
+    max_width: int | None = None
+
+    min_height: int | None = None
+    max_height: int | None = None
     
-    @display.deleter
-    def display(self):
-        raise 'Element.mode cannot be deleted'
+    @property
+    def width(self) -> int:
+        return self.rect.width
+    
+    @width.setter
+    def width(self, value: int):
+        self.rect.width = value
+    
+    @property
+    def height(self) -> int:
+        return self.rect.height
+
+    @height.setter
+    def height(self, value: int):
+        self.rect.height = value
+
+    def auto_locate(self):
+        self.width = self.computed_width
+        self.height = self.computed_height
+        align_items = self.align_items
+        justify_content = self.justify_content
+        if self.display in (ROW, INLINE):
+            y = self.rect.centery
+            if align_items == START:
+                y = self.padding_top
+            elif align_items == END:
+                y = self.padding_bottom
+            x = self.padding_left
+            for child in self.children:
+                child.x = x
+                child.y = y
+                x += child.computed_width + self.spacing
+            # adjust 可能在某些狀況會出現異常（未經測試）
+            if justify_content == CENTER:
+                adjust = (self.width - self.content_width - self.padding_left - self.padding_right) / 2
+                for child in self.children:
+                    child.x += adjust
+            elif justify_content == END:
+                adjust = (self.width - self.content_width - self.padding_left - self.padding_right)
+                for child in self.children:
+                    child.x += adjust
+        else:
+            x = self.rect.centery
+            if justify_content == START:
+                x = self.padding_left
+            elif justify_content == END:
+                x = self.padding_right
+            y = self.padding_top
+            for child in self.children:
+                child.x = x
+                child.y = y
+                y += child.computed_height + self.spacing
+            # adjust 可能在某些狀況會出現異常（未經測試）
+            if align_items == CENTER:
+                adjust = (self.height - self.content_height - self.padding_top - self.padding_bottom) / 2
+                for child in self.children:
+                    child.y += adjust
+            elif align_items == END:
+                adjust = (self.height - self.content_height - self.padding_top - self.padding_bottom)
+                for child in self.children:
+                    child.y += adjust
+        for child in self.children:
+            child.auto_locate()
+
+    display: Literal['block', 'inline', 'row', 'column'] = BLOCK
+
+    background_color: str = None
 
     '''Space between child elements.'''
     spacing: int = 0
