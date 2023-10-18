@@ -241,67 +241,38 @@ class Element(pygame.sprite.Sprite):
     '''Space between child elements.'''
     spacing: int = 0
 
-    __paddings: list[int] = [0, 0, 0, 0]
-    '''Paddings (top, right, bottom, left)'''
+    padding_top = 0
+    padding_bottom = 0
+    padding_left = 0
+    padding_right = 0
 
     @property
     def padding(self):
         '''Padding between self and child elements.'''
-        return sum(self.__paddings) / 4
+        return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
 
     @padding.setter
     def padding(self, value: int):
-        self.__paddings = [value] * 4
+        self.padding_x = value
+        self.padding_y = value
 
-    @property
-    def padding_top(self):
-        return self.__paddings[0]
-    
-    @padding_top.setter
-    def padding_top(self, value: int):
-        self.__paddings[0] = value
-
-    @property
-    def padding_bottom(self):
-        return self.__paddings[2]
-    
-    @padding_bottom.setter
-    def padding_bottom(self, value: int):
-        self.__paddings[2] = value
-
-    @property
-    def padding_left(self):
-        return self.__paddings[3]
-    
-    @padding_left.setter
-    def padding_left(self, value: int):
-        self.__paddings[3] = value
-
-    @property
-    def padding_right(self):
-        return self.__paddings[1]
-    
-    @padding_right.setter
-    def padding_right(self, value: int):
-        self.__paddings[1] = value
-    
     @property
     def padding_x(self):
-        return (self.__paddings[1] + self.__paddings[3]) / 2
-    
+        return (self.padding_left, self.padding_right) / 2
+
     @padding_x.setter
     def padding_x(self, value: int):
-        self.__paddings[1] = value
-        self.__paddings[3] = value
+        self.padding_left = value
+        self.padding_right = value
 
     @property
     def padding_y(self):
-        return (self.__paddings[0] + self.__paddings[2]) / 2
+        return (self.padding_top + self.padding_bottom) / 2
 
     @padding_y.setter
     def padding_y(self, value: int):
-        self.__paddings[0] = value
-        self.__paddings[2] = value
+        self.padding_top = value
+        self.padding_bottom = value
 
     justify_content: Literal['start','center','end'] = CENTER
     '''水平排列，e.g. 靠左、居中、靠右'''
