@@ -101,17 +101,9 @@ class Element(pygame.sprite.Sprite):
         self.rect.y = value
 
     @property
-    def coor(self):
-        return self.rect.topleft
-
-    @coor.setter
-    def coor(self, value: Tuple[int,int]):
-        self.rect.topleft = value
-
-    @property
     def __is_end_element(self):
         '''是否為末端的元素'''
-        return self.display in (BLOCK, INLINE) and len(self.children) > 0
+        return self.display in (BLOCK, INLINE) and len(self.children) == 0
 
     @property
     def content_width(self) -> int:
@@ -126,15 +118,6 @@ class Element(pygame.sprite.Sprite):
         return self.width
 
     @property
-    def computed_width(self) -> int:
-        value = self.content_width
-        if self.min_width != None and value < self.min_width:
-            return self.min_width
-        if self.max_width != None and value > self.max_width:
-            return self.max_width
-        return value
-
-    @property
     def content_height(self) -> int:
         if self.display == ROW or self.__is_end_element:
             return max(child.computed_height for child in self.children) \
@@ -145,6 +128,15 @@ class Element(pygame.sprite.Sprite):
                 + self.spacing * (len(children) - 1) \
                 + self.padding_top + self.padding_bottom
         return self.height
+
+    @property
+    def computed_width(self) -> int:
+        value = self.content_width
+        if self.min_width != None and value < self.min_width:
+            return self.min_width
+        if self.max_width != None and value > self.max_width:
+            return self.max_width
+        return value
 
     @property
     def computed_height(self) -> int:
