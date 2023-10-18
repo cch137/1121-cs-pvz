@@ -22,7 +22,7 @@ class Element(pygame.sprite.Sprite):
     computed_width: int
     computed_height: int
     parent: Element | None
-    auto_locate: Callable
+    compose: Callable
 
 class Element(pygame.sprite.Sprite):
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
@@ -110,28 +110,24 @@ class Element(pygame.sprite.Sprite):
         if self.display == ROW or self.__is_end_element:
             children = self.children
             return sum(child.computed_width for child in children) \
-                + self.spacing * (len(children) - 1) \
-                + self.padding_left + self.padding_right
+                + self.spacing * (len(children) - 1)
         elif self.display == COLUMN or self.__is_end_element:
-            return max(child.computed_width for child in self.children) \
-                + self.padding_left + self.padding_right
+            return max(child.computed_width for child in self.children)
         return self.width
 
     @property
     def content_height(self) -> int:
         if self.display == ROW or self.__is_end_element:
-            return max(child.computed_height for child in self.children) \
-                + self.padding_top + self.padding_bottom
+            return max(child.computed_height for child in self.children)
         elif self.display == COLUMN or self.__is_end_element:
             children = self.children
             return sum(child.computed_height for child in self.children) \
-                + self.spacing * (len(children) - 1) \
-                + self.padding_top + self.padding_bottom
+                + self.spacing * (len(children) - 1)
         return self.height
 
     @property
     def computed_width(self) -> int:
-        value = self.content_width
+        value = self.content_width + self.padding_left + self.padding_right
         if self.min_width != None and value < self.min_width:
             return self.min_width
         if self.max_width != None and value > self.max_width:
@@ -140,7 +136,7 @@ class Element(pygame.sprite.Sprite):
 
     @property
     def computed_height(self) -> int:
-        value = self.content_height
+        value = self.content_height + self.padding_top + self.padding_bottom
         if self.min_height != None and value < self.min_height:
             return self.min_height
         if self.max_height != None and value > self.max_height:
@@ -169,53 +165,74 @@ class Element(pygame.sprite.Sprite):
     def height(self, value: int):
         self.rect.height = value
 
-    def auto_locate(self):
+    def compose(self):
+        '''排版不考慮 max_..., min_... 屬性'''
         self.width = self.computed_width
         self.height = self.computed_height
         align_items = self.align_items
         justify_content = self.justify_content
         if self.display in (ROW, INLINE):
-            y = self.rect.centery
-            if align_items == START:
-                y = self.padding_top
-            elif align_items == END:
-                y = self.padding_bottom
-            x = self.padding_left
-            for child in self.children:
-                child.x = x
-                child.y = y
-                x += child.computed_width + self.spacing
-            # adjust 可能在某些狀況會出現異常（未經測試）
-            if justify_content == CENTER:
-                adjust = (self.width - self.content_width - self.padding_left - self.padding_right) / 2
-                for child in self.children:
-                    child.x += adjust
-            elif justify_content == END:
-                adjust = (self.width - self.content_width - self.padding_left - self.padding_right)
-                for child in self.children:
-                    child.x += adjust
-        else:
-            x = self.rect.centery
+            # 設定 x 座標
             if justify_content == START:
                 x = self.padding_left
+                for child in self.children:
+                    child.rect.left = x
+                    x += child.computed_width + self.spacing
             elif justify_content == END:
                 x = self.padding_right
-            y = self.padding_top
-            for child in self.children:
-                child.x = x
-                child.y = y
-                y += child.computed_height + self.spacing
-            # adjust 可能在某些狀況會出現異常（未經測試）
-            if align_items == CENTER:
-                adjust = (self.height - self.content_height - self.padding_top - self.padding_bottom) / 2
+                for child in reversed(self.children):
+                    child.rect.right = x
+                    x += child.computed_width + self.spacing
+            else:
+                x = self.content_width / 2
                 for child in self.children:
-                    child.y += adjust
+                    child.rect.left = x
+                    x += child.computed_width + self.spacing
+            # 設定 y 座標
+            if align_items == START:
+                y = self.padding_top
+                for child in self.children:
+                    child.rect.top = y
             elif align_items == END:
-                adjust = (self.height - self.content_height - self.padding_top - self.padding_bottom)
+                y = self.padding_bottom
                 for child in self.children:
-                    child.y += adjust
+                    child.rect.bottom = y
+            else:
+                y = self.rect.centery
+                for child in self.children:
+                    child.rect.centery = y
+        else: # display in (COLUMN, BLOCK, default)
+            # 設定 x 座標
+            if justify_content == START:
+                x = self.padding_left
+                for child in self.children:
+                    child.rect.left = x
+            elif justify_content == END:
+                x = self.padding_right
+                for child in self.children:
+                    child.rect.right = x
+            else:
+                x = self.rect.centery
+                for child in self.children:
+                    child.rect.centerx = x
+            # 設定 y 座標
+            if align_items == START:
+                y = self.padding_top
+                for child in self.children:
+                    child.rect.top = y
+                    y += child.computed_height + self.spacing
+            elif align_items == END:
+                y = self.padding_bottom
+                for child in reversed(self.children):
+                    child.rect.bottom = y
+                    y += child.computed_height + self.spacing
+            else:
+                y = self.content_height / 2
+                for child in self.children:
+                    child.rect.top = y
+                    y += child.computed_height + self.spacing
         for child in self.children:
-            child.auto_locate()
+            child.compose()
 
     display: Literal['block', 'inline', 'row', 'column'] = BLOCK
 
