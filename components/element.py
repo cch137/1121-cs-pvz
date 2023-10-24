@@ -12,32 +12,7 @@ CENTER = 'center'
 START = 'start'
 END = 'end'
 
-class Element(pygame.sprite.Sprite):
-    pass
-
-class Element(pygame.sprite.Sprite):
-    rect: pygame.Rect
-    x: int
-    y: int
-    computed_width: int
-    computed_height: int
-    parent: Element | None
-    compose: Callable
-
-class Element(pygame.sprite.Sprite):
-    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
-        pygame.sprite.Sprite.__init__(self)
-        if type(image) == pygame.Surface:
-            self.image = image
-        elif type(image) == tuple:
-            if type(image[0]) == int and type(image[1]) == int:
-                self.image = pygame.Surface((image[0], image[1]))
-        else:
-            raise 'Invalid image'
-        self.rect = self.image.get_rect()
-        if children.__len__():
-            self.__children = [child for child in children]
-
+class EventTarget():
     __listeners: dict[str, set[Callable]] = {}
 
     def add_event_listener(self, eventName: str, listener: Callable):
@@ -75,6 +50,33 @@ class Element(pygame.sprite.Sprite):
     
     def has_attribute(self, name: str):
         return name in self.__attributes
+
+class Element(pygame.sprite.Sprite):
+    pass
+
+class Element(pygame.sprite.Sprite):
+    rect: pygame.Rect
+    x: int
+    y: int
+    computed_width: int
+    computed_height: int
+    parent: Element | None
+    compose: Callable
+
+class Element(pygame.sprite.Sprite, EventTarget):
+    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
+        pygame.sprite.Sprite.__init__(self)
+        EventTarget.__init__(self)
+        if type(image) == pygame.Surface:
+            self.image = image
+        elif type(image) == tuple:
+            if type(image[0]) == int and type(image[1]) == int:
+                self.image = pygame.Surface((image[0], image[1]))
+        else:
+            raise 'Invalid image'
+        self.rect = self.image.get_rect()
+        if children.__len__():
+            self.__children = [child for child in children]
     
     @property
     def id(self) -> str | None:
@@ -166,7 +168,7 @@ class Element(pygame.sprite.Sprite):
         self.rect.height = value
 
     def compose(self):
-        '''排版不考慮 max_..., min_... 屬性'''
+        '''排版不考慮 max_..., min_... 屬性，排版不進行繪製。'''
         self.width = self.computed_width
         self.height = self.computed_height
         align_items = self.align_items

@@ -1,21 +1,21 @@
 import time
 import pygame
 import components.events as events
-from components.element import Element
+from components.element import EventTarget
 
 class EventManager():
     events = events
-    __element_sets: dict[str, set[Element]] = {}
+    __element_sets: dict[str, set[EventTarget]] = {}
 
     def _elements_of(self, eventName: str):
         if eventName not in self.__element_sets:
             self.__element_sets[eventName] = set()
         return self.__element_sets[eventName]
 
-    def add_element(self, element: Element, eventName: str):
+    def add_element(self, element: EventTarget, eventName: str):
         self._elements_of(eventName).add(element)
 
-    def remove_element(self, element: Element, eventName: str):
+    def remove_element(self, element: EventTarget, eventName: str):
         self._elements_of(eventName).remove(element)
 
     def init(self):
