@@ -30,14 +30,14 @@ class Scene():
         self._disconnect_element(element)
 
     def _connect_element(self, element: Element):
-        '''你不需要手動調用此函數， add_element 會自動 connect 該 element 和其 children'''
+        '''注：你不需要手動調用此函數'''
         element_layer = element.layer
         while len(self.layers) <= element_layer:
             self.layers.append(pygame.sprite.Group())
         self.layers[element_layer].add(element)
 
     def _disconnect_element(self, element: Element):
-        '''你不需要手動調用此函數， remove_element 會自動 disconnect 該 element 和其 children'''
+        '''注：你不需要手動調用此函數'''
         self.layers[element.layer].remove(element)
     
     def update(self):
