@@ -118,11 +118,9 @@ class Element(pygame.sprite.Sprite, EventTarget):
         if type(image) == pygame.Surface:
             self.image = image
         elif type(image) == tuple:
-            w, h = image
             self.image = pygame.Surface(image)
             if display in (COLUMN, ROW):
-                self.min_width = w
-                self.min_height = h
+                self.min_width, self.min_height = image
         else:
             raise 'Invalid image'
         self.display = display
@@ -423,7 +421,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
         parents = { self }
         children = set()
         while len(watched) != len(parents):
-            for parent in parents:
+            for parent in tuple(parents):
                 if parent in watched:
                     continue
                 for child in parent.children:
@@ -433,14 +431,14 @@ class Element(pygame.sprite.Sprite, EventTarget):
         return list(children)
 
     def connect_scene(self, scene: Scene):
-        '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
+        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.connect_element(self)
         self.__scenes.add(scene)
         for child in self.__children:
             child.connect_scene(scene)
 
     def disconnect_scene(self, scene: Scene):
-        '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
+        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.disconnect_element(self)
         self.__scenes.remove(self)
         for child in self.__children:
