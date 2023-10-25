@@ -1,4 +1,5 @@
 from typing import *
+import utils.process as process
 import pygame
 import random
 
@@ -26,6 +27,42 @@ DISPLAY_MODES = (ROW, COLUMN, BLOCK, INLINE)
 CENTER = 'center'
 START = 'start'
 END = 'end'
+
+class CacheItem():
+    def __init__(self, value: Any = None):
+        self.__value = value
+        self.timestamp = process.timestamp
+    
+    @property
+    def is_valid(self):
+        return self.timestamp == process.timestamp
+
+    def get(self):
+        if self.is_valid:
+            return self.__value
+        return None
+
+    def set(self, value: Any):
+        self.__value = value
+        self.timestamp = process.timestamp
+        return value
+
+class CacheManager():
+    __cache_manager_dict: dict[str, CacheItem] = {}
+
+    def create(self, key: str, value: Any = None):
+        cache = CacheItem(value)
+        self.__cache_manager_dict[key] = cache
+        return cache
+
+    def get_cache_item(self, key: str):
+        return self.__cache_manager_dict.get(key, self.create(key))
+
+    def get(self, key: str):
+        return self.get_cache_item(key).get()
+
+    def set(self, key: str, value: Any):
+        return self.get_cache_item(key).set(value)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]] = {}
@@ -80,6 +117,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
         self.rect = self.image.get_rect()
         self.__children = list()
         self.scenes = set()
+        self.caches = CacheManager()
         if children.__len__():
             self.__children = [child for child in children]
     
@@ -114,41 +152,59 @@ class Element(pygame.sprite.Sprite, EventTarget):
 
     @property
     def content_width(self) -> int:
-        if self.__is_end_element: return self.width
-        children = self.children
-        if self.display in (ROW, INLINE):
-            return sum(child.computed_width for child in children) \
-                + self.spacing * (len(children) - 1)
-        elif self.display in (COLUMN, BLOCK):
-            return max(child.computed_width for child in children)
+        cache = self.caches.get('content_w')
+        if cache is not None:
+            return cache
+        if self.__is_end_element:
+            return_value = self.width
+        else:
+            children = self.children
+            if self.display in (ROW, INLINE):
+                return_value = sum(child.computed_width for child in children) \
+                    + self.spacing * (len(children) - 1)
+            else:
+                return_value = max(child.computed_width for child in children)
+        return self.caches.set('content_w', return_value)
 
     @property
     def content_height(self) -> int:
-        if self.__is_end_element: return self.height
-        children = self.children
-        if self.display in (ROW, INLINE):
-            return max(child.computed_height for child in children)
-        elif self.display in (COLUMN, BLOCK):
-            return sum(child.computed_height for child in children) \
-                + self.spacing * (len(children) - 1)
+        cache = self.caches.get('content_h')
+        if cache is not None:
+            return cache
+        if self.__is_end_element:
+            return_value = self.height
+        else:
+            children = self.children
+            if self.display in (ROW, INLINE):
+                return_value = max(child.computed_height for child in children)
+            else:
+                return_value = sum(child.computed_height for child in children) \
+                    + self.spacing * (len(children) - 1)
+        return self.caches.set('content_h', return_value)
 
     @property
     def computed_width(self) -> int:
-        value = self.content_width + self.padding_left + self.padding_right
-        if self.min_width != None and value < self.min_width:
-            return self.min_width
-        if self.max_width != None and value > self.max_width:
-            return self.max_width
-        return value
+        cache = self.caches.get('computed_w')
+        if cache is not None:
+            return cache
+        return_value = self.content_width + self.padding_left + self.padding_right
+        if self.min_width != None and return_value < self.min_width:
+            return_value = self.min_width
+        elif self.max_width != None and return_value > self.max_width:
+            return_value = self.max_width
+        return self.caches.set('computed_w', return_value)
 
     @property
     def computed_height(self) -> int:
-        value = self.content_height + self.padding_top + self.padding_bottom
-        if self.min_height != None and value < self.min_height:
-            return self.min_height
-        if self.max_height != None and value > self.max_height:
-            return self.max_height
-        return value
+        cache = self.caches.get('computed_h')
+        if cache is not None:
+            return cache
+        return_value = self.content_height + self.padding_top + self.padding_bottom
+        if self.min_height != None and return_value < self.min_height:
+            return_value = self.min_height
+        elif self.max_height != None and return_value > self.max_height:
+            return_value = self.max_height
+        return self.caches.set('computed_h', return_value)
 
     min_width: int | None = None
     max_width: int | None = None

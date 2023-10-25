@@ -20,7 +20,7 @@ parent_ele.append_child(*children)
 
 parent_ele.min_height = 200
 parent_ele.min_width = 150
-parent_ele.align_items = 'end'
+parent_ele.spacing = 25
 print(parent_ele.content_height)
 print(parent_ele.computed_height)
 
