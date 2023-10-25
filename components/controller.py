@@ -47,6 +47,7 @@ class Controller():
         pass
     
     __visited: set[scenes.Scene] = set()
+
     def goto_scene(self, scene: scenes.Scene):
         if scene not in self.__visited:
             scene.init()
