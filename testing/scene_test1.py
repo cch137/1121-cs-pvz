@@ -16,11 +16,20 @@ btn1 = Element((300, 80))
 btn1.background_color = (0, 255, 0)
 btn2 = Element((300, 80))
 btn2.background_color = (0, 255, 0)
-btn3 = Element((300, 80))
+btn3 = Element((300, 80), 'row')
 btn3.background_color = (0, 255, 0)
+btn3.spacing = 15
+
+btn3_1 = Element((75, 50))
+btn3_1.background_color = (0, 0, 255)
+btn3_2 = Element((75, 50))
+btn3_2.background_color = (0, 0, 255)
+btn3_3 = Element((75, 50))
+btn3_3.background_color = (0, 0, 255)
 
 outer_element.append_child(inner_element)
 inner_element.append_child(btn1, btn2, btn3)
+btn3.append_child(btn3_1, btn3_2, btn3_3)
 
 scene = Scene()
 
