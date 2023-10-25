@@ -114,25 +114,23 @@ class Element(pygame.sprite.Sprite, EventTarget):
 
     @property
     def content_width(self) -> int:
+        if self.__is_end_element: return self.width
         children = self.children
-        if len(children) == 0: return 0
-        if self.display == ROW or self.__is_end_element:
+        if self.display in (ROW, INLINE):
             return sum(child.computed_width for child in children) \
                 + self.spacing * (len(children) - 1)
-        elif self.display == COLUMN or self.__is_end_element:
+        elif self.display in (COLUMN, BLOCK):
             return max(child.computed_width for child in children)
-        return self.width
 
     @property
     def content_height(self) -> int:
+        if self.__is_end_element: return self.height
         children = self.children
-        if len(children) == 0: return 0
-        if self.display == ROW or self.__is_end_element:
+        if self.display in (ROW, INLINE):
             return max(child.computed_height for child in children)
-        elif self.display == COLUMN or self.__is_end_element:
+        elif self.display in (COLUMN, BLOCK):
             return sum(child.computed_height for child in children) \
                 + self.spacing * (len(children) - 1)
-        return self.height
 
     @property
     def computed_width(self) -> int:
@@ -283,10 +281,10 @@ class Element(pygame.sprite.Sprite, EventTarget):
         self.padding_top = value
         self.padding_bottom = value
 
-    justify_content: Literal['start','center','end'] = CENTER
+    justify_content: Literal['start','center','end'] = START
     '''水平排列，e.g. 靠左、居中、靠右'''
 
-    align_items: Literal['start','center','end'] = CENTER
+    align_items: Literal['start','center','end'] = START
     '''縱向排列，e.g. 靠上、居中、靠下'''
 
     parent: Element | None = None
