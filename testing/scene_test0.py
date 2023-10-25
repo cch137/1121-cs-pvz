@@ -1,3 +1,4 @@
+import pygame
 from constants import *
 from components import *
 
@@ -24,7 +25,8 @@ parent_ele.spacing = 25
 def blue_clicked():
     print('blue clicked')
 
-children[2].add_event_listener('click', blue_clicked)
+children[2].add_event_listener(events.CLICK, blue_clicked)
+children[2].cursor = 'hand'
 
 scene = Scene()
 

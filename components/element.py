@@ -128,6 +128,29 @@ class Element(pygame.sprite.Sprite, EventTarget):
         self.__scenes = set()
         self.caches = CacheManager()
         self.append_child(*children)
+    
+    __cursor: int | None = None
+    __mouseenter_listener: Callable | None = None
+    __mouseleave_listener: Callable | None = None
+    @property
+    def cursor(self):
+        return self.__cursor
+    @cursor.setter
+    def cursor(self, value: int | Literal['hand']):
+        self.remove_event_listener(MOUSEENTER, self.__mouseenter_listener)
+        self.remove_event_listener(MOUSELEAVE, self.__mouseleave_listener)
+        if type(value) is int:
+            def mouseenter(): controller.cursor.set(value)
+        else:
+            match value:
+                case 'hand':
+                    def mouseenter(): controller.cursor.hand()
+        def mouseleave(): controller.cursor.default()
+        self.__mouseenter_listener = mouseenter
+        self.__mouseleave_listener = mouseleave
+        self.add_event_listener(MOUSEENTER, self.__mouseenter_listener)
+        self.add_event_listener(MOUSELEAVE, self.__mouseleave_listener)
+        self.__cursor = value
 
     def __len__(self):
         return self.__children.__len__()
@@ -448,3 +471,4 @@ class Character(Element):
         Element.__init__(self, image)
 
 from components.event_manager import event_manager
+from components.controller import controller

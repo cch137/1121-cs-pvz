@@ -2,10 +2,27 @@ import pygame
 import components
 from constants import *
 
+class CursorManager():
+    default_cursor = pygame.SYSTEM_CURSOR_ARROW
+
+    def set(self, value: int):
+        pygame.mouse.set_cursor(value)
+
+    def hand(self):
+        self.set(pygame.SYSTEM_CURSOR_HAND)
+
+    def arrow(self):
+        self.set(pygame.SYSTEM_CURSOR_ARROW)
+
+    def default(self):
+        self.set(self.default_cursor)
+
 class Controller():
     running = True
 
     screen = components.screen
+
+    cursor = CursorManager()
 
     # 創建視窗渲染時鐘
     clock = pygame.time.Clock()
