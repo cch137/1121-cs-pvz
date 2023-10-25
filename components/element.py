@@ -1,5 +1,18 @@
 from typing import *
 import pygame
+
+class Element(pygame.sprite.Sprite):
+    pass
+
+class Element(pygame.sprite.Sprite):
+    rect: pygame.Rect
+    x: int
+    y: int
+    computed_width: int
+    computed_height: int
+    parent: Element | None
+    compose: Callable
+
 from components.events import *
 from components.scene import Scene
 
@@ -52,18 +65,6 @@ class EventTarget():
     def has_attribute(self, name: str):
         return name in self.__attributes
 
-class Element(pygame.sprite.Sprite):
-    pass
-
-class Element(pygame.sprite.Sprite):
-    rect: pygame.Rect
-    x: int
-    y: int
-    computed_width: int
-    computed_height: int
-    parent: Element | None
-    compose: Callable
-
 class Element(pygame.sprite.Sprite, EventTarget):
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
@@ -110,21 +111,23 @@ class Element(pygame.sprite.Sprite, EventTarget):
 
     @property
     def content_width(self) -> int:
+        children = self.children
+        if len(children) == 0: return 0
         if self.display == ROW or self.__is_end_element:
-            children = self.children
             return sum(child.computed_width for child in children) \
                 + self.spacing * (len(children) - 1)
         elif self.display == COLUMN or self.__is_end_element:
-            return max(child.computed_width for child in self.children)
+            return max(child.computed_width for child in children)
         return self.width
 
     @property
     def content_height(self) -> int:
+        children = self.children
+        if len(children) == 0: return 0
         if self.display == ROW or self.__is_end_element:
-            return max(child.computed_height for child in self.children)
+            return max(child.computed_height for child in children)
         elif self.display == COLUMN or self.__is_end_element:
-            children = self.children
-            return sum(child.computed_height for child in self.children) \
+            return sum(child.computed_height for child in children) \
                 + self.spacing * (len(children) - 1)
         return self.height
 

@@ -1,7 +1,7 @@
 import pygame
 from constants import *
 import utils.process as process
-from components import screen, event_manager
+from components import screen, event_manager, Scene
 
 # 設置視窗圖標、標題，然後初始化視窗
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 
 process.clear_caches()
 
-def main():
+def main(testing_scene: Scene | None = None):
     while True:
         # 設置更新幀數
         clock.tick(FPS)
@@ -25,8 +25,10 @@ def main():
             if event.type == pygame.QUIT: return
             event_manager.handle(event)
 
-        # 設定視窗背景顏色
-        screen.fill(BACKGROUND_COLOR)
+        if testing_scene != None:
+            testing_scene.update()
+            testing_scene.compose()
+            testing_scene.draw()
 
         # 更新視窗
         pygame.display.flip()
@@ -34,4 +36,4 @@ def main():
         # 更新 FPS 統計器
         process.fps_counter.run()
 
-main()
+# main()
