@@ -61,12 +61,12 @@ class CacheManager():
         return self.get_cache_item(key).set(value)
 
 import components.events as events
-import components.scene
+import components.scenes as scenes
 
 class Element(pygame.sprite.Sprite, events.EventTarget):
     __parent: Element | None = None
     __children: List[Element]
-    __scenes: set[components.scene.Scene]
+    __scenes: set[scenes.Scene]
 
     @property
     def children(self):
@@ -423,14 +423,14 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                 watched.add(parent)
         return list(children)
 
-    def connect_scene(self, scene: components.scene.Scene):
+    def connect_scene(self, scene: scenes.Scene):
         '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.connect_element(self)
         self.__scenes.add(scene)
         for child in self.__children:
             child.connect_scene(scene)
 
-    def disconnect_scene(self, scene: components.scene.Scene):
+    def disconnect_scene(self, scene: scenes.Scene):
         '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.disconnect_element(self)
         self.__scenes.remove(self)

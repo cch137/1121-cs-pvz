@@ -1,6 +1,6 @@
 import pygame
 import components.events as events
-import components.scene as scenes
+import components.scenes as scenes
 from constants import *
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
