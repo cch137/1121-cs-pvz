@@ -1,6 +1,5 @@
-from components.screen import screen
-from components.element import EventTarget, Element, Character
-from components.event_manager import event_manager
+from components.element import Element, Character
 from components.scene import Scene
 from components.controller import controller
+from components.events import EventTarget
 import components.events as events

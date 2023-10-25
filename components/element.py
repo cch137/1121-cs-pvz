@@ -14,9 +14,6 @@ class Element(pygame.sprite.Sprite):
     parent: Element | None
     compose: Callable
 
-from components.events import *
-from components.scene import Scene
-
 ROW = 'row'
 COLUMN = 'column'
 BLOCK = 'block'
@@ -63,52 +60,13 @@ class CacheManager():
     def set(self, key: str, value: Any):
         return self.get_cache_item(key).set(value)
 
-class EventTarget():
-    __listeners: dict[str, set[Callable]]
-    __attributes: dict[str, Any]
+import components.events as events
+import components.scene
 
-    def __init__(self) -> None:
-        self.__listeners = dict()
-        self.__attributes = dict()
-
-    def add_event_listener(self, eventName: str, listener: Callable):
-        if eventName not in self.__listeners:
-            self.__listeners[eventName] = set()
-        self.__listeners[eventName].add(listener)
-        event_manager.add_element(self, eventName)
-
-    def remove_event_listener(self, eventName: str, listener: Callable):
-        if eventName not in self.__listeners: return
-        if listener not in self.__listeners[eventName]: return
-        self.__listeners[eventName].remove(listener)
-        if self.__listeners[eventName].__len__() == 0:
-            event_manager.remove_element(self, eventName)
-
-    def dispatch_event(self, event: UserEvent):
-        if event.name in self.__listeners:
-            for listener in self.__listeners[event.name]:
-                try:
-                    if listener.__code__.co_argcount > 0: listener(event)
-                    else: listener()
-                except Exception as err:
-                    print(err)
-
-    def get_attribute(self, name: str):
-        return self.__attributes.get(name)
-
-    def set_attribute(self, name: str, value):
-        self.__attributes[name] = value
-
-    def remove_attribute(self, name: str):
-        del self.__attributes[name]
-    
-    def has_attribute(self, name: str):
-        return name in self.__attributes
-
-class Element(pygame.sprite.Sprite, EventTarget):
+class Element(pygame.sprite.Sprite, events.EventTarget):
     __parent: Element | None = None
     __children: List[Element]
-    __scenes: set[Scene]
+    __scenes: set[components.scene.Scene]
 
     @property
     def children(self):
@@ -116,7 +74,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
 
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), display: Literal['block', 'inline', 'row', 'column'] = BLOCK, children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
-        EventTarget.__init__(self)
+        events.EventTarget.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
         elif type(image) == tuple:
@@ -140,8 +98,8 @@ class Element(pygame.sprite.Sprite, EventTarget):
         return self.__cursor
     @cursor.setter
     def cursor(self, value: int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
-        self.remove_event_listener(MOUSEENTER, self.__mouseenter_listener)
-        self.remove_event_listener(MOUSELEAVE, self.__mouseleave_listener)
+        self.remove_event_listener(events.MOUSEENTER, self.__mouseenter_listener)
+        self.remove_event_listener(events.MOUSELEAVE, self.__mouseleave_listener)
         if type(value) is int:
             def mouseenter(): controller.cursor.set(value)
         else:
@@ -161,8 +119,8 @@ class Element(pygame.sprite.Sprite, EventTarget):
         def mouseleave(): controller.cursor.default()
         self.__mouseenter_listener = mouseenter
         self.__mouseleave_listener = mouseleave
-        self.add_event_listener(MOUSEENTER, self.__mouseenter_listener)
-        self.add_event_listener(MOUSELEAVE, self.__mouseleave_listener)
+        self.add_event_listener(events.MOUSEENTER, self.__mouseenter_listener)
+        self.add_event_listener(events.MOUSELEAVE, self.__mouseleave_listener)
         self.__cursor = value
 
     def __len__(self):
@@ -465,14 +423,14 @@ class Element(pygame.sprite.Sprite, EventTarget):
                 watched.add(parent)
         return list(children)
 
-    def connect_scene(self, scene: Scene):
+    def connect_scene(self, scene: components.scene.Scene):
         '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.connect_element(self)
         self.__scenes.add(scene)
         for child in self.__children:
             child.connect_scene(scene)
 
-    def disconnect_scene(self, scene: Scene):
+    def disconnect_scene(self, scene: components.scene.Scene):
         '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
         scene.disconnect_element(self)
         self.__scenes.remove(self)
@@ -483,5 +441,4 @@ class Character(Element):
     def __init__(self, image: pygame.Surface):
         Element.__init__(self, image)
 
-from components.event_manager import event_manager
 from components.controller import controller

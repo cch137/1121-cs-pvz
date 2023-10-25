@@ -1,5 +1,4 @@
 from constants import *
-from components.screen import screen
 import pygame
 
 class Scene(): pass
@@ -7,8 +6,8 @@ class Scene(): pass
 from components.element import Element
 
 class Scene():
-    def __init__(self, screen: pygame.Surface = screen):
-        self.screen = screen
+    def __init__(self, screen: pygame.Surface = None):
+        self.screen = screen or controller.screen
 
     background_color = BACKGROUND_COLOR
 
@@ -62,9 +61,11 @@ class Scene():
             for element in layer:
                 if element.background_color != None:
                     element.image.fill(element.background_color)
-            layer.draw(screen)
+            layer.draw(self.screen)
 
     def play(self):
         self.update()
         self.compose()
         self.draw()
+
+from components.controller import controller
