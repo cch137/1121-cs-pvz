@@ -181,17 +181,19 @@ class Element(pygame.sprite.Sprite, EventTarget):
         if self.display in (ROW, INLINE):
             # 設定 x 座標
             if justify_content == START:
-                x = self.padding_left
+                x = self.rect.left + self.padding_left
                 for child in self.children:
                     child.rect.left = x
                     x += child.computed_width + self.spacing
             elif justify_content == END:
-                x = self.padding_right
+                x = self.rect.right - self.padding_right
                 for child in reversed(self.children):
                     child.rect.right = x
-                    x += child.computed_width + self.spacing
+                    x -= child.computed_width + self.spacing
             else:
-                x = self.content_width / 2
+                x = self.rect.left + self.padding_left \
+                    + (self.computed_width - self.padding_left - self.padding_right) / 2 \
+                    - (self.content_width / 2)
                 for child in self.children:
                     child.rect.left = x
                     x += child.computed_width + self.spacing
@@ -219,22 +221,24 @@ class Element(pygame.sprite.Sprite, EventTarget):
                 for child in self.children:
                     child.rect.right = x
             else:
-                x = self.rect.centery
+                x = self.rect.centerx
                 for child in self.children:
                     child.rect.centerx = x
             # 設定 y 座標
             if align_items == START:
-                y = self.padding_top
+                y = self.rect.top + self.padding_top
                 for child in self.children:
                     child.rect.top = y
                     y += child.computed_height + self.spacing
             elif align_items == END:
-                y = self.padding_bottom
+                y = self.rect.bottom - self.padding_bottom
                 for child in reversed(self.children):
                     child.rect.bottom = y
-                    y += child.computed_height + self.spacing
+                    y -= child.computed_height + self.spacing
             else:
-                y = self.content_height / 2
+                y = self.rect.top + self.padding_top \
+                    + (self.computed_height - self.padding_top - self.padding_bottom) / 2 \
+                    - (self.content_height / 2)
                 for child in self.children:
                     child.rect.top = y
                     y += child.computed_height + self.spacing
@@ -281,10 +285,10 @@ class Element(pygame.sprite.Sprite, EventTarget):
         self.padding_top = value
         self.padding_bottom = value
 
-    justify_content: Literal['start','center','end'] = START
+    justify_content: Literal['start','center','end'] = CENTER
     '''水平排列，e.g. 靠左、居中、靠右'''
 
-    align_items: Literal['start','center','end'] = START
+    align_items: Literal['start','center','end'] = CENTER
     '''縱向排列，e.g. 靠上、居中、靠下'''
 
     parent: Element | None = None

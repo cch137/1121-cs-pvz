@@ -1,8 +1,9 @@
+from constants import *
 from components import *
 from main import main
 
 def make_color_block(color: (255, 255, 255)):
-    ele = Element((200, 50))
+    ele = Element((50, 50))
     ele.background_color = color
     return ele
 
@@ -12,17 +13,21 @@ children = [make_color_block(c) for c in [
 
 parent_ele = Element()
 
-print(parent_ele.x)
-print(parent_ele.y)
-
-parent_ele.x = 0
-parent_ele.y = 0
+parent_ele.x = 50
+parent_ele.y = 50
 
 parent_ele.append_child(*children)
 
-parent_ele.min_height = 300
+parent_ele.min_height = 200
+parent_ele.min_width = 150
 parent_ele.align_items = 'end'
+print(parent_ele.content_height)
 print(parent_ele.computed_height)
+
+def blue_clicked():
+    print('blue clicked')
+
+children[2].add_event_listener('click', blue_clicked)
 
 scene1 = Scene()
 
