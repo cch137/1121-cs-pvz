@@ -1,7 +1,6 @@
 from typing import *
 import utils.process as process
 import pygame
-import random
 
 class Element(pygame.sprite.Sprite):
     pass
