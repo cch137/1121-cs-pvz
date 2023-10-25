@@ -437,8 +437,4 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         for child in self.__children:
             child.disconnect_scene(scene)
 
-class Character(Element):
-    def __init__(self, image: pygame.Surface):
-        Element.__init__(self, image)
-
 from components.controller import controller
