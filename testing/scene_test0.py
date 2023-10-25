@@ -26,6 +26,9 @@ def blue_clicked():
     print('blue clicked')
 
 children[2].add_event_listener(events.CLICK, blue_clicked)
+
+children[0].cursor = 'crosshair'
+children[1].cursor = 'sizeall'
 children[2].cursor = 'hand'
 
 scene = Scene()

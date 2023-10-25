@@ -8,11 +8,20 @@ class CursorManager():
     def set(self, value: int):
         pygame.mouse.set_cursor(value)
 
+    def arrow(self):
+        self.set(pygame.SYSTEM_CURSOR_ARROW)
+
+    def crosshair(self): # 準星
+        self.set(pygame.SYSTEM_CURSOR_CROSSHAIR)
+
     def hand(self):
         self.set(pygame.SYSTEM_CURSOR_HAND)
 
-    def arrow(self):
-        self.set(pygame.SYSTEM_CURSOR_ARROW)
+    def ibeam(self): # 預備輸入的光標
+        self.set(pygame.SYSTEM_CURSOR_IBEAM)
+
+    def sizeall(self): # 移動
+        self.set(pygame.SYSTEM_CURSOR_SIZEALL)
 
     def default(self):
         self.set(self.default_cursor)

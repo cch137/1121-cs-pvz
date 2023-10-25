@@ -64,7 +64,12 @@ class CacheManager():
         return self.get_cache_item(key).set(value)
 
 class EventTarget():
-    __listeners: dict[str, set[Callable]] = {}
+    __listeners: dict[str, set[Callable]]
+    __attributes: dict[str, Any]
+
+    def __init__(self) -> None:
+        self.__listeners = dict()
+        self.__attributes = dict()
 
     def add_event_listener(self, eventName: str, listener: Callable):
         if eventName not in self.__listeners:
@@ -87,8 +92,6 @@ class EventTarget():
                     else: listener()
                 except Exception as err:
                     print(err)
-
-    __attributes = {}
 
     def get_attribute(self, name: str):
         return self.__attributes.get(name)
@@ -136,15 +139,25 @@ class Element(pygame.sprite.Sprite, EventTarget):
     def cursor(self):
         return self.__cursor
     @cursor.setter
-    def cursor(self, value: int | Literal['hand']):
+    def cursor(self, value: int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
         self.remove_event_listener(MOUSEENTER, self.__mouseenter_listener)
         self.remove_event_listener(MOUSELEAVE, self.__mouseleave_listener)
         if type(value) is int:
             def mouseenter(): controller.cursor.set(value)
         else:
             match value:
+                case 'arrow':
+                    def mouseenter(): controller.cursor.arrow()
+                case 'crosshair':
+                    def mouseenter(): controller.cursor.crosshair()
                 case 'hand':
                     def mouseenter(): controller.cursor.hand()
+                case 'ibeam':
+                    def mouseenter(): controller.cursor.ibeam()
+                case 'sizeall':
+                    def mouseenter(): controller.cursor.sizeall()
+                case _:
+                    def mouseenter(): controller.cursor.default()
         def mouseleave(): controller.cursor.default()
         self.__mouseenter_listener = mouseenter
         self.__mouseleave_listener = mouseleave
