@@ -1,7 +1,7 @@
 import pygame
-from constants import *
 import utils.process as process
-from components import controller, event_manager, Scene
+from constants import *
+from components import controller
 
 # 設置視窗圖標、標題，初始化視窗
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
