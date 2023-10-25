@@ -9,6 +9,10 @@ class Scene():
     def __init__(self, screen: pygame.Surface = None):
         self.screen = screen or controller.screen
 
+    def init(self):
+        '''請覆蓋此方法。此方法將在第一次進入場景時建立調用以建立場景。'''
+        pass
+
     background_color = BACKGROUND_COLOR
 
     __elements: set[Element] = set()

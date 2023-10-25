@@ -1,4 +1,5 @@
-import testing.scene_test0
-from main import main
+from main import main, controller
+
+controller.goto_scene(controller.scenes.testing2)
 
 main()

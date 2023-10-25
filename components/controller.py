@@ -33,6 +33,8 @@ class Controller():
     running = True
 
     screen = screen
+    events = events
+    scenes = scenes
 
     cursor = CursorManager()
 
@@ -44,7 +46,11 @@ class Controller():
     def __init__(self):
         pass
     
+    __visited: set[scenes.Scene] = set()
     def goto_scene(self, scene: scenes.Scene):
+        if scene not in self.__visited:
+            scene.init()
+            self.__visited.add(scene)
         self.current_scene = scene
 
     def play(self):

@@ -1,7 +1,12 @@
 from constants import *
 import components.events as events
-from components.scenes import Scene
-from components.element import Element
+import components.scenes as scenes
+import components.element as element
 from components.controller import controller
 
-main_game = Scene()
+main_game = scenes.Scene()
+
+def init():
+    pass
+
+main_game.init = init

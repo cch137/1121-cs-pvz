@@ -1,7 +1,12 @@
 from constants import *
 import components.events as events
-from components.scenes import Scene
-from components.element import Element
+import components.scenes as scenes
+import components.element as element
 from components.controller import controller
 
-pause_menu = Scene()
+pause_menu = scenes.Scene()
+
+def init():
+    pass
+
+pause_menu.init = init
