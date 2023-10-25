@@ -1,3 +1,4 @@
+from constants import *
 import pygame
 
 class Scene(): pass
@@ -8,9 +9,11 @@ class Scene():
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
 
+    background_color = BACKGROUND_COLOR
+
     __elements: set[Element] = set()
 
-    layers: list[pygame.sprite.Group] = []
+    layers: list[pygame.sprite.Group[Element]] = []
 
     def get_element_by_id(self, id: str):
         for element in self.__elements:
@@ -35,3 +38,16 @@ class Scene():
     def _disconnect_element(self, element: Element):
         '''你不需要手動調用此函數， remove_element 會自動 disconnect 該 element 和其 children'''
         self.layers[element.layer].remove(element)
+    
+    def update(self):
+        for layer in self.layers:
+            layer.update()
+    
+    def draw(self):
+        if self.background_color != None:
+            self.screen.fill(self.background_color)
+        for layer in self.layers:
+            for element in layer:
+                if element.background_color != None:
+                    element.image.fill(element.background_color)
+            layer.draw()
