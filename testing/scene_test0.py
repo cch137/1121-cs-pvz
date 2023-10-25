@@ -1,6 +1,5 @@
 from constants import *
 from components import *
-from main import main
 
 def make_color_block(color: (255, 255, 255)):
     ele = Element((50, 50))
@@ -32,5 +31,3 @@ scene = Scene()
 scene.add_element(parent_ele)
 
 controller.goto_scene(scene)
-
-main()

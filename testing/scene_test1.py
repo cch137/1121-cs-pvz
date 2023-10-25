@@ -1,6 +1,5 @@
 from constants import *
 from components import *
-from main import main
 
 outer_element = Element()
 outer_element.min_width = WINDOW_WIDTH
@@ -36,5 +35,3 @@ scene = Scene()
 scene.add_element(outer_element)
 
 controller.goto_scene(scene)
-
-main()
