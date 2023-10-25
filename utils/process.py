@@ -1,7 +1,6 @@
 import os
 import shutil
 import time
-import sys
 
 # sys.setrecursionlimit(1000000)
 
@@ -15,7 +14,7 @@ def clear_caches():
 
 class FPSCounter():
     recorded_time = 0
-    fps = 60
+    fps = 0
 
     def reset(self, value = 0):
         self.fps = value
