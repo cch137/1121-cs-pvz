@@ -33,7 +33,7 @@ def main(testing_scene: Scene | None = None):
         # 更新視窗
         pygame.display.flip()
 
-        # 更新 FPS 統計器
-        process.fps_counter.run()
+        # 更新 process
+        process.update()
 
 # main()

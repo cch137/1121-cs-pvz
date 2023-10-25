@@ -1,5 +1,6 @@
 from typing import *
 import pygame
+import random
 
 class Element(pygame.sprite.Sprite):
     pass
@@ -77,6 +78,8 @@ class Element(pygame.sprite.Sprite, EventTarget):
         else:
             raise 'Invalid image'
         self.rect = self.image.get_rect()
+        self.__children = list()
+        self.scenes = set()
         if children.__len__():
             self.__children = [child for child in children]
     
@@ -107,7 +110,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
     @property
     def __is_end_element(self):
         '''是否為末端的元素'''
-        return self.display in (BLOCK, INLINE) and len(self.children) == 0
+        return self.display in (BLOCK, INLINE) and len(self) == 0
 
     @property
     def content_width(self) -> int:
@@ -293,67 +296,69 @@ class Element(pygame.sprite.Sprite, EventTarget):
         parents = []
         ele = self.parent
         while ele != None:
+            if ele in parents:
+                break
             parents.append(ele)
-            ele = self.parent
+            ele = ele.parent
         return parents
-    
     @property
     def z_index(self) -> int:
-        return self.parents.__len__()
+        return len(self.parents)
 
-    __children: List[Element] = []
+    __children: List[Element]
 
     @property
     def children(self):
-        return self.__children.copy()
+        return list(self.__children)
+
+    def __len__(self):
+        return self.__children.__len__()
 
     def append_child(self, *children: Element):
-        for child in children:
-            if child in self.__children:
-                self.remove_child(child)
-            self.__children.append(child)
+        self.remove_child(*children)
+        self.__children.extend(children)
+        for child in list(children):
             child.parent = self
             for scene in self.scenes:
-                child._add_to_scene(scene)
+                child.connect_scene(scene)
 
     def remove_child(self, *children: Element):
-        for child in children:
+        for child in list(children):
             if child in self.__children:
                 self.__children.remove(child)
                 child.parent = None
                 for scene in self.scenes:
-                    child._remove_from_scene(scene)
+                    child.disconnect_scene(scene)
+
+    def insert_child(self, index: int, *children: Element):
+        self.remove_child(*children)
+        children = list(reversed(list(children)))
+        for child in children:
+            self.__children.insert(index, child)
+            child.parent = self
+            for scene in self.scenes:
+                child.connect_scene(scene)
     
     def move_child(self, new_parent: Element, *children):
         self.remove_child(child for child in children)
         new_parent.append_child(child for child in children)
-
-    def insert_child(self, index: int, *children: Element):
-        children = tuple(reversed(children))
-        for child in children:
-            if child in self.__children:
-                self.remove_child(child)
-            self.__children.insert(index, child)
-            child.parent = self
-            for scene in self.scenes:
-                child._add_to_scene(scene)
     
     def insert_before(self, node: Element, *children: Element):
         if node not in self.__children: raise 'node is not in children'
         index = self.__children.index(node)
-        children = tuple(reversed(children))
+        children = list(reversed(list(children)))
         for child in children:
             self.insert_child(index, child)
     
     def insert_after(self, node: Element, child: Element):
         if node not in self.__children: raise 'node is not in children'
         index = self.__children.index(node) + 1
-        children = tuple(reversed(children))
+        children = list(reversed(list(children)))
         for child in children:
             self.insert_child(index, child)
 
     @property
-    def all_children(self) -> Set[Element]:
+    def all_children(self) -> List[Element]:
         watched = set()
         parents = { self }
         children = set()
@@ -365,19 +370,25 @@ class Element(pygame.sprite.Sprite, EventTarget):
                     children.add(child)
                     parents.add(child)
                 watched.add(parent)
-        return children
+        return list(children)
     
-    scenes: set[Scene] = set()
+    scenes: set[Scene]
 
-    def _add_to_scene(self, scene: Scene):
-        '''注：你不需要手動調用此函數'''
-        scene._connect_element(self)
+    def connect_scene(self, scene: Scene):
+        '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
+        scene.connect_element(self)
         self.scenes.add(scene)
-    
-    def _remove_from_scene(self, scene: Scene):
-        '''注：你不需要手動調用此函數'''
-        scene._disconnect_element(self)
-        self.scenes.remove(scene)
+        children = self.children
+        stamp = random.random()
+        for child in children:
+            child.connect_scene(scene)
+
+    def disconnect_scene(self, scene: Scene):
+        '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
+        scene.disconnect_element(self)
+        self.scenes.remove(self)
+        for child in self.children:
+            child.disconnect_scene(scene)
 
 class Character(Element):
     def __init__(self, image: pygame.Surface):

@@ -16,7 +16,7 @@ class Scene():
 
     @property
     def elements(self):
-        return self.__elements
+        return tuple(self.__elements)
 
     layers: list[pygame.sprite.Group] = []
 
@@ -25,23 +25,25 @@ class Scene():
             if element.id == id:
                 return element
     
-    def add_element(self, element: Element):
-        self.__elements.add(element)
-        self._connect_element(element)
+    def add_element(self, *elements: Element):
+        for element in list(elements):
+            self.__elements.add(element)
+            element.connect_scene(self)
     
-    def remove_element(self, element: Element):
-        self.__elements.remove(element)
-        self._disconnect_element(element)
+    def remove_element(self, *elements: Element):
+        for element in list(elements):
+            self.__elements.remove(element)
+            self.disconnect_element(element)
 
-    def _connect_element(self, element: Element):
-        '''注：你不需要手動調用此函數'''
+    def connect_element(self, element: Element):
+        '''注：此方法僅在 Element 內調用'''
         element_z_index = element.z_index
-        while len(self.layers) <= element_z_index:
+        while len(self.layers) <= element_z_index + 1:
             self.layers.append(pygame.sprite.Group())
         self.layers[element_z_index].add(element)
 
-    def _disconnect_element(self, element: Element):
-        '''注：你不需要手動調用此函數'''
+    def disconnect_element(self, element: Element):
+        '''注：此方法僅在 Element 內調用'''
         self.layers[element.z_index].remove(element)
     
     def update(self):
@@ -49,9 +51,8 @@ class Scene():
             layer.update()
     
     def compose(self):
-        for layer in self.layers:
-            for element in layer:
-                element.compose()
+        for element in self.elements:
+            element.compose()
     
     def draw(self):
         if self.background_color != None:

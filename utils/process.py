@@ -1,6 +1,9 @@
 import os
 import shutil
 import time
+import sys
+
+# sys.setrecursionlimit(1000000)
 
 def clear_caches():
     '''非必要功能：移除緩存資料夾'''
@@ -24,15 +27,19 @@ class FPSCounter():
         print(f'FPS: {self.fps}')
 
     def run(self):
-        now = self.now()
+        now = int(timestamp)
         if self.recorded_time != now:
             self.show()
-            self.recorded_time = now
             self.reset(1)
+            self.recorded_time = now
         else:
             self.count()
 
-    def now(self):
-        return int(time.time())
-
 fps_counter = FPSCounter()
+
+timestamp: float = 0
+
+def update():
+    global timestamp
+    timestamp = time.time()
+    fps_counter.run()
