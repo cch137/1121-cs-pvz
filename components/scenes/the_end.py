@@ -1,3 +1,5 @@
+import pygame
+from typing import *
 from constants import *
 import components.events as events
 import components.scenes as scenes

@@ -1,9 +1,10 @@
+import pygame
+from typing import *
 from constants import *
 import components.events as events
 import components.scenes as scenes
 import components.element as element
 from components.controller import controller
-import pygame
 
 testing1 = scenes.Scene()
 
