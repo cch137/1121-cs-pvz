@@ -104,16 +104,20 @@ class EventTarget():
         return name in self.__attributes
 
 class Element(pygame.sprite.Sprite, EventTarget):
-    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), children: List[Element] = []):
+    def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), display: Literal['block', 'inline', 'row', 'column'] = BLOCK, children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
         EventTarget.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
         elif type(image) == tuple:
-            if type(image[0]) == int and type(image[1]) == int:
-                self.image = pygame.Surface((image[0], image[1]))
+            w, h = image
+            self.image = pygame.Surface(image)
+            if display in (COLUMN, ROW):
+                self.min_width = w
+                self.min_height = h
         else:
             raise 'Invalid image'
+        self.display = display
         self.rect = self.image.get_rect()
         self.__children = list()
         self.scenes = set()
