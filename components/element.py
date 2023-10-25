@@ -4,7 +4,7 @@ import pygame
 import os
 
 def load_image(filepath: str, size: Tuple[int,int] = None):
-    image = pygame.image.load(os.join('assets', *filepath.replace('\\', '/').split('/')))
+    image = pygame.image.load(os.path.join('assets', *filepath.replace('\\', '/').split('/')))
     if size is None: return image
     return pygame.transform.scale(image, size)
 

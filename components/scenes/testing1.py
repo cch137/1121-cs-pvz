@@ -3,6 +3,7 @@ import components.events as events
 import components.scenes as scenes
 import components.element as element
 from components.controller import controller
+import pygame
 
 testing1 = scenes.Scene()
 
@@ -23,7 +24,7 @@ def init():
 
     parent_ele.append_child(*children)
 
-    parent_ele.min_height = 200
+    parent_ele.min_height = 400
     parent_ele.min_width = 150
     parent_ele.spacing = 25
 
@@ -35,6 +36,14 @@ def init():
     children[0].cursor = 'crosshair'
     children[1].cursor = 'sizeall'
     children[2].cursor = 'hand'
+
+    # image element
+    image_ele = element.Element(element.load_image('icon.png', (50, 50)))
+    image_ele.cursor = 'hand'
+    parent_ele.append_child(image_ele)
+    def image_ele_clicked():
+        image_ele.image = pygame.transform.flip(image_ele.image, True, False)
+    image_ele.add_event_listener(events.CLICK, image_ele_clicked)
 
     testing1.add_element(parent_ele)
 
