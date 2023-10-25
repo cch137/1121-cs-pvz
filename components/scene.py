@@ -1,4 +1,5 @@
 from constants import *
+from components.screen import screen
 import pygame
 
 class Scene(): pass
@@ -6,7 +7,7 @@ class Scene(): pass
 from components.element import *
 
 class Scene():
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface = screen):
         self.screen = screen
 
     background_color = BACKGROUND_COLOR
