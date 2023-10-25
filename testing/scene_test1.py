@@ -31,6 +31,8 @@ outer_element.append_child(inner_element)
 inner_element.append_child(btn1, btn2, btn3)
 btn3.append_child(btn3_1, btn3_2, btn3_3)
 
+print(btn3.children)
+
 scene = Scene()
 
 scene.add_element(outer_element)

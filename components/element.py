@@ -104,6 +104,14 @@ class EventTarget():
         return name in self.__attributes
 
 class Element(pygame.sprite.Sprite, EventTarget):
+    __parent: Element | None = None
+    __children: List[Element]
+    __scenes: set[Scene]
+
+    @property
+    def children(self):
+        return list(self.__children)
+
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), display: Literal['block', 'inline', 'row', 'column'] = BLOCK, children: List[Element] = []):
         pygame.sprite.Sprite.__init__(self)
         EventTarget.__init__(self)
@@ -120,11 +128,13 @@ class Element(pygame.sprite.Sprite, EventTarget):
         self.display = display
         self.rect = self.image.get_rect()
         self.__children = list()
-        self.scenes = set()
+        self.__scenes = set()
         self.caches = CacheManager()
-        if children.__len__():
-            self.__children = [child for child in children]
-    
+        self.append_child(*children)
+
+    def __len__(self):
+        return self.__children.__len__()
+
     @property
     def id(self) -> str | None:
         return self.get_attribute('id')
@@ -162,12 +172,11 @@ class Element(pygame.sprite.Sprite, EventTarget):
         if self.__is_end_element:
             return_value = self.width
         else:
-            children = self.children
             if self.display in (ROW, INLINE):
-                return_value = sum(child.computed_width for child in children) \
-                    + self.spacing * (len(children) - 1)
+                return_value = sum(child.computed_width for child in self.__children) \
+                    + self.spacing * (len(self) - 1)
             else:
-                return_value = max(child.computed_width for child in children)
+                return_value = max(child.computed_width for child in self.__children)
         return self.caches.set('content_w', return_value)
 
     @property
@@ -178,12 +187,11 @@ class Element(pygame.sprite.Sprite, EventTarget):
         if self.__is_end_element:
             return_value = self.height
         else:
-            children = self.children
             if self.display in (ROW, INLINE):
-                return_value = max(child.computed_height for child in children)
+                return_value = max(child.computed_height for child in self.__children)
             else:
-                return_value = sum(child.computed_height for child in children) \
-                    + self.spacing * (len(children) - 1)
+                return_value = sum(child.computed_height for child in self.__children) \
+                    + self.spacing * (len(self) - 1)
         return self.caches.set('content_h', return_value)
 
     @property
@@ -242,75 +250,75 @@ class Element(pygame.sprite.Sprite, EventTarget):
             # 設定 x 座標
             if justify_content == START:
                 x = self.rect.left + self.padding_left
-                for child in self.children:
+                for child in self.__children:
                     child.rect.left = x
                     x += child.computed_width + self.spacing
             elif justify_content == END:
                 x = self.rect.right - self.padding_right
-                for child in reversed(self.children):
+                for child in reversed(self.__children):
                     child.rect.right = x
                     x -= child.computed_width + self.spacing
             else:
                 x = self.rect.left + self.padding_left \
                     + (self.computed_width - self.padding_left - self.padding_right) / 2 \
                     - (self.content_width / 2)
-                for child in self.children:
+                for child in self.__children:
                     child.rect.left = x
                     x += child.computed_width + self.spacing
             # 設定 y 座標
             if align_items == START:
                 y = self.padding_top
-                for child in self.children:
+                for child in self.__children:
                     child.rect.top = y
             elif align_items == END:
                 y = self.padding_bottom
-                for child in self.children:
+                for child in self.__children:
                     child.rect.bottom = y
             else:
                 y = self.rect.centery
-                for child in self.children:
+                for child in self.__children:
                     child.rect.centery = y
         else: # display in (COLUMN, BLOCK, default)
             # 設定 x 座標
             if justify_content == START:
                 x = self.padding_left
-                for child in self.children:
+                for child in self.__children:
                     child.rect.left = x
             elif justify_content == END:
                 x = self.padding_right
-                for child in self.children:
+                for child in self.__children:
                     child.rect.right = x
             else:
                 x = self.rect.centerx
-                for child in self.children:
+                for child in self.__children:
                     child.rect.centerx = x
             # 設定 y 座標
             if align_items == START:
                 y = self.rect.top + self.padding_top
-                for child in self.children:
+                for child in self.__children:
                     child.rect.top = y
                     y += child.computed_height + self.spacing
             elif align_items == END:
                 y = self.rect.bottom - self.padding_bottom
-                for child in reversed(self.children):
+                for child in reversed(self.__children):
                     child.rect.bottom = y
                     y -= child.computed_height + self.spacing
             else:
                 y = self.rect.top + self.padding_top \
                     + (self.computed_height - self.padding_top - self.padding_bottom) / 2 \
                     - (self.content_height / 2)
-                for child in self.children:
+                for child in self.__children:
                     child.rect.top = y
                     y += child.computed_height + self.spacing
-        for child in self.children:
+        for child in self.__children:
             child.compose()
 
     display: Literal['block', 'inline', 'row', 'column'] = BLOCK
 
     background_color: str = None
 
-    '''Space between child elements.'''
     spacing: int = 0
+    '''Space between child elements.'''
 
     padding_top = 0
     padding_bottom = 0
@@ -351,37 +359,27 @@ class Element(pygame.sprite.Sprite, EventTarget):
     align_items: Literal['start','center','end'] = CENTER
     '''縱向排列，e.g. 靠上、居中、靠下'''
 
-    parent: Element | None = None
-
     @property
     def parents(self) -> List[Element]:
         parents = []
-        ele = self.parent
+        ele = self.__parent
         while ele != None:
             if ele in parents:
                 break
             parents.append(ele)
             ele = ele.parent
         return parents
+
     @property
     def z_index(self) -> int:
         return len(self.parents)
-
-    __children: List[Element]
-
-    @property
-    def children(self):
-        return list(self.__children)
-
-    def __len__(self):
-        return self.__children.__len__()
 
     def append_child(self, *children: Element):
         self.remove_child(*children)
         self.__children.extend(children)
         for child in list(children):
             child.parent = self
-            for scene in self.scenes:
+            for scene in self.__scenes:
                 child.connect_scene(scene)
 
     def remove_child(self, *children: Element):
@@ -389,7 +387,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
             if child in self.__children:
                 self.__children.remove(child)
                 child.parent = None
-                for scene in self.scenes:
+                for scene in self.__scenes:
                     child.disconnect_scene(scene)
 
     def insert_child(self, index: int, *children: Element):
@@ -398,7 +396,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
         for child in children:
             self.__children.insert(index, child)
             child.parent = self
-            for scene in self.scenes:
+            for scene in self.__scenes:
                 child.connect_scene(scene)
     
     def move_child(self, new_parent: Element, *children):
@@ -433,23 +431,19 @@ class Element(pygame.sprite.Sprite, EventTarget):
                     parents.add(child)
                 watched.add(parent)
         return list(children)
-    
-    scenes: set[Scene]
 
     def connect_scene(self, scene: Scene):
         '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
         scene.connect_element(self)
-        self.scenes.add(scene)
-        children = self.children
-        stamp = random.random()
-        for child in children:
+        self.__scenes.add(scene)
+        for child in self.__children:
             child.connect_scene(scene)
 
     def disconnect_scene(self, scene: Scene):
         '''注：此方法也對所有層級的子元素作用。此方法僅在 scene 內和 self 內更動 children 時調用'''
         scene.disconnect_element(self)
-        self.scenes.remove(self)
-        for child in self.children:
+        self.__scenes.remove(self)
+        for child in self.__children:
             child.disconnect_scene(scene)
 
 class Character(Element):
