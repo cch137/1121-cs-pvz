@@ -69,3 +69,9 @@ class Scene():
         self.draw()
 
 from components.controller import controller
+from components.scenes.main_menu import main_menu
+from components.scenes.pause_menu import pause_menu
+from components.scenes.main_game import main_game
+from components.scenes.the_end import the_end
+from components.scenes.testing1 import testing1
+from components.scenes.testing2 import testing2
