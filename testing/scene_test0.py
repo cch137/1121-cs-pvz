@@ -27,8 +27,10 @@ def blue_clicked():
 
 children[2].add_event_listener('click', blue_clicked)
 
-scene1 = Scene()
+scene = Scene()
 
-scene1.add_element(parent_ele)
+scene.add_element(parent_ele)
 
-main(scene1)
+controller.goto_scene(scene)
+
+main()

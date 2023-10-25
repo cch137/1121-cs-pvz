@@ -63,3 +63,8 @@ class Scene():
                 if element.background_color != None:
                     element.image.fill(element.background_color)
             layer.draw(screen)
+
+    def play(self):
+        self.update()
+        self.compose()
+        self.draw()

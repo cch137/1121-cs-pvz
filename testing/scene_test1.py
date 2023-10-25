@@ -35,4 +35,6 @@ scene = Scene()
 
 scene.add_element(outer_element)
 
-main(scene)
+controller.goto_scene(scene)
+
+main()
