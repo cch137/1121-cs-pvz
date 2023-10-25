@@ -1,6 +1,7 @@
 from typing import *
 import pygame
 from components.events import *
+from components.scene import Scene
 
 ROW = 'row'
 COLUMN = 'column'
@@ -309,13 +310,21 @@ class Element(pygame.sprite.Sprite, EventTarget):
                 self.remove_child(child)
             self.__children.append(child)
             child.parent = self
+            for scene in self.scenes:
+                child._add_to_scene(scene)
 
     def remove_child(self, *children: Element):
         for child in children:
             if child in self.__children:
                 self.__children.remove(child)
                 child.parent = None
+                for scene in self.scenes:
+                    child._remove_from_scene(scene)
     
+    def move_child(self, new_parent: Element, *children):
+        self.remove_child(child for child in children)
+        new_parent.append_child(child for child in children)
+
     def insert_child(self, index: int, *children: Element):
         children = tuple(reversed(children))
         for child in children:
@@ -323,6 +332,8 @@ class Element(pygame.sprite.Sprite, EventTarget):
                 self.remove_child(child)
             self.__children.insert(index, child)
             child.parent = self
+            for scene in self.scenes:
+                child._add_to_scene(scene)
     
     def insert_before(self, node: Element, *children: Element):
         if node not in self.__children: raise 'node is not in children'
@@ -352,6 +363,18 @@ class Element(pygame.sprite.Sprite, EventTarget):
                     parents.add(child)
                 watched.add(parent)
         return children
+    
+    scenes: set[Scene] = set()
+
+    def _add_to_scene(self, scene: Scene):
+        '''注：你不需要手動調用此函數'''
+        scene._connect_element(self)
+        self.scenes.add(scene)
+    
+    def _remove_from_scene(self, scene: Scene):
+        '''注：你不需要手動調用此函數'''
+        scene._disconnect_element(self)
+        self.scenes.remove(scene)
 
 class Character(Element):
     def __init__(self, image: pygame.Surface):
