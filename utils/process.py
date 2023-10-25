@@ -23,7 +23,8 @@ class FPSCounter():
         self.fps += 1
 
     def show(self):
-        print(f'FPS: {self.fps}')
+        if self.fps:
+            print(f'FPS: {self.fps}')
 
     def run(self):
         now = int(timestamp)
