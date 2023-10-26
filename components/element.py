@@ -5,7 +5,8 @@ import os
 
 def load_image(filepath: str, size: Tuple[int,int] = None):
     image = pygame.image.load(os.path.join('assets', *filepath.replace('\\', '/').split('/')))
-    if size is None: return image
+    if size is None:
+        return image
     return pygame.transform.scale(image, size)
 
 class Element(pygame.sprite.Sprite):
@@ -89,13 +90,17 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     padding_right = 0
 
     spacing: int = 0
-    '''Space between child elements.'''
+    '''The spacing between child elements.'''
 
     justify_content: Literal['start','center','end'] = CENTER
-    '''水平排列，e.g. 靠左、居中、靠右'''
+    '''Horizontal alignment.
+    
+    水平排列，e.g. 靠左、居中、靠右'''
 
     align_items: Literal['start','center','end'] = CENTER
-    '''縱向排列，e.g. 靠上、居中、靠下'''
+    '''Vertical alignment.
+    
+    縱向排列，e.g. 靠上、居中、靠下'''
 
     @property
     def children(self):
@@ -238,7 +243,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.rect.height = value
 
     def compose(self):
-        '''排版不進行繪製。此方法也同時對所有層級的子元素作用。'''
+        '''Layouts (positions) itself and all child elements, but does not draw them.
+
+        排版不進行繪製。此方法也同時對所有層級的子元素作用。'''
         self.width = self.computed_width
         self.height = self.computed_height
         align_items = self.align_items
@@ -312,7 +319,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def padding(self):
-        '''Padding between self and child elements.'''
+        '''The spacing between this element's edge and its children.'''
         return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
 
     @padding.setter
@@ -340,6 +347,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def parents(self) -> List[Element]:
+        '''All parent elements of this element.'''
         parents = []
         ele = self.__parent
         while ele != None:
@@ -354,9 +362,11 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return len(self.parents)
 
     def index(self, child: Element):
+        '''Returns the index of the child'''
         return self.__children.index(child)
 
     def append_child(self, *children: Element):
+        '''Appends elements to the end of the children of this element.'''
         self.remove_child(*children)
         self.__children.extend(children)
         for child in list(children):
@@ -365,6 +375,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                 child.connect_scene(scene)
 
     def remove_child(self, *children: Element):
+        '''Remove elements from children of this element.'''
         for child in list(children):
             if child in self.__children:
                 self.__children.remove(child)
@@ -373,6 +384,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                     child.disconnect_scene(scene)
 
     def insert_child(self, index: int, *children: Element):
+        '''Insert elements into children of this element at the given index.'''
         self.remove_child(*children)
         children = list(reversed(list(children)))
         for child in children:
@@ -382,18 +394,23 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                 child.connect_scene(scene)
     
     def move_child(self, new_parent: Element, *children):
+        '''Move child elements from this element to another element.'''
         self.remove_child(child for child in children)
         new_parent.append_child(child for child in children)
     
     def insert_before(self, node: Element, *children: Element):
-        if node not in self.__children: raise 'node is not in children'
+        '''Insert elements into children of this element before the given node(element).'''
+        if node not in self.__children:
+            raise 'node is not in children'
         index = self.__children.index(node)
         children = list(reversed(list(children)))
         for child in children:
             self.insert_child(index, child)
     
     def insert_after(self, node: Element, child: Element):
-        if node not in self.__children: raise 'node is not in children'
+        '''Insert elements into children of this element after the given node(element).'''
+        if node not in self.__children:
+            raise 'node is not in children'
         index = self.__children.index(node) + 1
         children = list(reversed(list(children)))
         for child in children:
@@ -401,6 +418,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def all_children(self) -> List[Element]:
+        '''All hierarchical child elements below this element.
+
+        在此元素之下所有層級的子元素。'''
         watched = set()
         parents = { self }
         children = set()
@@ -415,14 +435,18 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return list(children)
 
     def connect_scene(self, scene: scenes.Scene):
-        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
+        '''Connect with the scene. (draw and update this element in the scene)
+
+        注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
         scene.connect_element(self)
         self.__scenes.add(scene)
         for child in self.__children:
             child.connect_scene(scene)
 
     def disconnect_scene(self, scene: scenes.Scene):
-        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
+        '''Disconnect with the scene.
+
+        注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
         scene.disconnect_element(self)
         self.__scenes.remove(self)
         for child in self.__children:
