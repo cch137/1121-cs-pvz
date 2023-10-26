@@ -107,7 +107,7 @@ class EventManager():
     def remove_target(self, target: EventTarget, eventName: str):
         self._targets_of(eventName, True).remove(target)
 
-    def init(self):
+    def setup(self):
         from components.controller import controller
 
         pos = pygame.mouse.get_pos()

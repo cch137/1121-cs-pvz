@@ -3,8 +3,6 @@ import components.events as events
 import components.scenes as scenes
 from constants import *
 
-screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-
 class CursorManager():
     default_cursor = pygame.SYSTEM_CURSOR_ARROW
 
@@ -30,23 +28,17 @@ class CursorManager():
         self.set(self.default_cursor)
 
 class Controller():
-    running = True
-
-    screen = screen
-    events = events
-    scenes = scenes
-
-    cursor = CursorManager()
-
-    # 創建視窗渲染時鐘
-    clock = pygame.time.Clock()
-
     current_scene: scenes.Scene
+    __visited: set[scenes.Scene]
 
     def __init__(self):
-        pass
-
-    __visited: set[scenes.Scene] = set()
+        self.running = True
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.events = events
+        self.scenes = scenes
+        self.cursor = CursorManager()
+        self.clock = pygame.time.Clock() # 視窗渲染時鐘
+        self.__visited = set()
 
     def goto_scene(self, scene: scenes.Scene):
         self.current_scene = scene
@@ -58,12 +50,13 @@ class Controller():
         # 設置更新幀數
         self.clock.tick(FPS)
 
-        events.event_manager.init()
+        events.event_manager.setup()
         # 讀取使用者的活動
         for event in pygame.event.get():
             # 退出遊戲
             if event.type == pygame.QUIT:
                 self.running = False
+            # 處理事件
             events.event_manager.handle(event)
 
         # 繪製當前場景
