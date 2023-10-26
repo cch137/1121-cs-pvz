@@ -1,5 +1,5 @@
-from main import main, controller
+import main as Main
 
-controller.goto_scene(controller.scenes.testing1)
+Main.controller.goto_scene(Main.controller.scenes.testing1)
 
-main()
+Main.main()

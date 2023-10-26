@@ -2,6 +2,7 @@ import pygame
 import components.events as events
 import components.scenes as scenes
 import components.element as element
+import components.character as character
 from constants import *
 
 class CursorManager():
@@ -38,6 +39,7 @@ class Controller():
         self.events = events
         self.scenes = scenes
         self.element = element
+        self.character = character
         self.cursor = CursorManager()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()

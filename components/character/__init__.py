@@ -1,7 +1,10 @@
 from typing import *
 import pygame
-import components.element
+import components.element as element
 
-class Character(components.element.Element):
+class Character(element.Element):
     def __init__(self, image: pygame.Surface):
-        components.element.Element.__init__(self, image)
+        element.Element.__init__(self, image)
+
+import components.character.plants as plants
+import components.character.zombies as zombies

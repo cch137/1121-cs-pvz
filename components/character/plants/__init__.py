@@ -1,7 +1,7 @@
 from typing import *
 import pygame
-import components.character
+import components.character as character
 
-class Plant(components.character.Character):
+class Plant(character.Character):
     def __init__(self, image: pygame.Surface):
-        components.character.Character.__init__(self, image)
+        character.Character.__init__(self, image)
