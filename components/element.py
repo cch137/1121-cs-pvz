@@ -353,6 +353,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def z_index(self) -> int:
         return len(self.parents)
 
+    def index(self, child: Element):
+        return self.__children.index(child)
+
     def append_child(self, *children: Element):
         self.remove_child(*children)
         self.__children.extend(children)
