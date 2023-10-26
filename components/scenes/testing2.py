@@ -20,7 +20,7 @@ def init():
     inner_element.spacing = 10
 
     btn1 = element.Element((300, 80))
-    btn1.background_color = (0, 255, 0)
+    btn1.background_color = (0, 255, 255)
     btn2 = element.Element((300, 80))
     btn2.background_color = (0, 255, 0)
     btn3 = element.Element((300, 80), 'row')
@@ -33,6 +33,11 @@ def init():
     btn3_2.background_color = (0, 0, 255)
     btn3_3 = element.Element((75, 50))
     btn3_3.background_color = (0, 0, 255)
+
+    def goto_testing1():
+        controller.goto_scene(controller.scenes.testing1)
+    btn1.add_event_listener(events.CLICK, goto_testing1)
+    btn1.cursor = 'hand'
 
     outer_element.append_child(inner_element)
     inner_element.append_child(btn1, btn2, btn3)

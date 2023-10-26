@@ -79,16 +79,19 @@ class EventTarget():
 class EventManager():
     __element_sets: dict[str, set[EventTarget]] = {}
 
-    def _elements_of(self, eventName: str):
+    def _elements_of(self, eventName: str, writable: bool = False):
         if eventName not in self.__element_sets:
             self.__element_sets[eventName] = set()
-        return self.__element_sets[eventName]
+        if writable:
+            return self.__element_sets[eventName]
+        else:
+            return self.__element_sets[eventName].copy()
 
     def add_element(self, element: EventTarget, eventName: str):
-        self._elements_of(eventName).add(element)
+        self._elements_of(eventName, True).add(element)
 
     def remove_element(self, element: EventTarget, eventName: str):
-        self._elements_of(eventName).remove(element)
+        self._elements_of(eventName, True).remove(element)
 
     def init(self):
         pos = pygame.mouse.get_pos()

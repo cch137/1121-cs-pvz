@@ -79,14 +79,14 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return list(self.__children)
 
     def __init__(self, image: pygame.Surface | Tuple[int,int] = (0, 0), display: Literal['block', 'inline', 'row', 'column'] = BLOCK, children: List[Element] = []):
+        '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         events.EventTarget.__init__(self)
         if type(image) == pygame.Surface:
             self.image = image
         elif type(image) == tuple:
             self.image = pygame.Surface(image)
-            if display in (COLUMN, ROW):
-                self.min_width, self.min_height = image
+            self.min_width, self.min_height = image
         else:
             raise 'Invalid image'
         self.display = display

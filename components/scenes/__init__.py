@@ -6,8 +6,13 @@ class Scene(): pass
 from components.element import Element
 
 class Scene():
+    __elements: set[Element]
+    layers: list[pygame.sprite.Group]
+
     def __init__(self, screen: pygame.Surface = None):
         self.screen = screen or controller.screen
+        self.__elements = set()
+        self.layers = list()
 
     def init(self):
         '''請覆蓋此方法。此方法將在第一次進入場景時建立調用以建立場景。'''
@@ -15,13 +20,9 @@ class Scene():
 
     background_color = BACKGROUND_COLOR
 
-    __elements: set[Element] = set()
-
     @property
     def elements(self):
         return tuple(self.__elements)
-
-    layers: list[pygame.sprite.Group] = []
 
     def get_element_by_id(self, id: str):
         for element in self.__elements:
@@ -68,6 +69,7 @@ class Scene():
             layer.draw(self.screen)
 
     def play(self):
+        print('play', self.layers)
         self.update()
         self.compose()
         self.draw()
