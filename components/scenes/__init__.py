@@ -3,10 +3,10 @@ import pygame
 
 class Scene(): pass
 
-from components.element import Element
+import components.element as element
 
 class Scene():
-    __elements: set[Element]
+    __elements: set[element.Element]
     layers: list[pygame.sprite.Group]
 
     def __init__(self, screen: pygame.Surface = None):
@@ -28,29 +28,30 @@ class Scene():
     def is_playing(self):
         return controller.current_scene == self
 
-    def get_element_by_id(self, id: str):
-        for element in self.__elements:
-            if element.id == id:
-                return element
+    def get_element_by_id(self, id: str) -> element.Element | None:
+        for layer in self.layers:
+            for el in layer:
+                if el.id == id:
+                    return el
     
-    def add_element(self, *elements: Element):
+    def add_element(self, *elements: element.Element):
         for element in list(elements):
             self.__elements.add(element)
             element.connect_scene(self)
     
-    def remove_element(self, *elements: Element):
+    def remove_element(self, *elements: element.Element):
         for element in list(elements):
             self.__elements.remove(element)
             self.disconnect_element(element)
 
-    def connect_element(self, element: Element):
+    def connect_element(self, element: element.Element):
         '''注：此方法僅在 Element 內調用'''
         element_z_index = element.z_index
         while len(self.layers) <= element_z_index + 1:
             self.layers.append(pygame.sprite.Group())
         self.layers[element_z_index].add(element)
 
-    def disconnect_element(self, element: Element):
+    def disconnect_element(self, element: element.Element):
         '''注：此方法僅在 Element 內調用'''
         self.layers[element.z_index].remove(element)
     

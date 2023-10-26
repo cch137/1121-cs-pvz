@@ -140,7 +140,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.rect.y = value
 
     @property
-    def __is_end_element(self):
+    def is_end_element(self):
         '''是否為末端的元素'''
         return self.display in (BLOCK, INLINE) and len(self) == 0
 
@@ -149,7 +149,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         cache = self.caches.get('content_w')
         if cache is not None:
             return cache
-        if self.__is_end_element:
+        if self.is_end_element:
             return_value = self.width
         else:
             if self.display in (ROW, INLINE):
@@ -164,7 +164,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         cache = self.caches.get('content_h')
         if cache is not None:
             return cache
-        if self.__is_end_element:
+        if self.is_end_element:
             return_value = self.height
         else:
             if self.display in (ROW, INLINE):
@@ -221,7 +221,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.rect.height = value
 
     def compose(self):
-        '''排版不考慮 max_..., min_... 屬性，排版不進行繪製。'''
+        '''排版不進行繪製。此方法也同時對所有層級的子元素作用。'''
         self.width = self.computed_width
         self.height = self.computed_height
         align_items = self.align_items
@@ -413,14 +413,14 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return list(children)
 
     def connect_scene(self, scene: scenes.Scene):
-        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
+        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
         scene.connect_element(self)
         self.__scenes.add(scene)
         for child in self.__children:
             child.connect_scene(scene)
 
     def disconnect_scene(self, scene: scenes.Scene):
-        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也將同時對所有層級的子元素作用。'''
+        '''注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
         scene.disconnect_element(self)
         self.__scenes.remove(self)
         for child in self.__children:
