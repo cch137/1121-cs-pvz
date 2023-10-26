@@ -41,11 +41,11 @@ class Controller():
     # 創建視窗渲染時鐘
     clock = pygame.time.Clock()
 
-    current_scene: scenes.Scene = None
+    current_scene: scenes.Scene
 
     def __init__(self):
         pass
-    
+
     __visited: set[scenes.Scene] = set()
 
     def goto_scene(self, scene: scenes.Scene):
