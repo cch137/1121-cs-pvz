@@ -2,6 +2,7 @@ from typing import *
 import pygame
 import utils.process as process
 
+CURSOR = 'cursor'
 CLICK = 'click'
 HOVER = 'hover'
 MOUSEENTER = 'mouseenter'
@@ -42,18 +43,22 @@ class EventTarget():
         self.__listeners = dict()
         self.__attributes = dict()
 
-    def add_event_listener(self, eventName: str, listener: Callable):
+    def add_event_listener(self, eventName: str, listener: Callable | None = None):
         if eventName not in self.__listeners:
             self.__listeners[eventName] = set()
-        self.__listeners[eventName].add(listener)
-        event_manager.add_element(self, eventName)
+        if listener is not None:
+            self.__listeners[eventName].add(listener)
+        event_manager.add_target(self, eventName)
 
-    def remove_event_listener(self, eventName: str, listener: Callable):
-        if eventName not in self.__listeners: return
-        if listener not in self.__listeners[eventName]: return
-        self.__listeners[eventName].remove(listener)
+    def remove_event_listener(self, eventName: str, listener: Callable | None = None):
+        if eventName not in self.__listeners:
+            return
+        if listener not in self.__listeners[eventName]:
+            return
+        if listener is not None:
+            self.__listeners[eventName].remove(listener)
         if self.__listeners[eventName].__len__() == 0:
-            event_manager.remove_element(self, eventName)
+            event_manager.remove_target(self, eventName)
 
     def dispatch_event(self, event: UserEvent):
         if event.name in self.__listeners:
@@ -77,49 +82,76 @@ class EventTarget():
         return name in self.__attributes
 
 class EventManager():
-    __element_sets: dict[str, set[EventTarget]] = {}
+    __target_sets: dict[str, set[EventTarget]] = {}
 
-    def _elements_of(self, eventName: str, writable: bool = False):
-        if eventName not in self.__element_sets:
-            self.__element_sets[eventName] = set()
+    def _targets_of(self, eventName: str, writable: bool = False):
+        if eventName not in self.__target_sets:
+            self.__target_sets[eventName] = set()
         if writable:
-            return self.__element_sets[eventName]
+            return self.__target_sets[eventName]
         else:
-            return self.__element_sets[eventName].copy()
+            return self.__target_sets[eventName].copy()
 
-    def add_element(self, element: EventTarget, eventName: str):
-        self._elements_of(eventName, True).add(element)
+    def add_target(self, target: EventTarget, eventName: str):
+        self._targets_of(eventName, True).add(target)
 
-    def remove_element(self, element: EventTarget, eventName: str):
-        self._elements_of(eventName, True).remove(element)
+    def remove_target(self, target: EventTarget, eventName: str):
+        self._targets_of(eventName, True).remove(target)
 
     def init(self):
+        import components.element
+        from components.controller import controller
+
         pos = pygame.mouse.get_pos()
         x, y = pos
 
         # dispatch HoverEvent
         hover_event = HoverEvent(pos)
-        for el in self._elements_of(HOVER):
+        for el in self._targets_of(HOVER):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(hover_event)
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
         mouseenter_event = MouseEnterEvent(pos)
         mouseleave_event = MouseLeaveEvent(pos)
-        l_mouseenter_spirits = self._elements_of(MOUSEENTER)
-        l_mouseleave_spirits = self._elements_of(MOUSELEAVE)
-        l_mouse_spirits = l_mouseenter_spirits | l_mouseleave_spirits # union
-        for el in l_mouse_spirits:
+        l_mouseenter = self._targets_of(MOUSEENTER)
+        l_mouseleave = self._targets_of(MOUSELEAVE)
+        l_mouse = l_mouseenter | l_mouseleave # union
+        for el in l_mouse:
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
                     el.set_attribute(HOVER, True)
-                    if el in l_mouseenter_spirits:
+                    if el in l_mouseenter:
                         el.dispatch_event(mouseenter_event)
             elif el.has_attribute(HOVER):
                 if el.has_attribute(HOVER):
                     el.remove_attribute(HOVER)
-                    if el in l_mouseleave_spirits:
+                    if el in l_mouseleave:
                         el.dispatch_event(mouseleave_event)
+        
+        # detect cursor style
+        l_cursor = { el for el in self._targets_of(CURSOR) if type(el) is components.element.Element }
+        for el in reversed(sorted(l_cursor, key=lambda x: x.z_index)):
+            if not el.rect.collidepoint(x, y):
+                continue
+            match el.cursor:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if type(el.cursor) is int:
+                        controller.cursor.set(el.cursor)
+                    else:
+                        controller.cursor.default()
+            return
+        controller.cursor.default()
 
     def handle(self, event: pygame.event.Event):
         now = process.timestamp
@@ -127,13 +159,13 @@ class EventManager():
         # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            for el in self._elements_of(CLICK):
+            for el in self._targets_of(CLICK):
                 if el.rect.collidepoint(x, y):
                     el.set_attribute(BUTTONDOWN, (event.button, now))
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
             click_event = ClickEvent(event.pos)
-            for el in self._elements_of(CLICK):
+            for el in self._targets_of(CLICK):
                 if el.has_attribute(BUTTONDOWN):
                     # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
                     button, mousedown_at = el.get_attribute(BUTTONDOWN)
