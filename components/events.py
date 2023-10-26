@@ -10,30 +10,33 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
+class EventTarget: pass
+
 class UserEvent():
-    def __init__(self, name: str):
+    def __init__(self, name: str, target: EventTarget | None = None):
         self.name = name
+        self.target = target
 
 class MouseEvent(UserEvent):
-    def __init__(self, name: str, pos: tuple[int, int]):
-        UserEvent.__init__(self, name)
+    def __init__(self, name: str, pos: tuple[int, int], target: EventTarget | None = None):
+        UserEvent.__init__(self, name, target)
         self.pos = pos
 
 class HoverEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int]):
-        MouseEvent.__init__(self, HOVER, pos)
+    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+        MouseEvent.__init__(self, HOVER, pos, target)
 
 class MouseEnterEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int]):
-        MouseEvent.__init__(self, MOUSEENTER, pos)
+    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+        MouseEvent.__init__(self, MOUSEENTER, pos, target)
 
 class MouseLeaveEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int]):
-        MouseEvent.__init__(self, MOUSELEAVE, pos)
+    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+        MouseEvent.__init__(self, MOUSELEAVE, pos, target)
 
 class ClickEvent(UserEvent):
-    def __init__(self, pos: tuple[int, int]):
-        MouseEvent.__init__(self, CLICK, pos)
+    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+        MouseEvent.__init__(self, CLICK, pos, target)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]]
@@ -64,8 +67,10 @@ class EventTarget():
         if event.name in self.__listeners:
             for listener in self.__listeners[event.name]:
                 try:
-                    if listener.__code__.co_argcount > 0: listener(event)
-                    else: listener()
+                    if listener.__code__.co_argcount > 0:
+                        listener(event)
+                    else:
+                        listener()
                 except Exception as err:
                     print(err)
 
@@ -109,14 +114,11 @@ class EventManager():
         x, y = pos
 
         # dispatch HoverEvent
-        hover_event = HoverEvent(pos)
         for el in self._targets_of(HOVER):
             if el.rect.collidepoint(x, y):
-                el.dispatch_event(hover_event)
+                el.dispatch_event(HoverEvent(pos, el))
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
-        mouseenter_event = MouseEnterEvent(pos)
-        mouseleave_event = MouseLeaveEvent(pos)
         l_mouseenter = self._targets_of(MOUSEENTER)
         l_mouseleave = self._targets_of(MOUSELEAVE)
         l_mouse = l_mouseenter | l_mouseleave # union
@@ -125,12 +127,12 @@ class EventManager():
                 if not el.has_attribute(HOVER):
                     el.set_attribute(HOVER, True)
                     if el in l_mouseenter:
-                        el.dispatch_event(mouseenter_event)
+                        el.dispatch_event(MouseEnterEvent(pos, el))
             elif el.has_attribute(HOVER):
                 if el.has_attribute(HOVER):
                     el.remove_attribute(HOVER)
                     if el in l_mouseleave:
-                        el.dispatch_event(mouseleave_event)
+                        el.dispatch_event(MouseLeaveEvent(pos, el))
         
         # detect cursor style
         l_cursor = { el for el in self._targets_of(CURSOR) if type(el) is components.element.Element }
@@ -167,7 +169,6 @@ class EventManager():
                     el.set_attribute(BUTTONDOWN, (event.button, now))
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
-            click_event = ClickEvent(event.pos)
             for el in self._targets_of(CLICK):
                 if el.has_attribute(BUTTONDOWN):
                     # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
@@ -176,7 +177,7 @@ class EventManager():
                         and button == event.button \
                         and now - mousedown_at < 1:
                         if event.button == pygame.BUTTON_LEFT:
-                            el.dispatch_event(click_event)
+                            el.dispatch_event(ClickEvent(event.pos, el))
                     el.remove_attribute(BUTTONDOWN)
 
 event_manager = EventManager()
