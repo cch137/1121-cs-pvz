@@ -90,7 +90,11 @@ class EventManager():
         if writable:
             return self.__target_sets[eventName]
         else:
-            return self.__target_sets[eventName].copy()
+            return {
+                tar for tar in self.__target_sets[eventName]
+                if type(tar) is not components.element.Element 
+                or tar.is_playing
+            }
 
     def add_target(self, target: EventTarget, eventName: str):
         self._targets_of(eventName, True).add(target)
@@ -99,7 +103,6 @@ class EventManager():
         self._targets_of(eventName, True).remove(target)
 
     def init(self):
-        import components.element
         from components.controller import controller
 
         pos = pygame.mouse.get_pos()
@@ -177,3 +180,5 @@ class EventManager():
                     el.remove_attribute(BUTTONDOWN)
 
 event_manager = EventManager()
+
+import components.element

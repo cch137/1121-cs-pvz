@@ -24,6 +24,10 @@ class Scene():
     def elements(self):
         return tuple(self.__elements)
 
+    @property
+    def is_playing(self):
+        return controller.current_scene == self
+
     def get_element_by_id(self, id: str):
         for element in self.__elements:
             if element.id == id:

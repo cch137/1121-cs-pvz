@@ -112,6 +112,10 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return self.__children.__len__()
 
     @property
+    def is_playing(self):
+        return bool({ scene for scene in self.__scenes if scene.is_playing  })
+
+    @property
     def id(self) -> str | None:
         return self.get_attribute('id')
 
