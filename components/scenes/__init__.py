@@ -69,7 +69,6 @@ class Scene():
             layer.draw(self.screen)
 
     def play(self):
-        print('play', self.layers)
         self.update()
         self.compose()
         self.draw()
