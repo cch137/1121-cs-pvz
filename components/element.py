@@ -74,6 +74,29 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     __children: List[Element]
     __scenes: set[scenes.Scene]
 
+    display: Literal['block', 'inline', 'row', 'column'] = BLOCK
+
+    background_color: str = None
+
+    min_width: int | None = None
+    max_width: int | None = None
+    min_height: int | None = None
+    max_height: int | None = None
+
+    padding_top = 0
+    padding_bottom = 0
+    padding_left = 0
+    padding_right = 0
+
+    spacing: int = 0
+    '''Space between child elements.'''
+
+    justify_content: Literal['start','center','end'] = CENTER
+    '''水平排列，e.g. 靠左、居中、靠右'''
+
+    align_items: Literal['start','center','end'] = CENTER
+    '''縱向排列，e.g. 靠上、居中、靠下'''
+
     @property
     def children(self):
         return list(self.__children)
@@ -197,12 +220,6 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         elif self.max_height != None and return_value > self.max_height:
             return_value = self.max_height
         return self.caches.set('computed_h', return_value)
-
-    min_width: int | None = None
-    max_width: int | None = None
-
-    min_height: int | None = None
-    max_height: int | None = None
     
     @property
     def width(self) -> int:
@@ -293,18 +310,6 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         for child in self.__children:
             child.compose()
 
-    display: Literal['block', 'inline', 'row', 'column'] = BLOCK
-
-    background_color: str = None
-
-    spacing: int = 0
-    '''Space between child elements.'''
-
-    padding_top = 0
-    padding_bottom = 0
-    padding_left = 0
-    padding_right = 0
-
     @property
     def padding(self):
         '''Padding between self and child elements.'''
@@ -332,12 +337,6 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def padding_y(self, value: int):
         self.padding_top = value
         self.padding_bottom = value
-
-    justify_content: Literal['start','center','end'] = CENTER
-    '''水平排列，e.g. 靠左、居中、靠右'''
-
-    align_items: Literal['start','center','end'] = CENTER
-    '''縱向排列，e.g. 靠上、居中、靠下'''
 
     @property
     def parents(self) -> List[Element]:

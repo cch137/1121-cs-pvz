@@ -1,6 +1,7 @@
 from typing import *
 import pygame
 import utils.process as process
+import components.element as element
 
 CURSOR = 'cursor'
 CLICK = 'click'
@@ -97,7 +98,7 @@ class EventManager():
         else:
             return {
                 tar for tar in self.__target_sets[eventName]
-                if type(tar) is not components.element.Element 
+                if type(tar) is not element.Element 
                 or tar.is_playing
             }
 
@@ -135,7 +136,7 @@ class EventManager():
                         el.dispatch_event(MouseLeaveEvent(pos, el))
         
         # detect cursor style
-        l_cursor = { el for el in self._targets_of(CURSOR) if type(el) is components.element.Element }
+        l_cursor = { el for el in self._targets_of(CURSOR) if type(el) is element.Element }
         for el in reversed(sorted(l_cursor, key=lambda x: x.z_index)):
             if not el.rect.collidepoint(x, y):
                 continue
@@ -181,5 +182,3 @@ class EventManager():
                     el.remove_attribute(BUTTONDOWN)
 
 event_manager = EventManager()
-
-import components.element

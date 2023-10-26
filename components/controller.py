@@ -1,6 +1,7 @@
 import pygame
 import components.events as events
 import components.scenes as scenes
+import components.element as element
 from constants import *
 
 class CursorManager():
@@ -36,8 +37,9 @@ class Controller():
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.events = events
         self.scenes = scenes
+        self.element = element
         self.cursor = CursorManager()
-        self.clock = pygame.time.Clock() # 視窗渲染時鐘
+        self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()
 
     def goto_scene(self, scene: scenes.Scene):

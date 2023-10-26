@@ -1,8 +1,5 @@
 from constants import *
 import pygame
-
-class Scene(): pass
-
 import components.element as element
 
 class Scene():
