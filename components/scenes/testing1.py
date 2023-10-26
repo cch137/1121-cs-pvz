@@ -36,13 +36,16 @@ def init():
 
     children[2].add_event_listener(events.CLICK, blue_clicked)
 
-    # image element
-    image_ele = element.Element(element.load_image('icon.png', (50, 50)))
-    image_ele.cursor = 'hand'
+    # image elements
+    image_ele1 = element.Element(element.load_image('icon.png', (50, 50)))
+    image_ele1.cursor = 'hand'
     def image_ele_clicked():
-        image_ele.image = pygame.transform.flip(image_ele.image, True, False)
-    image_ele.add_event_listener(events.CLICK, image_ele_clicked)
-    parent_ele.append_child(image_ele)
+        image_ele1.image = pygame.transform.flip(image_ele1.image, True, False)
+    image_ele1.add_event_listener(events.CLICK, image_ele_clicked)
+
+    image_ele2 = element.Element(element.load_image('entities/sun.png', (60, 60)))
+
+    parent_ele.append_child(image_ele1, image_ele2)
 
     parent_ele.append_child(children[3])
     def goto_testing2():
