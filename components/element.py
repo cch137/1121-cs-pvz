@@ -19,6 +19,7 @@ class Element(pygame.sprite.Sprite):
     computed_width: int
     computed_height: int
     parent: Element | None
+    z_index: int
     compose: Callable
 
 ROW = 'row'
@@ -71,9 +72,12 @@ import components.events as events
 import components.scenes as scenes
 
 class Element(pygame.sprite.Sprite, events.EventTarget):
-    __parent: Element | None = None
     __children: List[Element]
     __scenes: set[scenes.Scene]
+    __z_index: int | None = None
+
+    parent: Element | None = None
+    '''`.parent` is a READ ONLY property, please do not modify it.'''
 
     display: Literal['block', 'inline', 'row', 'column'] = BLOCK
 
@@ -349,7 +353,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def parents(self) -> List[Element]:
         '''All parent elements of this element.'''
         parents = []
-        ele = self.__parent
+        ele = self.parent
         while ele != None:
             if ele in parents:
                 break
@@ -359,7 +363,15 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def z_index(self) -> int:
-        return len(self.parents)
+        if self.__z_index is None:
+            if self.parent is None:
+                return 0
+            return self.parent.z_index + 1
+        return self.__z_index
+
+    @z_index.setter
+    def z_index(self, value: int | None):
+        self.__z_index = value
 
     def index(self, child: Element):
         '''Returns the index of the child'''
