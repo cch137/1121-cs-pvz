@@ -39,6 +39,8 @@ class Character(element.Element):
     health: int = 100
     defense: int = 0
     '''number between 0 and 100'''
+    vision_range: int = 3
+    '''視野。單位：格(地圖 tile)'''
 
     def __init__(self, image: pygame.Surface):
         element.Element.__init__(self, image)
