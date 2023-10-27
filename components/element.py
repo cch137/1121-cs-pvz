@@ -323,27 +323,27 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
 
     @padding.setter
-    def padding(self, value: int):
-        self.padding_x = value
-        self.padding_y = value
-
-    @property
-    def padding_x(self):
-        return (self.padding_left, self.padding_right) / 2
-
-    @padding_x.setter
-    def padding_x(self, value: int):
-        self.padding_left = value
-        self.padding_right = value
-
-    @property
-    def padding_y(self):
-        return (self.padding_top + self.padding_bottom) / 2
-
-    @padding_y.setter
-    def padding_y(self, value: int):
-        self.padding_top = value
-        self.padding_bottom = value
+    def padding(self, value: int | tuple[int]):
+        if type(value) is not tuple:
+            value = (value,)
+        self.padding_top = value[0]
+        match len(value):
+            case 1:
+                self.padding_right = value[0]
+                self.padding_bottom = value[0]
+                self.padding_left = value[0]
+            case 2:
+                self.padding_right = value[1]
+                self.padding_bottom = value[0]
+                self.padding_left = value[1]
+            case 3:
+                self.padding_right = value[1]
+                self.padding_bottom = value[2]
+                self.padding_left = value[1]
+            case _:
+                self.padding_right = value[1]
+                self.padding_bottom = value[2]
+                self.padding_left = value[3]
 
     @property
     def parents(self) -> List[Element]:
