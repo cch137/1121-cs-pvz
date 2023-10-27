@@ -63,6 +63,12 @@ class EventTarget():
             self.__listeners[eventName].remove(listener)
         if self.__listeners[eventName].__len__() == 0:
             event_manager.remove_target(self, eventName)
+    
+    def remove_all_event_listeners(self):
+        for eventName in self.__listeners:
+            listeners = set(self.__listeners[eventName])
+            for listener in listeners:
+                self.remove_event_listener(eventName, listener)
 
     def dispatch_event(self, event: UserEvent):
         if event.name in self.__listeners:
