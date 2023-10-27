@@ -19,6 +19,7 @@ class Element(pygame.sprite.Sprite):
     computed_width: int
     computed_height: int
     parent: Element | None
+    parents: List[Element]
     z_index: int
     compose: Callable
 
@@ -352,14 +353,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     @property
     def parents(self) -> List[Element]:
         '''All parent elements of this element.'''
-        parents = []
-        ele = self.parent
-        while ele != None:
-            if ele in parents:
-                break
-            parents.append(ele)
-            ele = ele.parent
-        return parents
+        if self.parent is None:
+            return []
+        return self.parent.parents + [self.parent]
 
     @property
     def z_index(self) -> int:
