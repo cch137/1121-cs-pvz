@@ -47,10 +47,11 @@ class Entity(Element):
     acceleration_x: int = 0
     acceleration_y: int = 0
     move_limit: int | None = None
+    '''實物的自動移動距離限制'''
 
     collision_target_types: set[type[[Entity]]]
-    collision_damage: int = 0
-    range_attack: bool = False
+    collision_damage: int | None = None
+    '''與其他實物碰撞時，對該實物產生的傷害。若為 None 則不會與任何其他實物碰撞。'''
 
     def __init__(self, image: pygame.Surface):
         Element.__init__(self, image)
@@ -74,17 +75,14 @@ class Entity(Element):
             self.y += self.velocity_y
             if self.move_limit is not None:
                 self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
-        if len(self.collision_target_types) == 0:
+        if len(self.collision_target_types) == 0 or self.collision_damage is None:
             return
         for entity in tuple(all_entities):
             if entity == self: continue
             for target_type in self.collision_target_types:
                 if type(entity) is target_type and pygame.sprite.collide_circle(self, entity):
                     entity.damage(self.collision_damage)
-                    self.kill()
-                    if not self.range_attack:
-                        return
-                    break
+                    return self.kill()
 
     def kill(self, *args: Any, **kargs):
         Element.kill(self, *args, **kargs)
