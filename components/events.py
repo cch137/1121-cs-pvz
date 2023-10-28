@@ -52,19 +52,16 @@ class EventTarget():
     def add_event_listener(self, eventName: str, listener: Callable | None = None):
         if eventName not in self.__listeners:
             self.__listeners[eventName] = set()
-        if listener is not None:
-            self.__listeners[eventName].add(listener)
+        self.__listeners[eventName].add(listener)
         event_manager.add_target(self, eventName)
 
     def remove_event_listener(self, eventName: str, listener: Callable | None = None):
         if eventName not in self.__listeners:
             return
-        if listener not in self.__listeners[eventName]:
-            return
-        if listener is not None:
+        if listener in self.__listeners[eventName]:
             self.__listeners[eventName].remove(listener)
-        if self.__listeners[eventName].__len__() == 0:
-            event_manager.remove_target(self, eventName)
+            if self.__listeners[eventName].__len__() == 0:
+                event_manager.remove_target(self, eventName)
     
     def remove_all_event_listeners(self):
         for eventName in self.__listeners:

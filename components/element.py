@@ -147,10 +147,10 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     @allow_flyout.setter
     def allow_flyout(self, value: bool):
         if value:
-            self.remove_all_event_listeners(events.FLYOUT)
-        else:
-            self.set_attribute(events.FLYOUT, True)
-            self.add_event_listener(events.FLYOUT)
+            self.remove_event_listener(events.FLYOUT)
+            return
+        self.set_attribute(events.FLYOUT, True)
+        self.add_event_listener(events.FLYOUT)
 
     def __len__(self):
         return self.__children.__len__()
