@@ -18,18 +18,19 @@ class Ability():
         self.name = name
         self.attack = attack
         self.colddown = colddown
-        '''unit: second'''
-        self.last_used_at: float = 0.0
+        '''unit: tick'''
+        self.last_used_at: int = 0
+        '''unit: tick'''
 
     @property
     def is_cooling_down(self):
-        return self.last_used_at + self.colddown > process.timestamp
+        return self.last_used_at + self.colddown > process.ticks
     
     def use(self):
         if self.is_cooling_down: # 技能正在冷卻中，無法使用
             return
         if self.effect():
-            self.last_used_at = process.timestamp
+            self.last_used_at = process.ticks
 
     def effect(self) -> bool:
         '''重寫此函式以賦予 Ability 效果。

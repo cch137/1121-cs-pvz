@@ -47,11 +47,11 @@ class Element(pygame.sprite.Sprite):
 class CacheItem():
     def __init__(self, value: Any = None):
         self.__value = value
-        self.timestamp = process.timestamp
+        self.ticks = process.ticks
     
     @property
     def is_valid(self):
-        return self.timestamp == process.timestamp
+        return self.ticks == process.ticks
 
     def get(self):
         if self.is_valid:
@@ -60,7 +60,7 @@ class CacheItem():
 
     def set(self, value: Any):
         self.__value = value
-        self.timestamp = process.timestamp
+        self.ticks = process.ticks
         return value
 
 class CacheManager():

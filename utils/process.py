@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+import pygame
 
 def clear_caches():
     '''非必要功能：移除緩存資料夾'''
@@ -36,8 +37,11 @@ class FPSCounter():
 fps_counter = FPSCounter()
 
 timestamp: float = 0
+ticks: int = 0
 
 def update():
     global timestamp
+    global ticks
     timestamp = time.time()
+    ticks = pygame.time.get_ticks()
     fps_counter.run()
