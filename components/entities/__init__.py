@@ -41,6 +41,10 @@ class Entity(Element):
     '''number between 0 and 100'''
     vision_range: int = 3
     '''視野。單位：格(地圖 tile)'''
+    velocity_x: int = 0
+    velocity_y: int = 0
+    acceleration_x: int = 0
+    acceleration_y: int = 0
 
     def __init__(self, image: pygame.Surface):
         Element.__init__(self, image)
@@ -49,10 +53,14 @@ class Entity(Element):
     def damage(self, value: int):
         self.health -= value * (100 - self.defense)
     
-    def update(self, *args: Any, **kargs: Any):
+    def auto_update(self, *args: Any, **kargs: Any):
         Element.update(self, *args, **kargs)
         for ability in self.abilities:
             ability.use()
+        self.velocity_x += self.acceleration_x
+        self.velocity_y += self.acceleration_y
+        self.x += self.velocity_x
+        self.y += self.velocity_y
 
 import components.entities.plants as plants
 import components.entities.zombies as zombies

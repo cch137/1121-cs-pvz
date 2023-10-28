@@ -61,7 +61,11 @@ class Scene():
                 del self.layers[z]
 
     def update(self):
+        import components.entities as entities
         for layer in tuple(self.layers.values()):
+            for el in layer:
+                if isinstance(el, entities.Entity):
+                    el.auto_update()
             layer.update()
     
     def compose(self):

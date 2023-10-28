@@ -63,9 +63,7 @@ def init():
         bullet = Entity((10, 10))
         bullet.allow_flyout = False
         bullet.background_color = (255, 255, 255)
-        def bullet_update():
-            bullet.x -= 10
-        bullet.update = bullet_update
+        bullet.velocity_x = -10
         bullet.rect.centerx = image_ele3.rect.centerx - 32
         bullet.rect.centery = image_ele3.rect.centery - 18
         bullet.z_index = 99
