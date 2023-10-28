@@ -34,16 +34,6 @@ class Element(pygame.sprite.Sprite):
     z_index: int
     compose: Callable
 
-ROW = 'row'
-COLUMN = 'column'
-BLOCK = 'block'
-INLINE = 'inline'
-DISPLAY_MODES = (ROW, COLUMN, BLOCK, INLINE)
-
-CENTER = 'center'
-START = 'start'
-END = 'end'
-
 class CacheItem():
     def __init__(self, value: Any = None):
         self.__value = value
