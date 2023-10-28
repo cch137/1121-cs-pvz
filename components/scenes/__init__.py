@@ -65,7 +65,8 @@ class Scene():
         for layer in tuple(self.layers.values()):
             for el in layer:
                 if isinstance(el, entities.Entity):
-                    el.auto_update()
+                    try: el.auto_update()
+                    except: pass
             layer.update()
     
     def compose(self):
