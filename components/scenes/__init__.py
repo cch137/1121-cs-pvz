@@ -69,6 +69,11 @@ class Scene():
                 if element.background_color != None:
                     element.image.fill(element.background_color)
             layer.draw(self.screen)
+    
+    def kill(self):
+        for layer in set(self.layers):
+            for element in set(l for l in layer):
+                element.kill()
 
     def play(self):
         self.update()

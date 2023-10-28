@@ -74,9 +74,9 @@ import components.scenes as scenes
 
 class Element(pygame.sprite.Sprite, events.EventTarget):
     __children: List[Element]
-    __scenes: set[scenes.Scene]
     __z_index: int | None = None
 
+    scene: scenes.Scene | None = None
     parent: Element | None = None
     '''`.parent` is a READ ONLY property, please do not modify it.'''
 
@@ -125,7 +125,6 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.display = display
         self.rect = self.image.get_rect()
         self.__children = list()
-        self.__scenes = set()
         self.caches = CacheManager()
         self.append_child(*children)
 
@@ -146,7 +145,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def is_playing(self):
-        return bool({ scene for scene in self.__scenes if scene.is_playing  })
+        if self.scene is None:
+            return False
+        return self.scene.is_playing
 
     @property
     def id(self) -> str | None:
@@ -379,8 +380,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.__children.extend(children)
         for child in list(children):
             child.parent = self
-            for scene in self.__scenes:
-                child.connect_scene(scene)
+            child.connect_scene(self.scene)
 
     def remove_child(self, *children: Element):
         '''Remove elements from children of this element.'''
@@ -388,8 +388,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
             if child in self.__children:
                 self.__children.remove(child)
                 child.parent = None
-                for scene in self.__scenes:
-                    child.disconnect_scene(scene)
+                child.disconnect_scene()
 
     def insert_child(self, index: int, *children: Element):
         '''Insert elements into children of this element at the given index.'''
@@ -398,8 +397,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         for child in children:
             self.__children.insert(index, child)
             child.parent = self
-            for scene in self.__scenes:
-                child.connect_scene(scene)
+            child.connect_scene(self.scene)
     
     def move_child(self, new_parent: Element, *children):
         '''Move child elements from this element to another element.'''
@@ -442,23 +440,25 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                 watched.add(parent)
         return list(children)
 
-    def connect_scene(self, scene: scenes.Scene):
+    def connect_scene(self, scene: scenes.Scene | None):
         '''Connect with the scene. (draw and update this element in the scene)
 
         注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
+        if scene is None: return
         scene.connect_element(self)
-        self.__scenes.add(scene)
+        self.scene = scene
         for child in self.__children:
             child.connect_scene(scene)
 
-    def disconnect_scene(self, scene: scenes.Scene):
+    def disconnect_scene(self):
         '''Disconnect with the scene.
 
         注：此方法僅在 scene 內和 self 內更動 children 時調用。此方法也同時對所有層級的子元素作用。'''
-        scene.disconnect_element(self)
-        self.__scenes.remove(self)
+        if self.scene is None: return
+        self.scene.disconnect_element(self)
+        self.scene = None
         for child in self.__children:
-            child.disconnect_scene(scene)
+            child.disconnect_scene()
     
     def kill(self):
         '''Remove the Element from all Groups. Remove all event listeners of the Element.'''
