@@ -1,4 +1,5 @@
 from typing import *
+from constants import *
 import utils.process as process
 import pygame
 import os
@@ -8,6 +9,16 @@ def load_image(filepath: str, size: Tuple[int,int] = None):
     if size is None:
         return image
     return pygame.transform.scale(image, size)
+
+def create_textbox(
+        text: str,
+        size: int = 12,
+        color: tuple[int,int,int] = FONT_COLOR,
+        background: tuple[int,int,int] | None = None,
+        font_name: str = pygame.font.get_default_font()
+    ):
+    font = pygame.font.Font(font_name, size)
+    return font.render(text, True, color, background)
 
 class Element(pygame.sprite.Sprite):
     pass

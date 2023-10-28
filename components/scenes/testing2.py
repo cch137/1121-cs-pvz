@@ -6,7 +6,7 @@ import components.scenes as scenes
 testing2 = scenes.Scene()
 
 def init():
-    from components import Element, load_image, \
+    from components import Element, load_image, create_textbox, \
         events, Entity, Plant, Zombie, controller
 
     # 創建 outer_element
@@ -48,6 +48,12 @@ def init():
     outer_element.append_child(inner_element)
     inner_element.append_child(btn1, btn2, btn3)
     btn3.append_child(btn3_1, btn3_2, btn3_3)
+
+    # 創建 textbox
+    text_element = Element(create_textbox('Hello World', 32))
+    text_element.x = 20
+    text_element.y = 20
+    testing2.add_element(text_element)
 
     # 把 outer_element 添加到 testing2 場景
     testing2.add_element(outer_element)

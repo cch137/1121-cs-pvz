@@ -5,6 +5,7 @@ WINDOW_HEIGHT = 760
 TITLE = '植物大戰殭屍'
 
 BACKGROUND_COLOR = (20, 22, 24)
+FONT_COLOR = (250, 250, 250)
 
 # Tiles background color:
 # 1 2 1 2 1 2 ...
