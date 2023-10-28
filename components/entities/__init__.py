@@ -1,5 +1,6 @@
 from typing import *
 import pygame
+import math
 import utils.process as process
 from components import Element
 
@@ -45,6 +46,7 @@ class Entity(Element):
     velocity_y: int = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
+    move_limit: int | None = None
 
     collision_target_types: set[type[[Entity]]]
     collision_damage: int = 0
@@ -64,10 +66,14 @@ class Entity(Element):
     def auto_update(self):
         for ability in self.abilities:
             ability.use()
-        self.velocity_x += self.acceleration_x
-        self.velocity_y += self.acceleration_y
-        self.x += self.velocity_x
-        self.y += self.velocity_y
+        if self.move_limit is None or self.move_limit > 0:
+            self.velocity_x += self.acceleration_x
+            self.velocity_y += self.acceleration_y
+            x1, y1 = self.x, self.y
+            self.x += self.velocity_x
+            self.y += self.velocity_y
+            if self.move_limit is not None:
+                self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
         if len(self.collision_target_types) == 0:
             return
         for entity in tuple(all_entities):
