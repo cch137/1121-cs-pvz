@@ -1,6 +1,7 @@
 from typing import *
 import pygame
 import threading
+import time
 import utils.process as process
 import components.element as element
 
@@ -11,6 +12,7 @@ MOUSEENTER = 'mouseenter'
 MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
+
 FLYOUT = 'flyout'
 
 class EventTarget: pass
@@ -69,7 +71,8 @@ class EventTarget():
             for listener in listeners:
                 self.remove_event_listener(eventName, listener)
 
-    def dispatch_event(self, event: UserEvent):
+    def dispatch_event(self, event: UserEvent, callback: Callable | None = None):
+        threads: set[threading.Thread] = set()
         if event.name in self.__listeners:
             for listener in self.__listeners[event.name]:
                 try:
@@ -80,11 +83,17 @@ class EventTarget():
                     threading.Thread(target=listener, args=args).start()
                 except Exception as err:
                     print(err)
+        if callback is not None:
+            def _callback():
+                for thread in threads:
+                    thread.join()
+                callback()
+            threading.Thread(target=_callback).start()
 
     def get_attribute(self, name: str):
         return self.__attributes.get(name)
 
-    def set_attribute(self, name: str, value):
+    def set_attribute(self, name: str, value: Any = None):
         self.__attributes[name] = value
 
     def remove_attribute(self, name: str):
@@ -92,6 +101,12 @@ class EventTarget():
     
     def has_attribute(self, name: str):
         return name in self.__attributes
+
+def mouseentered(el: element.Element):
+    def _callback():
+        time.sleep(0.025) # 降低 mouseenter 事件重複分配的發生
+        el.set_attribute(HOVER, True)
+    return _callback
 
 class EventManager():
     __target_sets: dict[str, set[EventTarget]] = {}
@@ -129,14 +144,12 @@ class EventManager():
         for el in l_mouse:
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
-                    el.set_attribute(HOVER, True)
                     if el in l_mouseenter:
-                        el.dispatch_event(MouseEnterEvent(pos, el))
+                        el.dispatch_event(MouseEnterEvent(pos, el), mouseentered(el))
             elif el.has_attribute(HOVER):
-                if el.has_attribute(HOVER):
-                    el.remove_attribute(HOVER)
-                    if el in l_mouseleave:
-                        el.dispatch_event(MouseLeaveEvent(pos, el))
+                el.remove_attribute(HOVER)
+                if el in l_mouseleave:
+                    el.dispatch_event(MouseLeaveEvent(pos, el))
         
         # detect FLYOUT
         for el in self._elements_of(FLYOUT):
