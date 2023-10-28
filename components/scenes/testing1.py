@@ -74,7 +74,10 @@ def init():
 
     # 將 image_ele1, image_ele2 添加到 parent_ele
     parent_ele.append_child(image_ele1, image_ele2)
+
+    # 列印當前場景元素總數
     # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
+
     # 重新添加 children[3] 到 parent_ele
     # - 這會導致 children[3] 從 parent_ele 中移除
     # - 然後 children[3] 會重新被添加到 parent_ele.childern 的尾部
