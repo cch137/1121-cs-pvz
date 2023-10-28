@@ -6,7 +6,7 @@ import components.scenes as scenes
 testing1 = scenes.Scene()
 
 def init():
-    from components import Element, load_image, create_textbox, \
+    from components import Element, load_image, load_animation, create_textbox, \
         events, Entity, Plant, Zombie, controller
 
     # 一個製作 element 的函式
