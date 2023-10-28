@@ -75,7 +75,7 @@ class Entity(Element):
             self.y += self.velocity_y
             if self.move_limit is not None:
                 self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
-        if len(self.collision_target_types) == 0 or self.collision_damage is None:
+        if self.collision_damage is None or len(self.collision_target_types) == 0:
             return
         for entity in tuple(all_entities):
             if entity == self: continue
