@@ -1,6 +1,7 @@
 from typing import *
 from constants import *
 import utils.process as process
+from utils.elong import elong
 import pygame
 import os
 
@@ -9,6 +10,15 @@ def load_image(filepath: str, size: Tuple[int,int] = None):
     if size is None:
         return image
     return pygame.transform.scale(image, size)
+
+def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[int,int] = None):
+    '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png
+    
+    函式使用例子：load_animation('anim', 10, 1.5, (60, 60))'''
+    return elong(
+        [load_image(f'{filepath}_{i}.png', size) for i in range(1, frames + 1)],
+        round(duration_sec * FPS)
+    )
 
 def create_textbox(
         text: str,
