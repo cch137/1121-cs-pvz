@@ -46,21 +46,45 @@ class Entity(Element):
     acceleration_x: int = 0
     acceleration_y: int = 0
 
+    collision_target_types: set[type[[Entity]]]
+    collision_damage: int = 0
+    range_attack: bool = False
+
     def __init__(self, image: pygame.Surface):
         Element.__init__(self, image)
         self.abilities: set[Ability] = set()
+        all_entities.add(self)
+        self.collision_target_types = set()
     
     def damage(self, value: int):
-        self.health -= value * (100 - self.defense)
+        self.health -= value * (1 - self.defense / 100)
+        if self.health <= 0:
+            self.kill()
     
-    def auto_update(self, *args: Any, **kargs: Any):
-        Element.update(self, *args, **kargs)
+    def auto_update(self):
         for ability in self.abilities:
             ability.use()
         self.velocity_x += self.acceleration_x
         self.velocity_y += self.acceleration_y
         self.x += self.velocity_x
         self.y += self.velocity_y
+        if len(self.collision_target_types) == 0:
+            return
+        for entity in tuple(all_entities):
+            if entity == self: continue
+            for target_type in self.collision_target_types:
+                if type(entity) is target_type and pygame.sprite.collide_circle(self, entity):
+                    entity.damage(self.collision_damage)
+                    self.kill()
+                    if not self.range_attack:
+                        return
+                    break
+
+    def kill(self, *args: Any, **kargs):
+        Element.kill(self, *args, **kargs)
+        all_entities.remove(self)
+
+all_entities: set[Entity] = set()
 
 import components.entities.plants as plants
 import components.entities.zombies as zombies

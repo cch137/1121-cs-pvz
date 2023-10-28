@@ -128,6 +128,12 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.caches = CacheManager()
         self.append_child(*children)
 
+    radius_scale = 0.5
+
+    @property
+    def radius(self) -> int:
+        return (min(self.rect.width, self.rect.height) / 2) * self.radius_scale
+
     @property
     def cursor(self) -> int:
         return self.get_attribute(events.CURSOR)

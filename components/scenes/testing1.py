@@ -51,7 +51,7 @@ def init():
     image_ele1.add_event_listener(events.CLICK, image_ele_clicked)
 
     # 創建 image_ele2
-    image_ele2 = Element(load_image('entities/sun.png', (60, 60)))
+    image_ele2 = Entity(load_image('entities/sun.png', (60, 60)))
 
     # 創建 image_ele3
     image_ele3 = Plant(load_image('plants/demo.png', (128, 128)))
@@ -62,19 +62,19 @@ def init():
     def plant_demo_shoot():
         bullet = Entity((10, 10))
         bullet.allow_flyout = False
-        bullet.background_color = (255, 255, 255)
+        bullet.background_color = (255, 0, 255)
         bullet.velocity_x = -10
         bullet.rect.centerx = image_ele3.rect.centerx - 32
         bullet.rect.centery = image_ele3.rect.centery - 18
+        bullet.collision_damage = 10
+        bullet.collision_target_types.add(Entity)
         bullet.z_index = 99
         testing1.add_element(bullet)
     image_ele3.add_event_listener(events.CLICK, plant_demo_shoot)
 
     # 將 image_ele1, image_ele2 添加到 parent_ele
     parent_ele.append_child(image_ele1, image_ele2)
-    def parent_update():
-        print(tuple(testing1.elements_generator).__len__())
-    parent_ele.update = parent_update
+    parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
     # 重新添加 children[3] 到 parent_ele
     # - 這會導致 children[3] 從 parent_ele 中移除
     # - 然後 children[3] 會重新被添加到 parent_ele.childern 的尾部
