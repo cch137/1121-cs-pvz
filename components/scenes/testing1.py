@@ -95,27 +95,33 @@ def init():
     testing1.add_element(image_ele3)
 
     # 創建導航
-    links = [
-        Element(create_textbox('main_menu', 24)),
-        Element(create_textbox('main_game', 24)),
-        Element(create_textbox('pause_menu', 24)),
-        Element(create_textbox('the_end', 24)),
-    ]
-    navigator = Element(None, None, links)
+    navigator = Element(None, None)
     navigator.spacing = 16
-    testing1.add_element(navigator)
-    # 注意！透過 .rect 設置坐標的時候，先使用 Scene.compose() 進行排版
+    # 創建轉跳按鈕
+    def create_link(scene_name: str, scene: scenes.Scene):
+        element = Element(create_textbox(scene_name, 24))
+        element.add_event_listener(events.CLICK, lambda: controller.goto_scene(scene))
+        def mouseenter():
+            element.image = create_textbox(scene_name, 24, (0, 0, 255))
+            element.rect = element.image.get_rect()
+        def mouseleave():
+            element.image = create_textbox(scene_name, 24)
+            element.rect = element.image.get_rect()
+        element.add_event_listener(events.MOUSEENTER, mouseenter)
+        element.add_event_listener(events.MOUSELEAVE, mouseleave)
+        element.cursor = 'hand'
+        navigator.append_child(element)
+    for scene_name, scene in (
+        ('main_menu', scenes.main_menu),
+        ('main_game', scenes.main_game),
+        ('pause_menu', scenes.pause_menu),
+        ('the_end', scenes.the_end),
+    ): create_link(scene_name, scene)
+    # 注意！透過 .rect 設置坐標的時候，先將 Element 添加到場景
+    # 然後使用 Scene.compose() 進行排版，最後才設置坐標
     # 這是為了防止坐標設置失敗（子元素尚未加載所導致的）
+    testing1.add_element(navigator)
     testing1.compose()
     navigator.rect.center = controller.screen_rect.center
-    print(controller.screen_rect.center)
-    links[0].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.main_menu))
-    links[1].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.main_game))
-    links[2].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.pause_menu))
-    links[3].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.the_end))
-    links[0].cursor = 'hand'
-    links[1].cursor = 'hand'
-    links[2].cursor = 'hand'
-    links[3].cursor = 'hand'
 
 testing1.init = init
