@@ -2,8 +2,6 @@ import os
 import shutil
 import time
 
-# sys.setrecursionlimit(1000000)
-
 def clear_caches():
     '''非必要功能：移除緩存資料夾'''
     for dirpath, folders, files in os.walk('.'):
