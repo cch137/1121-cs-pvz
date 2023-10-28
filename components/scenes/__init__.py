@@ -22,14 +22,19 @@ class Scene():
         return tuple(self.__elements)
 
     @property
+    def elements_generator(self):
+        for layer in self.layers:
+            for element in layer:
+                yield element
+
+    @property
     def is_playing(self):
         return controller.current_scene == self
 
     def get_element_by_id(self, id: str) -> element.Element | None:
-        for layer in self.layers:
-            for el in layer:
-                if el.id == id:
-                    return el
+        for el in self.elements_generator:
+            if el.id == id:
+                return el
     
     def add_element(self, *elements: element.Element):
         for element in list(elements):
@@ -71,9 +76,9 @@ class Scene():
             layer.draw(self.screen)
     
     def kill(self):
-        for layer in set(self.layers):
-            for element in set(l for l in layer):
-                element.kill()
+        for element in set(self.elements_generator):
+            element.kill()
+        controller.current_scene = None
 
     def play(self):
         self.update()

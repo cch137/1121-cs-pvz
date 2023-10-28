@@ -66,6 +66,8 @@ class Controller():
         # 繪製當前場景
         if self.current_scene is not None:
             self.current_scene.play()
+        else: # 如果沒有場景，將 screen 填充為背景顏色
+            self.screen.fill(BACKGROUND_COLOR)
 
         # 更新視窗
         pygame.display.flip()
