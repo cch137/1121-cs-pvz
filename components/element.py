@@ -85,7 +85,6 @@ import components.scenes as scenes
 
 class Element(pygame.sprite.Sprite, events.EventTarget):
     __children: List[Element]
-    __z_index: int | None = None
 
     scene: scenes.Scene | None = None
     parent: Element | None = None
@@ -136,12 +135,20 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         else:
             raise 'Invalid image'
         self.display = display or BLOCK
-        self.rect = self.image.get_rect()
         self.__children = list()
         self.caches = CacheManager()
         self.append_child(*children)
 
     radius_scale = 0.5
+
+    @property
+    def image(self) -> pygame.Surface:
+        return self.get_attribute('image')
+    
+    @image.setter
+    def image(self, value: pygame.Surface):
+        self.set_attribute('image', value)
+        self.rect = value.get_rect()
 
     @property
     def radius(self) -> int:
@@ -392,15 +399,15 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def z_index(self) -> int:
-        if self.__z_index is None:
-            if self.parent is None:
-                return 0
-            return self.parent.z_index + 1
-        return self.__z_index
+        if self.has_attribute('z_index'):
+            return self.get_attribute('z_index')
+        if self.parent is None:
+            return 0
+        return self.parent.z_index + 1
 
     @z_index.setter
     def z_index(self, value: int | None):
-        self.__z_index = value
+        self.set_attribute('z_index', value)
 
     def index(self, child: Element):
         '''Returns the index of the child'''

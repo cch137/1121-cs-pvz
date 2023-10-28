@@ -103,10 +103,8 @@ def init():
         element.add_event_listener(events.CLICK, lambda: controller.goto_scene(scene))
         def mouseenter():
             element.image = create_textbox(scene_name, 24, (0, 0, 255))
-            element.rect = element.image.get_rect()
         def mouseleave():
             element.image = create_textbox(scene_name, 24)
-            element.rect = element.image.get_rect()
         element.add_event_listener(events.MOUSEENTER, mouseenter)
         element.add_event_listener(events.MOUSELEAVE, mouseleave)
         element.cursor = 'hand'
