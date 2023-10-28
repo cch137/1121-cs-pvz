@@ -13,7 +13,7 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
-FLYOUT = 'flyout'
+_FLYOUT = 'flyout'
 
 class EventTarget: pass
 
@@ -151,8 +151,8 @@ class EventManager():
                 if el in l_mouseleave:
                     el.dispatch_event(MouseLeaveEvent(pos, el))
         
-        # detect FLYOUT
-        for el in self._elements_of(FLYOUT):
+        # detect _FLYOUT
+        for el in self._elements_of(_FLYOUT):
             if el.rect.left > controller.screen_rect.right \
             or el.rect.right < controller.screen_rect.left \
             or el.rect.top > controller.screen_rect.bottom \
