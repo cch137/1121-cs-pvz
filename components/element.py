@@ -142,14 +142,15 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def allow_flyout(self):
-        return self.has_attribute(events.FLYOUT)
+        '''如果把 allow_flyout 設為 False 那麼此元素離開視窗可視範圍時會自動被銷毀(kill)'''
+        return not self.has_attribute(events.FLYOUT)
 
     @allow_flyout.setter
     def allow_flyout(self, value: bool):
         if value:
             self.remove_event_listener(events.FLYOUT)
             return
-        self.set_attribute(events.FLYOUT, True)
+        self.set_attribute(events.FLYOUT, False)
         self.add_event_listener(events.FLYOUT)
 
     def __len__(self):
