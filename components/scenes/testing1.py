@@ -61,11 +61,10 @@ def init():
     image_ele3.cursor = 'hand'
     def plant_demo_shoot():
         bullet = element.Element((10, 10))
+        bullet.allow_flyout = False
         bullet.background_color = (255, 255, 255)
         def bullet_update():
             bullet.x -= 5
-            if bullet.rect.right < 0:
-                bullet.kill()
         bullet.update = bullet_update
         bullet.rect.centerx = image_ele3.rect.centerx - 32
         bullet.rect.centery = image_ele3.rect.centery - 18
@@ -76,7 +75,7 @@ def init():
     # 將 image_ele1, image_ele2 添加到 parent_ele
     parent_ele.append_child(image_ele1, image_ele2)
     def parent_update():
-        print(len(testing1.layers))
+        print(tuple(testing1.elements_generator).__len__())
     parent_ele.update = parent_update
     # 重新添加 children[3] 到 parent_ele
     # - 這會導致 children[3] 從 parent_ele 中移除

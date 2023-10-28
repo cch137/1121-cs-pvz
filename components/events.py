@@ -11,6 +11,7 @@ MOUSEENTER = 'mouseenter'
 MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
+FLYOUT = 'flyout'
 
 class EventTarget: pass
 
@@ -99,16 +100,13 @@ class EventManager():
     __target_sets: dict[str, set[EventTarget]] = {}
 
     def _targets_of(self, eventName: str, writable: bool = False):
-        if eventName not in self.__target_sets:
-            self.__target_sets[eventName] = set()
         if writable:
-            return self.__target_sets[eventName]
+            return self.__target_sets.setdefault(eventName, set())
         else:
-            return {
-                tar for tar in self.__target_sets[eventName]
-                if type(tar) is not element.Element 
-                or tar.is_playing
-            }
+            return set(self.__target_sets.setdefault(eventName, set()))
+
+    def _elements_of(self, eventName: str):
+        return { el for el in self._targets_of(eventName) if isinstance(el, element.Element) and el.is_playing }
 
     def add_target(self, target: EventTarget, eventName: str):
         self._targets_of(eventName, True).add(target)
@@ -123,13 +121,13 @@ class EventManager():
         x, y = pos
 
         # dispatch HoverEvent
-        for el in self._targets_of(HOVER):
+        for el in self._elements_of(HOVER):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(HoverEvent(pos, el))
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
-        l_mouseenter = self._targets_of(MOUSEENTER)
-        l_mouseleave = self._targets_of(MOUSELEAVE)
+        l_mouseenter = self._elements_of(MOUSEENTER)
+        l_mouseleave = self._elements_of(MOUSELEAVE)
         l_mouse = l_mouseenter | l_mouseleave # union
         for el in l_mouse:
             if el.rect.collidepoint(x, y):
@@ -143,9 +141,16 @@ class EventManager():
                     if el in l_mouseleave:
                         el.dispatch_event(MouseLeaveEvent(pos, el))
         
+        # detect FLYOUT
+        for el in self._elements_of(FLYOUT):
+            if el.rect.left > controller.screen_rect.right \
+            or el.rect.right < controller.screen_rect.left \
+            or el.rect.top > controller.screen_rect.bottom \
+            or el.rect.bottom < controller.screen_rect.top:
+                el.kill()
+
         # detect cursor style
-        l_cursor = { el for el in self._targets_of(CURSOR) if type(el) is element.Element }
-        for el in reversed(sorted(l_cursor, key=lambda x: x.z_index)):
+        for el in reversed(sorted(self._elements_of(CURSOR), key=lambda x: x.z_index)):
             if not el.rect.collidepoint(x, y):
                 continue
             match el.cursor:
@@ -173,12 +178,12 @@ class EventManager():
         # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            for el in self._targets_of(CLICK):
+            for el in self._elements_of(CLICK):
                 if el.rect.collidepoint(x, y):
                     el.set_attribute(BUTTONDOWN, (event.button, now))
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
-            for el in self._targets_of(CLICK):
+            for el in self._elements_of(CLICK):
                 if el.has_attribute(BUTTONDOWN):
                     # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
                     button, mousedown_at = el.get_attribute(BUTTONDOWN)

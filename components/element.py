@@ -140,6 +140,18 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.set_attribute(events.CURSOR, value)
         self.add_event_listener(events.CURSOR)
 
+    @property
+    def allow_flyout(self):
+        return self.has_attribute(events.FLYOUT)
+
+    @allow_flyout.setter
+    def allow_flyout(self, value: bool):
+        if value:
+            self.remove_all_event_listeners(events.FLYOUT)
+        else:
+            self.set_attribute(events.FLYOUT, True)
+            self.add_event_listener(events.FLYOUT)
+
     def __len__(self):
         return self.__children.__len__()
 
