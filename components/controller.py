@@ -36,6 +36,7 @@ class Controller():
     def __init__(self):
         self.running = True
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.screen_rect = self.screen.get_rect()
         self.events = events
         self.scenes = scenes
         self.element = element

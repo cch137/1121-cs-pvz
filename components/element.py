@@ -463,5 +463,5 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def kill(self):
         '''Remove the Element from all Groups. Remove all event listeners of the Element.'''
         self.remove_all_event_listeners()
-        self.disconnect_scene(self.scene)
+        self.disconnect_scene()
         pygame.sprite.Sprite.kill(self)

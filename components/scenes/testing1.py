@@ -53,9 +53,31 @@ def init():
     # 創建 image_ele2
     image_ele2 = element.Element(element.load_image('entities/sun.png', (60, 60)))
 
+    # 創建 image_ele3
+    image_ele3 = element.Element(element.load_image('plants/demo.png', (128, 128)))
+    image_ele3.image = pygame.transform.flip(image_ele3.image, True, False)
+    image_ele3.rect.right = controller.screen_rect.right - 10
+    image_ele3.rect.centery = controller.screen_rect.centery
+    image_ele3.cursor = 'hand'
+    def plant_demo_shoot():
+        bullet = element.Element((10, 10))
+        bullet.background_color = (255, 255, 255)
+        def bullet_update():
+            bullet.x -= 5
+            if bullet.rect.right < 0:
+                bullet.kill()
+        bullet.update = bullet_update
+        bullet.rect.centerx = image_ele3.rect.centerx - 32
+        bullet.rect.centery = image_ele3.rect.centery - 18
+        bullet.z_index = 99
+        testing1.add_element(bullet)
+    image_ele3.add_event_listener(events.CLICK, plant_demo_shoot)
+
     # 將 image_ele1, image_ele2 添加到 parent_ele
     parent_ele.append_child(image_ele1, image_ele2)
-
+    def parent_update():
+        print(len(testing1.layers))
+    parent_ele.update = parent_update
     # 重新添加 children[3] 到 parent_ele
     # - 這會導致 children[3] 從 parent_ele 中移除
     # - 然後 children[3] 會重新被添加到 parent_ele.childern 的尾部
@@ -68,5 +90,8 @@ def init():
 
     # 將 parent_ele 添加到 testing1 場景
     testing1.add_element(parent_ele)
+
+    # 將 image_ele3 添加到 testing1 場景
+    testing1.add_element(image_ele3)
 
 testing1.init = init

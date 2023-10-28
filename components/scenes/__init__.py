@@ -56,6 +56,8 @@ class Scene():
     def disconnect_element(self, element: element.Element):
         '''注：此方法僅在 Element 內調用'''
         self.layers[element.z_index].remove(element)
+        if element in self.__elements:
+            self.__elements.remove(element)
     
     def update(self):
         for layer in self.layers:
