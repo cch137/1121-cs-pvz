@@ -115,9 +115,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         events.EventTarget.__init__(self)
-        if type(image) == pygame.Surface:
+        if isinstance(image, pygame.Surface):
             self.image = image
-        elif type(image) == tuple:
+        elif isinstance(image, tuple):
             self.image = pygame.Surface(image)
             self.min_width, self.min_height = image
         else:
@@ -343,7 +343,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @padding.setter
     def padding(self, value: int | tuple[int]):
-        if type(value) is not tuple:
+        if not isinstance(value, tuple):
             value = (value,)
         self.padding_top = value[0]
         match len(value):

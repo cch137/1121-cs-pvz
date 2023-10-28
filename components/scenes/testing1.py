@@ -57,7 +57,7 @@ def init():
     image_ele2 = element.Element(element.load_image('entities/sun.png', (60, 60)))
 
     # 創建 image_ele3
-    image_ele3 = element.Element(element.load_image('plants/demo.png', (128, 128)))
+    image_ele3 = plants.Plant(element.load_image('plants/demo.png', (128, 128)))
     image_ele3.image = pygame.transform.flip(image_ele3.image, True, False)
     image_ele3.rect.right = controller.screen_rect.right - 10
     image_ele3.rect.centery = controller.screen_rect.centery

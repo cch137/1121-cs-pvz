@@ -162,7 +162,7 @@ class EventManager():
                 case 'sizeall':
                     controller.cursor.sizeall()
                 case _:
-                    if type(el.cursor) is int:
+                    if isinstance(el.cursor, int):
                         controller.cursor.set(el.cursor)
                     else:
                         controller.cursor.default()
