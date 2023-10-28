@@ -6,16 +6,12 @@ import components.scenes as scenes
 testing1 = scenes.Scene()
 
 def init():
-    import components.events as events
-    import components.element as element
-    import components.entities as entities
-    import components.entities.plants as plants
-    import components.entities.zombies as zombies
-    from components.controller import controller
+    from components import Element, load_image, \
+        events, Entity, Plant, Zombie, controller
 
     # 一個製作 element 的函式
     def make_color_block(color: (255, 255, 255)):
-        ele = element.Element((50, 50))
+        ele = Element((50, 50))
         ele.background_color = color
         return ele
 
@@ -25,7 +21,7 @@ def init():
     ]]
 
     # 設置 parent_ele 的樣式
-    parent_ele = element.Element()
+    parent_ele = Element()
     parent_ele.min_width = 150
     parent_ele.max_height = 400
     parent_ele.x = 50
@@ -46,7 +42,7 @@ def init():
     children[2].add_event_listener(events.CLICK, blue_clicked)
 
     # 創建 image_ele1
-    image_ele1 = element.Element(element.load_image('icon.png', (50, 50)))
+    image_ele1 = Element(load_image('icon.png', (50, 50)))
     image_ele1.cursor = 'hand'
 
     # 添加 click 事件監聽器
@@ -55,16 +51,16 @@ def init():
     image_ele1.add_event_listener(events.CLICK, image_ele_clicked)
 
     # 創建 image_ele2
-    image_ele2 = element.Element(element.load_image('entities/sun.png', (60, 60)))
+    image_ele2 = Element(load_image('entities/sun.png', (60, 60)))
 
     # 創建 image_ele3
-    image_ele3 = plants.Plant(element.load_image('plants/demo.png', (128, 128)))
+    image_ele3 = Plant(load_image('plants/demo.png', (128, 128)))
     image_ele3.image = pygame.transform.flip(image_ele3.image, True, False)
     image_ele3.rect.right = controller.screen_rect.right - 10
     image_ele3.rect.centery = controller.screen_rect.centery
     image_ele3.cursor = 'hand'
     def plant_demo_shoot():
-        bullet = entities.Entity((10, 10))
+        bullet = Entity((10, 10))
         bullet.allow_flyout = False
         bullet.background_color = (255, 255, 255)
         def bullet_update():

@@ -6,40 +6,36 @@ import components.scenes as scenes
 testing2 = scenes.Scene()
 
 def init():
-    import components.events as events
-    import components.element as element
-    import components.entities as entities
-    import components.entities.plants as plants
-    import components.entities.zombies as zombies
-    from components.controller import controller
+    from components import Element, load_image, \
+        events, Entity, Plant, Zombie, controller
 
     # 創建 outer_element
-    outer_element = element.Element()
+    outer_element = Element()
     outer_element.min_width = WINDOW_WIDTH
     outer_element.min_height = WINDOW_HEIGHT
 
     # 創建 inner_element
-    inner_element = element.Element((600, 400))
+    inner_element = Element((600, 400))
     inner_element.min_width = 600
     inner_element.min_height = 400
     inner_element.background_color = (255, 0, 0)
     inner_element.spacing = 10
 
     # 創建 btn1, btn2, btn3
-    btn1 = element.Element((300, 80))
+    btn1 = Element((300, 80))
     btn1.background_color = (0, 255, 255)
-    btn2 = element.Element((300, 80))
+    btn2 = Element((300, 80))
     btn2.background_color = (0, 255, 0)
-    btn3 = element.Element((300, 80), 'row')
+    btn3 = Element((300, 80), 'row')
     btn3.background_color = (0, 255, 0)
     btn3.spacing = 15
 
     # 創建 btn3_1, btn3_2, btn3_3
-    btn3_1 = element.Element((75, 50))
+    btn3_1 = Element((75, 50))
     btn3_1.background_color = (0, 0, 255)
-    btn3_2 = element.Element((75, 50))
+    btn3_2 = Element((75, 50))
     btn3_2.background_color = (0, 0, 255)
-    btn3_3 = element.Element((75, 50))
+    btn3_3 = Element((75, 50))
     btn3_3.background_color = (0, 0, 255)
 
     # 添加 click 事件監聽器（頁面轉跳）

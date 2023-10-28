@@ -6,12 +6,8 @@ import components.scenes as scenes
 main_game = scenes.Scene()
 
 def init():
-    import components.events as events
-    import components.element as element
-    import components.entities as entities
-    import components.entities.plants as plants
-    import components.entities.zombies as zombies
-    from components.controller import controller
+    from components import Element, load_image, \
+        events, Entity, Plant, Zombie, controller
     pass
 
 main_game.init = init
