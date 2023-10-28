@@ -104,6 +104,8 @@ def init():
     navigator = Element(None, None, links)
     navigator.spacing = 16
     testing1.add_element(navigator)
+    # 注意！透過 .rect 設置坐標的時候，先使用 Scene.compose() 進行排版
+    # 這是為了防止坐標設置失敗（子元素尚未加載所導致的）
     testing1.compose()
     navigator.rect.center = controller.screen_rect.center
     print(controller.screen_rect.center)
