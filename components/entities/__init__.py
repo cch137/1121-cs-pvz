@@ -3,17 +3,17 @@ import pygame
 import utils.process as process
 import components.element as element
 
-class Character: pass
+class Entity: pass
 
 class Ability():
     def __init__(
             self,
-            character: Character,
+            entities: Entity,
             name: str = '_',
             attack: int = 0,
             colddown: int = 60,
         ):
-        self.character = character
+        self.entities = entities
         self.name = name
         self.attack = attack
         self.colddown = colddown
@@ -35,7 +35,7 @@ class Ability():
         注意：此函式須返回一個布林值！布林值表示為此能力是否使用成功。'''
         return True
 
-class Character(element.Element):
+class Entity(element.Element):
     health: int = 100
     defense: int = 0
     '''number between 0 and 100'''
@@ -54,5 +54,5 @@ class Character(element.Element):
         for ability in self.abilities:
             ability.use()
 
-import components.character.plants as plants
-import components.character.zombies as zombies
+import components.entities.plants as plants
+import components.entities.zombies as zombies
