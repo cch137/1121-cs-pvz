@@ -94,4 +94,13 @@ def init():
     # 將 image_ele3 添加到 testing1 場景
     testing1.add_element(image_ele3)
 
+    # 創建導航
+    links = [
+        Element(create_textbox('main_menu', 18)),
+        Element(create_textbox('main_game', 18)),
+        Element(create_textbox('pause_menu', 18)),
+        Element(create_textbox('the_end', 18)),
+    ]
+    testing1.add_element(Element(None, None, links))
+
 testing1.init = init

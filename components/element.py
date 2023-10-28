@@ -122,7 +122,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def children(self):
         return list(self.__children)
 
-    def __init__(self, image: pygame.Surface | Tuple[int,int] | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: List[Element] = []):
+    def __init__(self, image: pygame.Surface | Tuple[int,int] | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: Iterable[Element] = []):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         events.EventTarget.__init__(self)
