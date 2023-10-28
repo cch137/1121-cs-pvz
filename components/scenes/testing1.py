@@ -96,11 +96,24 @@ def init():
 
     # 創建導航
     links = [
-        Element(create_textbox('main_menu', 18)),
-        Element(create_textbox('main_game', 18)),
-        Element(create_textbox('pause_menu', 18)),
-        Element(create_textbox('the_end', 18)),
+        Element(create_textbox('main_menu', 24)),
+        Element(create_textbox('main_game', 24)),
+        Element(create_textbox('pause_menu', 24)),
+        Element(create_textbox('the_end', 24)),
     ]
-    testing1.add_element(Element(None, None, links))
+    navigator = Element(None, None, links)
+    navigator.spacing = 16
+    testing1.add_element(navigator)
+    testing1.compose()
+    navigator.rect.center = controller.screen_rect.center
+    print(controller.screen_rect.center)
+    links[0].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.main_menu))
+    links[1].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.main_game))
+    links[2].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.pause_menu))
+    links[3].add_event_listener(events.CLICK, lambda: controller.goto_scene(scenes.the_end))
+    links[0].cursor = 'hand'
+    links[1].cursor = 'hand'
+    links[2].cursor = 'hand'
+    links[3].cursor = 'hand'
 
 testing1.init = init
