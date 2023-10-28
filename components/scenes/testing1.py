@@ -76,7 +76,7 @@ def init():
     parent_ele.append_child(image_ele1, image_ele2)
 
     # 列印當前場景元素總數
-    # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
+    parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
 
     # 重新添加 children[3] 到 parent_ele
     # - 這會導致 children[3] 從 parent_ele 中移除
