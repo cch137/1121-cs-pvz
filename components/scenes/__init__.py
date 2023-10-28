@@ -73,15 +73,14 @@ class Scene():
             for element in layer:
                 if element.background_color != None:
                     element.image.fill(element.background_color)
-            # 為了預防組件正在更新而繪製失敗導致程序崩潰，繪製失敗後會進行重試。
-            i = 0
-            while i < 3:
-                try:
-                    layer.draw(self.screen)
-                    break
-                except Exception as e:
-                    print(e)
-                    i += 1
+            try:
+                layer.draw(self.screen)
+            except:
+                # 當 Sprite 正在更新時(由於子線程所觸發)，將會導致繪製失敗
+                # 繪製失敗會導致程序崩潰，為了預防崩潰，嘗試逐一繪製 Sprite。
+                for el in layer:
+                    try: self.screen.blit(el.image, el.rect, None, 0)
+                    except: pass
 
     def kill(self):
         for element in set(self.elements_generator):
