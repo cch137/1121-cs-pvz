@@ -73,8 +73,16 @@ class Scene():
             for element in layer:
                 if element.background_color != None:
                     element.image.fill(element.background_color)
-            layer.draw(self.screen)
-    
+            # 為了預防組件正在更新而繪製失敗導致程序崩潰，繪製失敗後會進行重試。
+            i = 0
+            while i < 3:
+                try:
+                    layer.draw(self.screen)
+                    break
+                except Exception as e:
+                    print(e)
+                    i += 1
+
     def kill(self):
         for element in set(self.elements_generator):
             element.kill()

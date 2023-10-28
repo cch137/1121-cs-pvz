@@ -1,5 +1,6 @@
 from typing import *
 import pygame
+import threading
 import utils.process as process
 import components.element as element
 
@@ -75,9 +76,10 @@ class EventTarget():
             for listener in self.__listeners[event.name]:
                 try:
                     if listener.__code__.co_argcount > 0:
-                        listener(event)
+                        args = (event, )
                     else:
-                        listener()
+                        args = set()
+                    threading.Thread(target=listener, args=args).start()
                 except Exception as err:
                     print(err)
 
