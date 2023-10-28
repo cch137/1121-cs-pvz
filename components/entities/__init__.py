@@ -1,7 +1,7 @@
 from typing import *
 import pygame
 import utils.process as process
-import components.element as element
+from components import Element
 
 class Entity: pass
 
@@ -35,7 +35,7 @@ class Ability():
         注意：此函式須返回一個布林值！布林值表示為此能力是否使用成功。'''
         return True
 
-class Entity(element.Element):
+class Entity(Element):
     health: int = 100
     defense: int = 0
     '''number between 0 and 100'''
@@ -43,14 +43,14 @@ class Entity(element.Element):
     '''視野。單位：格(地圖 tile)'''
 
     def __init__(self, image: pygame.Surface):
-        element.Element.__init__(self, image)
+        Element.__init__(self, image)
         self.abilities: set[Ability] = set()
     
     def damage(self, value: int):
         self.health -= value * (100 - self.defense)
     
     def update(self, *args: Any, **kargs: Any):
-        element.Element.update(self, *args, **kargs)
+        Element.update(self, *args, **kargs)
         for ability in self.abilities:
             ability.use()
 

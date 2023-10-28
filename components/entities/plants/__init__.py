@@ -1,14 +1,14 @@
 from typing import *
 import pygame
-import components.entities as entities
+from components.entities import Entity
 
 class Plant: pass
 
 import components.entities.zombies as zombies
 
-class Plant(entities.Entity):
+class Plant(Entity):
     def __init__(self, image: pygame.Surface):
-        entities.Entity.__init__(self, image)
+        Entity.__init__(self, image)
     
     @property
     def closest_zombie(self) -> zombies.Zombie:

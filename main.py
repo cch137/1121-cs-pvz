@@ -16,4 +16,5 @@ def main():
         process.update()
 
 if __name__ == '__main__':
+    controller.goto_scene(controller.scenes.main_menu)
     main()
