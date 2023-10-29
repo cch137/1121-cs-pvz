@@ -62,7 +62,7 @@ def git_commit():
     print()
     message = input('Commit message: ')
     git_add()
-    os.system(f'git commit -m "{message.replace('"', '\'')}"')
+    os.system(f'git commit -m "{message}"')
 
 def git_push():
     print()
