@@ -60,7 +60,7 @@ def git_add():
 
 def git_commit():
     print()
-    message = input('Commit message: ')
+    message = input('Commit message: ').replace('\"', '\'')
     git_add()
     os.system(f'git commit -m "{message}"')
 
@@ -84,9 +84,6 @@ def git_reset_hard():
         print()
         os.system('git reset --hard')
     else: print('操作已取消。')
-
-def i_dont_know():
-    print('如果你認為你的代碼已經告一段落')
 
 def show_actions():
     print('請選擇操作（輸入數字）：')
