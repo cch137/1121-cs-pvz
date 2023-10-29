@@ -62,6 +62,7 @@ def init():
     # 創建子彈
     def plant_demo_shoot():
         bullet = Entity((10, 10))
+        # 這樣設置是為了讓元素在超出屏幕時自動消失
         bullet.allow_flyout = False
         bullet.background_color = (255, 0, 255)
         bullet.velocity_x = -10
@@ -74,7 +75,7 @@ def init():
     demo_plant.add_event_listener(events.CLICK, plant_demo_shoot)
 
     # 列印當前場景元素總數
-    # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
+    parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
 
     # 將元素添加到 parent_ele
     parent_ele.append_child(troll_face)

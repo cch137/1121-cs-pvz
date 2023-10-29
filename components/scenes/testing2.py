@@ -26,7 +26,7 @@ def init():
     btn1.background_color = (0, 255, 255)
     btn2 = Element((300, 80))
     btn2.background_color = (0, 255, 0)
-    btn3 = Element((300, 80), 'row')
+    btn3 = Element((300, 80), ROW)
     btn3.background_color = (0, 255, 0)
     btn3.spacing = 15
 

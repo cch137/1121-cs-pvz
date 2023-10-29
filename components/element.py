@@ -92,7 +92,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     display: Literal['block', 'inline', 'row', 'column'] = BLOCK
 
-    background_color: str = None
+    background_color: tuple[int] = None
 
     min_width: int | None = None
     max_width: int | None = None

@@ -5,7 +5,6 @@ import time
 import utils.process as process
 import components.element as element
 
-CURSOR = 'cursor'
 CLICK = 'click'
 HOVER = 'hover'
 MOUSEENTER = 'mouseenter'
@@ -13,6 +12,7 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
+CURSOR = 'cursor'
 _FLYOUT = 'flyout'
 
 class EventTarget: pass
