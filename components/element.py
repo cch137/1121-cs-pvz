@@ -127,13 +127,14 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         events.EventTarget.__init__(self)
         if image is None:
             image = (0, 0)
-        if isinstance(image, pygame.Surface):
-            self.image = image
-        elif isinstance(image, tuple):
+        elif isinstance(image, int):
+            image = (image, image)
+        if isinstance(image, tuple):
+            if len(image) < 2: image = (image[0], 0)
             self.image = pygame.Surface(image)
             self.min_width, self.min_height = image
-        else:
-            raise 'Invalid image'
+        elif isinstance(image, pygame.Surface):
+            self.image = image
         self.display = display or BLOCK
         self.__children = list()
         self.caches = CacheManager()
