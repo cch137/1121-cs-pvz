@@ -59,19 +59,18 @@ def init():
     demo_plant.cursor = 'hand'
     # 哈咯！!
 
-    # 創建子彈
+    # 發射子彈子彈
     def plant_demo_shoot():
-        bullet = Entity((10, 10))
-        # 這樣設置是為了讓元素在超出屏幕時自動消失
-        bullet.allow_flyout = False
-        bullet.background_color = (255, 0, 255)
-        bullet.velocity_x = -10
-        bullet.rect.centerx = demo_plant.rect.centerx - 32
-        bullet.rect.centery = demo_plant.rect.centery - 18
-        bullet.collision_damage = 10
+        bullet = Entity((10, 10)) # 創建子彈
+        bullet.allow_flyout = False # 讓元素在超出屏幕時自動消失
+        bullet.background_color = (255, 0, 255) # 設置背景顏色
+        bullet.velocity_x = -10 # 設置速度
+        bullet.rect.center = (demo_plant.rect.centerx - 32, demo_plant.rect.centery - 18) # 設置初始坐標
+        bullet.collision_damage = 10 # 設置碰撞傷害
+        # 將 Entity 設為碰撞目標，也就是當它與 Entity 發生碰撞時，會對那個 Entity 造成傷害
         bullet.collision_target_types.add(Entity)
-        bullet.z_index = 99
-        testing1.add_element(bullet)
+        bullet.z_index = 99 # 提高元素所在的層次，以確保它在繪製時能覆蓋其他元素
+        testing1.add_element(bullet) # 把子彈添加到場景
     demo_plant.add_event_listener(events.CLICK, plant_demo_shoot)
 
     # 列印當前場景元素總數
