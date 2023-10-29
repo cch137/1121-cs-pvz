@@ -81,6 +81,7 @@ def git_reset():
                 os.system('git reset --hard HEAD')
             case 2:
                 os.system('git reset --hard')
+    else: print('操作已取消。')
 
 def take_action():
     print()
