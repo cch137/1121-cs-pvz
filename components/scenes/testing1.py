@@ -57,6 +57,7 @@ def init():
     demo_plant.rect.right = controller.screen_rect.right - 10
     demo_plant.rect.centery = controller.screen_rect.centery
     demo_plant.cursor = 'hand'
+    # 哈咯！
 
     # 創建子彈
     def plant_demo_shoot():
