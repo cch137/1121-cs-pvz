@@ -86,6 +86,7 @@ def git_reset():
 def take_action():
     print()
     print('請選擇操作（輸入數字）：')
+    print('0 - 取消')
     print('1 - 將 branch 同步到最新版本')
     print('2 - 暫存（add）')
     print('3 - 提交 (commit)')
@@ -94,6 +95,8 @@ def take_action():
     print('9 - 放棄當前更改')
     action = get_choose()
     match action:
+        case 0:
+            return
         case 1:
             git_pull_origin_main()
         case 2:
@@ -114,8 +117,9 @@ def take_action():
 def main():
     global branch_name
     if not os.path.exists(cache_filepath):
-        if not input_branch():
-            return
+        if input_branch():
+            show_branch_name()
+        return
     else:
         branch_name = json.loads(open(cache_filepath, 'r').read()).get('branch')
         if not branch_name:
