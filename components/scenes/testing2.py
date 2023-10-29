@@ -16,8 +16,6 @@ def init():
 
     # 創建 inner_element
     inner_element = Element((600, 400))
-    inner_element.min_width = 600
-    inner_element.min_height = 400
     inner_element.background_color = (255, 0, 0)
     inner_element.spacing = 10
     inner_element.padding = 10
