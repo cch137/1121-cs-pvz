@@ -103,13 +103,13 @@ def show_actions():
 def show_noob_actions():
     print('你在想什麼？')
     print('0  - 取消')
-    print('1  - 抓取最新版本的代碼 (pull)')
-    print('2  - 我的代碼完成了一小段落 (add)')
-    print('3  - 我的代碼完成了階段性的更改 (commit)')
-    print('4  - 我想把我的代碼推送到倉庫 (push)')
+    print('1  - 抓取最新版本的專案 (pull)')
+    print('2  - 暫存我的工作階段 (add)')
+    print('3  - 我完成了階段性的更改 (commit)')
+    print('4  - 我想把我的更改推送到倉庫 (push)')
     print('5  - 我同時需要進行 3 和 4 (commit and push)')
-    print('87 - 撤銷我之前暫存的更改 (reset)')
-    print('88 - 放棄所有我更改過的代碼 (reset --hard)')
+    print('87 - 撤銷我之前所暫存的工作階段 (reset)')
+    print('88 - 放棄所有的更改 (reset --hard)')
 
 def take_action(noob = False):
     print()
