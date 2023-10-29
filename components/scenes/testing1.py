@@ -34,7 +34,7 @@ def init():
     # 創建 parent_ele 並設置樣式
     parent_ele = Element()
     parent_ele.min_width = 150
-    parent_ele.min_height = 400
+    parent_ele.min_height = 480
     parent_ele.x = 50
     parent_ele.y = 50
     parent_ele.spacing = 25
@@ -43,7 +43,7 @@ def init():
     parent_ele.append_child(*children)
 
     # 創建 troll_face
-    troll_face = Element(load_image('icon.png', (50, 50)))
+    troll_face = Entity(load_image('icon.png', (50, 50)))
     troll_face.cursor = 'hand'
 
     # 添加 click 事件監聽器
