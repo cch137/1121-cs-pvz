@@ -70,29 +70,30 @@ def git_pull_origin_main():
 
 def git_reset():
     print()
-    print('請選擇：')
-    print('1 - 還原到最近一次的提交狀態 (commit)')
-    print('2 - 還原到最近一次暫存 (add)')
-    action = get_choose()
+    os.system('git reset')
+
+def git_reset_hard():
+    print()
     if input('你確定？(Y/N) ').strip().upper() == 'Y':
         print()
-        match action:
-            case 1:
-                os.system('git reset --hard HEAD')
-            case 2:
-                os.system('git reset --hard')
+        os.system('git reset --hard')
+    else: print('操作已取消。')
 
 def take_action():
     print()
     print('請選擇操作（輸入數字）：')
+    print('0 - 取消')
     print('1 - 將 branch 同步到最新版本')
     print('2 - 暫存（add）')
     print('3 - 提交 (commit)')
     print('4 - 推送 (push)')
     print('5 - 提交 & 推送 (commit & push)')
-    print('9 - 放棄當前更改')
+    print('87 - 撤銷暫存（reset)')
+    print('88 - 放棄所有更改 (reset --hard)')
     action = get_choose()
     match action:
+        case 0:
+            return
         case 1:
             git_pull_origin_main()
         case 2:
@@ -104,8 +105,10 @@ def take_action():
         case 5:
             git_commit()
             git_push()
-        case 9:
+        case 87:
             git_reset()
+        case 88:
+            git_reset_hard()
         case _:
             print()
             print(':)')
@@ -113,8 +116,9 @@ def take_action():
 def main():
     global branch_name
     if not os.path.exists(cache_filepath):
-        if not input_branch():
-            return
+        if input_branch():
+            show_branch_name()
+        return
     else:
         branch_name = json.loads(open(cache_filepath, 'r').read()).get('branch')
         if not branch_name:
