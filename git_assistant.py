@@ -85,9 +85,6 @@ def git_reset_hard():
         os.system('git reset --hard')
     else: print('操作已取消。')
 
-def i_dont_know():
-    print('如果你認為你的代碼已經告一段落')
-
 def show_actions():
     print('請選擇操作（輸入數字）：')
     print('0  - 取消')
