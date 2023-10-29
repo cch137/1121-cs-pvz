@@ -8,7 +8,7 @@ main_game = scenes.Scene()
 def init():
     from components import Element, load_image, load_animation, create_textbox, \
         events, Entity, Plant, Zombie, controller
-    # testing 123
+    # testing 123123456
     pass
 
 main_game.init = init
