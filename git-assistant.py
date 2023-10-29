@@ -83,7 +83,7 @@ def take_action():
     print()
     print('請選擇操作（輸入數字）：')
     print('0  - 取消')
-    print('1  - 將 branch 同步到最新版本')
+    print('1  - 將 branch 同步到最新版本 (pull)')
     print('2  - 暫存（add）')
     print('3  - 提交 (commit)')
     print('4  - 推送 (push)')
