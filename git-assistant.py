@@ -55,8 +55,8 @@ def git_add():
 def git_commit():
     print()
     message = input('Commit message: ')
-    print()
-    os.system(f'git commit -m {message}')
+    git_add()
+    os.system(f'git commit -m "{message}"')
 
 def git_push():
     print()
@@ -71,8 +71,8 @@ def git_pull_origin_main():
 def git_reset():
     print()
     print('請選擇：')
-    input('1 - 還原到最近一次的提交狀態 (commit)')
-    input('2 - 還原到最近一次暫存 (add)')
+    print('1 - 還原到最近一次的提交狀態 (commit)')
+    print('2 - 還原到最近一次暫存 (add)')
     action = get_choose()
     if input('你確定？(Y/N) ').strip().upper() == 'Y':
         print()
