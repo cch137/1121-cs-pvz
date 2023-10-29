@@ -317,11 +317,11 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                     x += child.computed_width + self.spacing
             # 設定 y 座標
             if align_items == START:
-                y = self.padding_top
+                y = self.rect.top + self.padding_top
                 for child in self.__children:
                     child.rect.top = y
             elif align_items == END:
-                y = self.padding_bottom
+                y = self.rect.bottom - self.padding_bottom
                 for child in self.__children:
                     child.rect.bottom = y
             else:
@@ -331,11 +331,11 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         else: # display in (COLUMN, BLOCK, default)
             # 設定 x 座標
             if justify_content == START:
-                x = self.padding_left
+                x = self.rect.left + self.padding_left
                 for child in self.__children:
                     child.rect.left = x
             elif justify_content == END:
-                x = self.padding_right
+                x = self.rect.right - self.padding_right
                 for child in self.__children:
                     child.rect.right = x
             else:

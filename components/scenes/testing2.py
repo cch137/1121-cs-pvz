@@ -20,6 +20,9 @@ def init():
     inner_element.min_height = 400
     inner_element.background_color = (255, 0, 0)
     inner_element.spacing = 10
+    inner_element.padding = 10
+    inner_element.align_items = END
+    inner_element.justify_content = START
 
     # 創建 btn1, btn2, btn3
     btn1 = Element((300, 80))
