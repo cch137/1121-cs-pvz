@@ -62,7 +62,7 @@ def git_commit():
     print()
     message = input('Commit message: ')
     git_add()
-    os.system(f'git commit -m "{message}"')
+    os.system(f'git commit -m "{message.replace('"', '\'')}"')
 
 def git_push():
     print()
@@ -85,8 +85,10 @@ def git_reset_hard():
         os.system('git reset --hard')
     else: print('操作已取消。')
 
-def take_action():
-    print()
+def i_dont_know():
+    print('如果你認為你的代碼已經告一段落')
+
+def show_actions():
     print('請選擇操作（輸入數字）：')
     print('0  - 取消')
     print('1  - 將 branch 同步到最新版本 (pull)')
@@ -96,6 +98,23 @@ def take_action():
     print('5  - 提交 & 推送 (commit & push)')
     print('87 - 撤銷暫存（reset)')
     print('88 - 放棄所有更改 (reset --hard)')
+    print('99 - 不知道')
+
+def show_noob_actions():
+    print('你在想什麼？')
+    print('0  - 取消')
+    print('1  - 抓取最新版本的代碼 (pull)')
+    print('2  - 我的代碼完成了一小段落 (add)')
+    print('3  - 我的代碼完成了階段性的更改 (commit)')
+    print('4  - 我想把我的代碼推送到倉庫 (push)')
+    print('5  - 我同時需要進行 3 和 4 (commit and push)')
+    print('87 - 撤銷我之前暫存的更改 (reset)')
+    print('88 - 放棄所有我更改過的代碼 (reset --hard)')
+
+def take_action(noob = False):
+    print()
+    if noob: show_noob_actions()
+    else: show_actions()
     action = get_choose()
     match action:
         case 0:
@@ -115,6 +134,8 @@ def take_action():
             git_reset()
         case 88:
             git_reset_hard()
+        case 99:
+            if not noob: take_action(True)
         case _:
             print()
             print(':)')
