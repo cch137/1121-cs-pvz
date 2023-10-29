@@ -1,7 +1,13 @@
+'''
+一個簡易的 Git Branch 管理輔助工具。
+
+author: [cch137](https://github.com/cch137)
+'''
+
 import os
 import json
 
-cache_filepath = 'dev-assistant.json'
+cache_filepath = 'git_assistant.json'
 
 branch_name: str = ''
 
@@ -115,6 +121,10 @@ def take_action():
 
 def main():
     global branch_name
+    if os.path.exists('.gitignore'):
+        gi = open('.gitignore', 'r').read()
+        if cache_filepath not in gi:
+            open('.gitignore', 'w').write(f'# git_assistant\ngit_assistant.json\n\n{gi}')
     if not os.path.exists(cache_filepath):
         if input_branch():
             show_branch_name()
