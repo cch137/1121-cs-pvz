@@ -168,7 +168,7 @@ class Entity(Element):
             self.x += real_velocity_x
             self.y += real_velocity_y
             if self.move_limit is not None:
-                self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
+                self.move_limit -= math.dist((self.x, self.y), (x1, y1))
         
         # 判斷碰撞傷害
         if self.collision_damage is None or len(self.collision_targets) == 0:
