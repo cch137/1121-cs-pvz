@@ -56,16 +56,7 @@ class PoisonEffect(Effect):
         return PoisonEffect(self.name, self.durationTicks, self.attack_power)
 
 class Ability():
-    def __init__(
-            self,
-            entities: Entity,
-            name: str = '_',
-            attack: int = 0,
-            colddown: int = 60,
-        ):
-        self.entities = entities
-        self.name = name
-        self.attack = attack
+    def __init__(self, colddown: int = 60):
         self.colddown = colddown
         '''unit: tick'''
         self.last_used_at: int = 0
