@@ -99,11 +99,11 @@ class Entity(Element):
     acceleration_x: int = 0
     acceleration_y: int = 0
     move_limit: int | None = None
-    '''實物的自動移動距離限制'''
+    '''實體的自動移動距離限制'''
 
     collision_target_types: set[type[[Entity]]]
     collision_damage: int | None = None
-    '''與其他實物碰撞時，對該實物產生的傷害。若為 None 則不會與任何其他實物碰撞。'''
+    '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
     def __init__(self, image: pygame.Surface):
         Element.__init__(self, image)
