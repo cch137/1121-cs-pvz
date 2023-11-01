@@ -75,13 +75,16 @@ class Ability():
     def is_cooling_down(self):
         return self.last_used_at + self.colddown > process.ticks
     
-    def use(self):
+    def use(self, entity: Entity):
         if self.is_cooling_down: # 技能正在冷卻中，無法使用
             return
-        if self.effect():
+        if self.effect.__code__.co_argcount > 0:
+            if self.effect(entity):
+                self.last_used_at = process.ticks
+        elif self.effect():
             self.last_used_at = process.ticks
 
-    def effect(self) -> bool:
+    def effect(self, entity: Entity) -> bool:
         '''重寫此函式以賦予 Ability 效果。
         注意：此函式須返回一個布林值！布林值表示為此能力是否使用成功。'''
         return True
@@ -108,14 +111,20 @@ class Entity(Element):
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
-    def __init__(self, image: pygame.Surface, abilities: set[Ability] | None = None):
+    def __init__(self, image: pygame.Surface,
+        collision_effects: set[Effect] | None = None, abilities: set[Ability] | None = None):
+        '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)\\
+        abilities 是技能'''
         Element.__init__(self, image)
+
         self.abilities = abilities or set()
         all_entities.add(self)
         self.collision_targets = set()
+
         self.__self_effects: set[Effect] = set()
         '''此屬性是此實體身上目前所擁有的 Effect'''
-        self.__damage_effects: set[Effect] = set()
+
+        self.__collision_effects = collision_effects or set()
         '''此屬性的 Effect 將在此實體對其他實體造成攻擊時，對其他實體所施加的效果。\\
         注意：如果要使用“子彈”對其他實體造成攻擊，你應該設置“子彈”的 Effect 而不是設置發出子彈的實體。'''
     
@@ -153,7 +162,7 @@ class Entity(Element):
         
         # 使用技能
         for ability in self.abilities:
-            ability.use()
+            ability.use(self)
 
         if self.dead:
             return
@@ -169,6 +178,9 @@ class Entity(Element):
             if self.move_limit is not None:
                 self.move_limit -= math.dist((self.x, self.y), (x1, y1))
         
+        if isinstance(self, Character) and self.is_touch_with_enemy:
+            return # 遊戲角色會被敵人阻擋，於是無法前進
+        
         # 判斷碰撞傷害
         if self.collision_damage is None or len(self.collision_targets) == 0:
             return
@@ -177,10 +189,10 @@ class Entity(Element):
             for target in self.collision_targets:
                 if (type(target) is type and type(entity) is target) or target is entity:
                     if pygame.sprite.collide_circle(self, entity):
-                        entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
+                        entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                         return self.kill()
                 elif entity == target:
-                    entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
+                    entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                     return self.kill()
     
     def dist(self, target: Entity):
@@ -198,8 +210,8 @@ class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
 
-    def __init__(self, image: pygame.Surface, friends: set[Character], enemies: set[Character]):
-        Entity.__init__(self, image)
+    def __init__(self, image: pygame.Surface, friends: set[Character], enemies: set[Character], abilities: set[Ability] | None = None):
+        Entity.__init__(self, image, None, abilities)
         friends.add(self)
         self.__friends = friends
         self.__enemies = enemies
@@ -224,22 +236,10 @@ class Character(Entity):
     @property
     def closest_enemy(self):
         return self.__closest_from_set(self.enemies)
-    
-    @property
-    def closest_plant(self):
-        if self.friends is plants.all_plants:
-            return self.__closest_from_set(self.friends)
-        if self.enemies is plants.all_plants:
-            return self.__closest_from_set(self.enemies)
-        return None
 
     @property
-    def closest_zombie(self):
-        if self.friends is zombies.all_zombies:
-            return self.__closest_from_set(self.friends)
-        if self.enemies is zombies.all_zombies:
-            return self.__closest_from_set(self.enemies)
-        return None
+    def is_touch_with_enemy(self):
+        return pygame.sprite.collide_circle(self, self.closest_enemy)
     
     def is_on_same_horizontal(self, other: Character):
         other_rect: pygame.Rect = other.rect.center
