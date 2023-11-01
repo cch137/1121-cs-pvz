@@ -101,7 +101,11 @@ class Entity(Element):
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
 
-    collision_target_types: set[type[[Entity]]]
+    collision_targets: set[type[Entity]|Entity]
+    '''collision_targets 中的項目可以是 class 或者指定的實體。\\
+    若目標屬於 class ，當此實體和該 class 的實體碰撞時會對其造成傷害。\\
+    若目標屬於指定實體，當此實體和該指定實體碰撞時會對其造成傷害。'''
+
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
@@ -109,7 +113,7 @@ class Entity(Element):
         Element.__init__(self, image)
         self.abilities: set[Ability] = set()
         all_entities.add(self)
-        self.collision_target_types = set()
+        self.collision_targets = set()
         self.__self_effects: set[Effect] = set()
         '''此屬性是此實體身上目前所擁有的 Effect'''
         self.__damage_effects: set[Effect] = set()
@@ -167,12 +171,16 @@ class Entity(Element):
                 self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
         
         # 判斷碰撞傷害
-        if self.collision_damage is None or len(self.collision_target_types) == 0:
+        if self.collision_damage is None or len(self.collision_targets) == 0:
             return
         for entity in tuple(all_entities):
             if entity == self: continue
-            for target_type in self.collision_target_types:
-                if type(entity) is target_type and pygame.sprite.collide_circle(self, entity):
+            for target in self.collision_targets:
+                if (type(target) is type and type(entity) is target) or target is entity:
+                    if pygame.sprite.collide_circle(self, entity):
+                        entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
+                        return self.kill()
+                elif entity == target:
                     entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
                     return self.kill()
 

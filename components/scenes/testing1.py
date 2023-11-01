@@ -68,7 +68,7 @@ def init():
         bullet.rect.center = (demo_plant.rect.centerx - 32, demo_plant.rect.centery - 18) # 設置初始坐標
         bullet.collision_damage = 10 # 設置碰撞傷害
         # 將 Entity 設為碰撞目標，也就是當它與 Entity 發生碰撞時，會對那個 Entity 造成傷害
-        bullet.collision_target_types.add(Entity)
+        bullet.collision_targets.add(Entity)
         bullet.z_index = 99 # 提高元素所在的層次，以確保它在繪製時能覆蓋其他元素
         testing1.add_element(bullet) # 把子彈添加到場景
     demo_plant.add_event_listener(events.CLICK, plant_demo_shoot)
