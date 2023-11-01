@@ -32,7 +32,12 @@ def set_timeout(callback: Callable, timeoutSecs: float, *args: Any) -> int:
     def _callback():
         time.sleep(max(0, timeoutSecs))
         if __is_running(task_id):
-            callback(*args)
+            try:
+                callback(*args)
+            except Exception as e:
+                print(e)
+            finally:
+                __delete_index(task_id)
     threading.Thread(target=_callback, args=args).start()
     return task_id
 
@@ -55,7 +60,10 @@ def set_interval(callback: Callable, intervalSecs: float, *args: Any) -> int:
             next_execute_t += intervalSecs
             time.sleep(max(0, next_execute_t - now))
             if __is_running(task_id):
-                callback(*args)
+                try:
+                    callback(*args)
+                except Exception as e:
+                    print(e)
     threading.Thread(target=_callback, args=args).start()
     return task_id
 
