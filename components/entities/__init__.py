@@ -221,16 +221,24 @@ class Character(Entity):
         except: return None
     
     @property
-    def closest_friend(self):
-        return self.__closest_from_set(self.friends)
-    
-    @property
     def closest_enemy(self):
         return self.__closest_from_set(self.enemies)
+    
+    @property
+    def enemies_on_row(self):
+        return tuple(i for i in self.enemies if self.is_on_same_horizontal(i))
+    
+    @property
+    def closest_enemy_on_row(self):
+        return self.__closest_from_set(set(self.enemies_on_row))
+    
+    def enemies_in_radius(self, radius: int):
+        return tuple(i for i in self.enemies if self.dist(i) < radius)
 
     @property
     def is_touch_with_enemy(self):
-        return pygame.sprite.collide_circle(self, self.closest_enemy)
+        return pygame.sprite.collide_circle(self, self.closest_enemy) \
+            or pygame.sprite.collide_circle(self, self.closest_enemy_on_row)
     
     def is_on_same_horizontal(self, other: Character):
         other_rect: pygame.Rect = other.rect.center
@@ -238,13 +246,11 @@ class Character(Entity):
         return (self_rect.top < other_rect.centery and self_rect.bottom > other_rect.centery) \
             or (other_rect.top < self_rect.centery and other_rect.bottom > self_rect.centery)
     
-    def is_to_the_left_of(self, other: Character):
-        '''判斷 self 是否位於 other 的左邊'''
-        return self.rect.centerx < other.rect.centerx
-    
-    def is_to_the_right_of(self, other: Character):
-        '''判斷 self 是否位於 other 的右邊'''
-        return self.rect.centerx > other.rect.centerx
+    def is_on_same_vertical(self, other: Character):
+        other_rect: pygame.Rect = other.rect.center
+        self_rect = self.rect
+        return (self_rect.left < other_rect.centerx and self_rect.right > other_rect.centerx) \
+            or (other_rect.left < self_rect.centerx and other_rect.right > self_rect.centerx)
 
     def in_fov(self, other: Character):
         '''判斷 other 是否位於視野範圍內。'''
@@ -256,11 +262,11 @@ class Character(Entity):
         if not (on_left or on_right):
             return False
         for char in self.enemies:
-            if char == self:
+            if char == self or not self.is_on_same_horizontal(char) or not self.in_fov(char):
                 continue
-            if on_left and self.is_on_same_horizontal(char) and self.is_to_the_right_of(char) and self.in_fov(char):
+            if on_left and self.rect.centerx > char.rect.centerx:
                 return True
-            if on_right and self.is_on_same_horizontal(char) and self.is_to_the_left_of(char) and self.in_fov(char):
+            if on_right and self.rect.centerx < char.rect.centerx:
                 return True
         return False
 
