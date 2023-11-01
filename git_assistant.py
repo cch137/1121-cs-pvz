@@ -72,7 +72,9 @@ def git_pull_origin_main():
     print()
     os.system('git fetch')
     os.system('git pull origin main')
-    os.system('git push')
+    if os.system('git push') != 0:
+        os.system('git pull')
+        os.system('git push')
 
 def git_reset():
     print()
