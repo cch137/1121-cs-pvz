@@ -1,9 +1,8 @@
 from typing import *
+from constants import *
 import pygame
-import time
 import math
 import utils.process as process
-from utils.timeout import set_timeout
 from components import Element
 
 class Effect: pass
@@ -101,15 +100,19 @@ class Entity(Element):
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
 
-    collision_target_types: set[type[[Entity]]]
+    collision_targets: set[type[Entity]|Entity]
+    '''collision_targets 中的項目可以是 class 或者指定的實體。\\
+    若目標屬於 class ，當此實體和該 class 的實體碰撞時會對其造成傷害。\\
+    若目標屬於指定實體，當此實體和該指定實體碰撞時會對其造成傷害。'''
+
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
-    def __init__(self, image: pygame.Surface):
+    def __init__(self, image: pygame.Surface, abilities: set[Ability] | None = None):
         Element.__init__(self, image)
-        self.abilities: set[Ability] = set()
+        self.abilities = abilities or set()
         all_entities.add(self)
-        self.collision_target_types = set()
+        self.collision_targets = set()
         self.__self_effects: set[Effect] = set()
         '''此屬性是此實體身上目前所擁有的 Effect'''
         self.__damage_effects: set[Effect] = set()
@@ -164,23 +167,115 @@ class Entity(Element):
             self.x += real_velocity_x
             self.y += real_velocity_y
             if self.move_limit is not None:
-                self.move_limit -= math.sqrt(pow(self.x - x1, 2) + pow(self.y - y1, 2))
+                self.move_limit -= math.dist((self.x, self.y), (x1, y1))
         
         # 判斷碰撞傷害
-        if self.collision_damage is None or len(self.collision_target_types) == 0:
+        if self.collision_damage is None or len(self.collision_targets) == 0:
             return
         for entity in tuple(all_entities):
             if entity == self: continue
-            for target_type in self.collision_target_types:
-                if type(entity) is target_type and pygame.sprite.collide_circle(self, entity):
+            for target in self.collision_targets:
+                if (type(target) is type and type(entity) is target) or target is entity:
+                    if pygame.sprite.collide_circle(self, entity):
+                        entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
+                        return self.kill()
+                elif entity == target:
                     entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__damage_effects])
                     return self.kill()
+    
+    def dist(self, target: Entity):
+        return math.dist(self.rect.center, target.rect.center)
 
     def kill(self, *args: Any, **kargs):
         Element.kill(self, *args, **kargs)
         all_entities.remove(self)
 
 all_entities: set[Entity] = set()
+
+class Character: pass
+
+class Character(Entity):
+    fov = TILE_WIDTH * 3
+    '''視野範圍（單位：像素）'''
+
+    def __init__(self, image: pygame.Surface, friends: set[Character], enemies: set[Character]):
+        Entity.__init__(self, image)
+        friends.add(self)
+        self.__friends = friends
+        self.__enemies = enemies
+
+    @property
+    def friends(self):
+        return set(f for f in self.__friends if f is not self)
+
+    @property
+    def enemies(self):
+        return set(f for f in self.__enemies if f is not self)
+    
+    def __closest_from_set(self, character_set: set[Character]):
+        if len(character_set) == 0: return None
+        try: return min(character_set, key=lambda x: self.dist(x))
+        except: return None
+    
+    @property
+    def closest_friend(self):
+        return self.__closest_from_set(self.friends)
+    
+    @property
+    def closest_enemy(self):
+        return self.__closest_from_set(self.enemies)
+    
+    @property
+    def closest_plant(self):
+        if self.friends is plants.all_plants:
+            return self.__closest_from_set(self.friends)
+        if self.enemies is plants.all_plants:
+            return self.__closest_from_set(self.enemies)
+        return None
+
+    @property
+    def closest_zombie(self):
+        if self.friends is zombies.all_zombies:
+            return self.__closest_from_set(self.friends)
+        if self.enemies is zombies.all_zombies:
+            return self.__closest_from_set(self.enemies)
+        return None
+    
+    def is_on_same_horizontal(self, other: Character):
+        other_rect: pygame.Rect = other.rect.center
+        self_rect = self.rect
+        return (self_rect.top < other_rect.centery and self_rect.bottom > other_rect.centery) \
+            or (other_rect.top < self_rect.centery and other_rect.bottom > self_rect.centery)
+    
+    def is_to_the_left_of(self, other: Character):
+        '''判斷 self 是否位於 other 的左邊'''
+        return self.rect.centerx < other.rect.centerx
+    
+    def is_to_the_right_of(self, other: Character):
+        '''判斷 self 是否位於 other 的右邊'''
+        return self.rect.centerx > other.rect.centerx
+
+    def in_fov(self, other: Character):
+        '''判斷 other 是否位於視野範圍內。'''
+        return self.dist(other) <= self.fov
+
+    def has_seen_enemy(self, on_left: bool = False, on_right: bool = False):
+        '''on_left 判斷是否左方有敵人，on_right 判斷是否右方有敵人。\\
+        二者皆 True 則其中一方有敵人即返回 True。'''
+        if not (on_left or on_right):
+            return False
+        for char in self.enemies:
+            if char == self:
+                continue
+            if on_left and self.is_on_same_horizontal(char) and self.is_to_the_right_of(char) and self.in_fov(char):
+                return True
+            if on_right and self.is_on_same_horizontal(char) and self.is_to_the_left_of(char) and self.in_fov(char):
+                return True
+        return False
+
+    def kill(self, *args: Any, **kargs):
+        Entity.kill(self, *args, **kargs)
+        self.__friends.remove(self)
 
 import components.entities.plants as plants
 import components.entities.zombies as zombies
