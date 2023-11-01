@@ -1,6 +1,7 @@
 from typing import *
+from constants import *
 import pygame
-from components.entities import Entity
+from components.entities import Character
 
 class Zombie: pass
 
@@ -8,21 +9,8 @@ all_zombies: set[Zombie] = set()
 
 import components.entities.plants as plants
 
-class Zombie(Entity):
+class Zombie(Character):
     def __init__(self, image: pygame.Surface):
-        Entity.__init__(self, image)
-        all_zombies.add(self)
-    
-    @property
-    def closest_plant(self) -> plants.Plant:
-        return
-
-    @property
-    def has_seen_zombies(self) -> bool:
-        return
-
-    def kill(self, *args: Any, **kargs):
-        Entity.kill(self, *args, **kargs)
-        all_zombies.remove(self)
+        Character.__init__(self, image, all_zombies, all_plants)
 
 from components.entities.plants import all_plants
