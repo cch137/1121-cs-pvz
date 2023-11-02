@@ -1,8 +1,9 @@
 from typing import *
 import pygame
-import threading
+import asyncio
 import time
 import utils.process as process
+from utils.is_asyncfunc import is_asyncfunc
 import components.element as element
 
 CLICK = 'click'
@@ -43,6 +44,11 @@ class ClickEvent(UserEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
 
+async def async_wrapper(listener: Callable, *args):
+    if is_asyncfunc(listener):
+        return await listener(*args)
+    return listener(*args)
+
 class EventTarget():
     __listeners: dict[str, set[Callable]]
     __attributes: dict[str, Any]
@@ -72,23 +78,19 @@ class EventTarget():
                 self.remove_event_listener(eventName, listener)
 
     def dispatch_event(self, event: UserEvent, callback: Callable | None = None):
-        threads: set[threading.Thread] = set()
+        tasks = set()
         if event.name in self.__listeners:
             for listener in self.__listeners[event.name]:
                 try:
-                    if listener.__code__.co_argcount > 0:
-                        args = (event, )
-                    else:
-                        args = set()
-                    threading.Thread(target=listener, args=args).start()
+                    args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
+                    tasks.add(async_wrapper(listener, *args))
                 except Exception as err:
                     print(err)
-        if callback is not None:
-            def _callback():
-                for thread in threads:
-                    thread.join()
+        async def _callback():
+            await asyncio.gather(*tasks)
+            if callback is not None:
                 callback()
-            threading.Thread(target=_callback).start()
+        asyncio.run(_callback())
 
     def get_attribute(self, name: str):
         return self.__attributes.get(name)
