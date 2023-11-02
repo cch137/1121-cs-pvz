@@ -1,6 +1,6 @@
 from typing import Callable, Any
 import time
-import threading
+import asyncio
 
 __index = 0
 __runnings: dict[int, bool] = {}
@@ -29,7 +29,7 @@ def set_timeout(callback: Callable, timeoutSecs: float, *args: Any) -> int:
     *args - 須傳入 callback 的參數
     '''
     task_id = __create_index()
-    def _callback():
+    async def _callback():
         time.sleep(max(0, timeoutSecs))
         if __is_running(task_id):
             try:
@@ -38,7 +38,7 @@ def set_timeout(callback: Callable, timeoutSecs: float, *args: Any) -> int:
                 print(e)
             finally:
                 __delete_index(task_id)
-    threading.Thread(target=_callback, args=args).start()
+    asyncio.run(_callback())
     return task_id
 
 def set_interval(callback: Callable, intervalSecs: float, *args: Any) -> int:
@@ -53,7 +53,7 @@ def set_interval(callback: Callable, intervalSecs: float, *args: Any) -> int:
     *args - 須傳入 callback 的參數
     '''
     task_id = __create_index()
-    def _callback():
+    async def _callback():
         next_execute_t = time.time()
         while __is_running(task_id):
             now = time.time()
@@ -64,7 +64,7 @@ def set_interval(callback: Callable, intervalSecs: float, *args: Any) -> int:
                     callback(*args)
                 except Exception as e:
                     print(e)
-    threading.Thread(target=_callback, args=args).start()
+    asyncio.run(_callback())
     return task_id
 
 clear_timeout: Callable[[int], None] = lambda task_id: __delete_index(task_id)
