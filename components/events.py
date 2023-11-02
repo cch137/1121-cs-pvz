@@ -104,12 +104,6 @@ class EventTarget():
     def has_attribute(self, name: str):
         return name in self.__attributes
 
-def mouseentered(el: element.Element):
-    def _callback():
-        time.sleep(0.025) # 降低 mouseenter 事件重複分配的發生
-        el.set_attribute(HOVER, True)
-    return _callback
-
 class EventManager():
     __target_sets: dict[str, set[EventTarget]] = {}
 
@@ -147,7 +141,8 @@ class EventManager():
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
                     if el in l_mouseenter:
-                        el.dispatch_event(MouseEnterEvent(pos, el), mouseentered(el))
+                        el.dispatch_event(MouseEnterEvent(pos, el))
+                        el.set_attribute(HOVER, True)
             elif el.has_attribute(HOVER):
                 el.remove_attribute(HOVER)
                 if el in l_mouseleave:
