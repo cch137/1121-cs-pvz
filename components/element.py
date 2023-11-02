@@ -1,7 +1,7 @@
 from typing import *
 from constants import *
 import utils.process as process
-from utils.elong import elong
+from utils.elong_list import elong_list
 import pygame
 import os
 
@@ -15,7 +15,7 @@ def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[
     '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
     
     函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
-    return elong(
+    return elong_list(
         [load_image(f'{filepath}_{i}.png', size) for i in range(1, frames + 1)],
         round(duration_sec * FPS)
     )
