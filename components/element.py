@@ -157,15 +157,15 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def cursor(self) -> int:
-        return self.get_attribute(events.CURSOR)
+        return self.get_attribute(events._CURSOR)
 
     @cursor.setter
     def cursor(self, value: None | int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
         if value is None:
-            self.remove_event_listener(events.CURSOR)
+            self.remove_event_listener(events._CURSOR)
             return
-        self.set_attribute(events.CURSOR, value)
-        self.add_event_listener(events.CURSOR)
+        self.set_attribute(events._CURSOR, value)
+        self.add_event_listener(events._CURSOR)
 
     @property
     def allow_flyout(self):

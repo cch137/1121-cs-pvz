@@ -1,7 +1,6 @@
 from typing import *
 import pygame
 import asyncio
-import time
 import utils.process as process
 from utils.is_asyncfunc import is_asyncfunc
 import components.element as element
@@ -13,7 +12,7 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
-CURSOR = 'cursor'
+_CURSOR = 'cursor'
 _FLYOUT = 'flyout'
 
 class EventTarget: pass
@@ -157,7 +156,7 @@ class EventManager():
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self._elements_of(CURSOR), key=lambda x: x.z_index)):
+        for el in reversed(sorted(self._elements_of(_CURSOR), key=lambda x: x.z_index)):
             if not el.rect.collidepoint(x, y):
                 continue
             match el.cursor:
