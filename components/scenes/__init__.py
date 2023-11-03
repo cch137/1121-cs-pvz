@@ -16,6 +16,8 @@ class Scene():
         pass
 
     background_color = BACKGROUND_COLOR
+    background_music_fp: str | None = None
+    background_music_volume: float = 1
 
     @property
     def elements(self):

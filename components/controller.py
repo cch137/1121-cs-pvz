@@ -30,12 +30,12 @@ class CursorManager():
     def default(self):
         self.set(self.default_cursor)
 
-def __resolve_asset_filepath(fp: str):
+def _resolve_asset_filepath(fp: str):
     return os.path.join(ASSETS_DIRNAME, *fp.replace('\\', '/').split('/'))
 
 class PreloadAsset():
     def __init__(self, asset_filepath: str) -> None:
-        self.fp = __resolve_asset_filepath(asset_filepath)
+        self.fp = _resolve_asset_filepath(asset_filepath)
         self.bytes = open(self.fp, 'rb').read()
 
 class PreloadImage(PreloadAsset):
@@ -65,6 +65,7 @@ class MediaManager():
     
     def preload_all_assets(self):
         for dirname, dirnames, filenames in os.walk(ASSETS_DIRNAME):
+            dirname = dirname.replace('assets', '')
             for filename in filenames:
                 self.preload_asset(f'{dirname}/{filename}')
 
@@ -89,6 +90,13 @@ class Controller():
         if scene not in self.__visited:
             scene.init()
             self.__visited.add(scene)
+        if scene.background_music_fp is not None:
+            try:
+                pygame.mixer.music.load(scene.background_music_fp)
+                pygame.mixer.music.play(-1)
+                pygame.mixer.music.set_volume(scene.background_music_volume)
+            except Exception as e:
+                print(e)
 
     def play(self):
         # 設置更新幀數

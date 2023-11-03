@@ -59,4 +59,7 @@ def init():
     # 把 outer_element 添加到 testing2 場景
     testing2.add_element(outer_element)
 
+    # 設置背景音樂
+    testing2.background_music_fp = 'assets/soundtracks/Main Menu.mp3'
+
 testing2.init = init

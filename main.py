@@ -7,6 +7,7 @@ from components import controller
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
 pygame.display.set_caption(TITLE)
 pygame.init()
+pygame.mixer.init()
 
 process.clear_caches()
 
