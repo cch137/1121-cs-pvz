@@ -6,19 +6,15 @@ import pygame
 import os
 
 def load_image(filepath: str, size: Tuple[int,int] = None):
-    image = pygame.image.load(os.path.join('assets', *filepath.replace('\\', '/').split('/')))
-    if size is None:
-        return image
-    return pygame.transform.scale(image, size)
+    from components.controller import controller
+    return controller.media.load_image(filepath, size)
 
 def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[int,int] = None):
     '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
     
     函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
-    return elong_list(
-        [load_image(f'{filepath}_{i}.png', size) for i in range(1, frames + 1)],
-        round(duration_sec * FPS)
-    )
+    from components.controller import controller
+    return controller.media.load_animation(filepath, duration_sec, size, frames)
 
 def create_textbox(
         text: str,
