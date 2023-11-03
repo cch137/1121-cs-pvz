@@ -4,6 +4,8 @@ WINDOW_HEIGHT = 760
 
 TITLE = '植物大戰殭屍'
 
+ASSETS_DIRNAME = 'assets'
+
 BACKGROUND_COLOR = (20, 22, 24)
 FONT_COLOR = (250, 250, 250)
 

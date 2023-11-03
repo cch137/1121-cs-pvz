@@ -1,9 +1,8 @@
 from typing import *
 import pygame
 import asyncio
-import time
 import utils.process as process
-from utils.is_asyncfunc import is_asyncfunc
+import utils.asyncfunc as asyncfunc
 import components.element as element
 
 CLICK = 'click'
@@ -13,7 +12,7 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
-CURSOR = 'cursor'
+_CURSOR = 'cursor'
 _FLYOUT = 'flyout'
 
 class EventTarget: pass
@@ -43,11 +42,6 @@ class MouseLeaveEvent(MouseEvent):
 class ClickEvent(UserEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
-
-async def async_wrapper(listener: Callable, *args):
-    if is_asyncfunc(listener):
-        return await listener(*args)
-    return listener(*args)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]]
@@ -83,7 +77,7 @@ class EventTarget():
             for listener in self.__listeners[event.name]:
                 try:
                     args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
-                    tasks.add(async_wrapper(listener, *args))
+                    tasks.add(asyncfunc.wrapper(listener, *args))
                 except Exception as err:
                     print(err)
         async def _callback():
@@ -157,7 +151,7 @@ class EventManager():
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self._elements_of(CURSOR), key=lambda x: x.z_index)):
+        for el in reversed(sorted(self._elements_of(_CURSOR), key=lambda x: x.z_index)):
             if not el.rect.collidepoint(x, y):
                 continue
             match el.cursor:

@@ -57,7 +57,6 @@ def init():
     demo_plant.rect.right = controller.screen_rect.right - 10
     demo_plant.rect.centery = controller.screen_rect.centery
     demo_plant.cursor = 'hand'
-    # 哈咯！!
 
     # 發射子彈子彈
     def plant_demo_shoot():
@@ -71,10 +70,12 @@ def init():
         bullet.collision_targets.add(Entity)
         bullet.z_index = 99 # 提高元素所在的層次，以確保它在繪製時能覆蓋其他元素
         testing1.add_element(bullet) # 把子彈添加到場景
+        bullet_sound.play()
+    bullet_sound = pygame.mixer.Sound('assets/entities/bullet-demo.mp3')
     demo_plant.add_event_listener(events.CLICK, plant_demo_shoot)
 
     # 列印當前場景元素總數
-    parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
+    # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
 
     # 將元素添加到 parent_ele
     parent_ele.append_child(troll_face)
@@ -117,5 +118,8 @@ def init():
     testing1.add_element(navigator)
     testing1.compose()
     navigator.rect.center = controller.screen_rect.center
+
+    # 設置背景音樂
+    testing1.background_music_fp = 'assets/soundtracks/Zomboss Stage.mp3'
 
 testing1.init = init
