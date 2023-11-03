@@ -30,10 +30,8 @@ class CursorManager():
     def default(self):
         self.set(self.default_cursor)
 
-assets_dirname = 'assets'
-
 def __resolve_asset_filepath(fp: str):
-    return os.path.join(assets_dirname, *fp.replace('\\', '/').split('/'))
+    return os.path.join(ASSETS_DIRNAME, *fp.replace('\\', '/').split('/'))
 
 class PreloadAsset():
     def __init__(self, asset_filepath: str) -> None:
@@ -66,7 +64,7 @@ class MediaManager():
         return PreloadAsset(asset_filepath)
     
     def preload_all_assets(self):
-        for dirname, dirnames, filenames in os.walk(assets_dirname):
+        for dirname, dirnames, filenames in os.walk(ASSETS_DIRNAME):
             for filename in filenames:
                 self.preload_asset(f'{dirname}/{filename}')
 
