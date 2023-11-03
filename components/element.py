@@ -1,20 +1,16 @@
 from typing import *
 from constants import *
 import utils.process as process
-from utils.elong_list import elong_list
 import pygame
-import os
 
 def load_image(filepath: str, size: Tuple[int,int] = None):
-    from components.controller import controller
-    return controller.media.load_image(filepath, size)
+    return media.load_image(filepath, size)
 
 def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[int,int] = None):
     '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
     
     函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
-    from components.controller import controller
-    return controller.media.load_animation(filepath, duration_sec, size, frames)
+    return media.load_animation(filepath, duration_sec, size, frames)
 
 def create_textbox(
         text: str,
@@ -501,3 +497,5 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.remove_all_event_listeners()
         self.disconnect_scene()
         pygame.sprite.Sprite.kill(self)
+
+from components.media import media
