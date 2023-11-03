@@ -16,8 +16,11 @@ class Scene():
         pass
 
     background_color = BACKGROUND_COLOR
+    
     background_music_fp: str | None = None
+    '''背景音樂的文件路徑，以根目錄為相對路徑。'''
     background_music_volume: float = 1
+    '''從 0 到 1 的音量比值。'''
 
     @property
     def elements(self):
