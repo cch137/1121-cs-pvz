@@ -120,6 +120,6 @@ def init():
     navigator.rect.center = controller.screen_rect.center
 
     # 設置背景音樂
-    testing1.background_music_fp = 'assets/soundtracks/Zomboss Stage.mp3'
+    testing1.background_music_fp = 'assets/soundtracks/Brainiac Maniac.mp3'
 
 testing1.init = init
