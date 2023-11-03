@@ -1,7 +1,10 @@
+import os
 import pygame
 import components.events as events
 import components.scenes as scenes
 from constants import *
+import utils.media
+from utils.elong_list import elong_list
 
 class CursorManager():
     default_cursor = pygame.SYSTEM_CURSOR_ARROW
@@ -27,6 +30,46 @@ class CursorManager():
     def default(self):
         self.set(self.default_cursor)
 
+assets_dirname = 'assets'
+
+def __resolve_asset_filepath(fp: str):
+    return os.path.join(assets_dirname, *fp.replace('\\', '/').split('/'))
+
+class PreloadAsset():
+    def __init__(self, asset_filepath: str) -> None:
+        self.fp = __resolve_asset_filepath(asset_filepath)
+        self.bytes = open(self.fp, 'rb').read()
+
+class PreloadImage(PreloadAsset):
+    def __init__(self, asset_filepath: str) -> None:
+        PreloadAsset.__init__(self, asset_filepath)
+        self.size = utils.media.get_image_size(self.fp)
+        self.format = utils.media.get_image_channels(self.fp)
+    
+    def load(self, size):
+        return pygame.image.frombytes(self.bytes, self.size, self.format)
+
+class PreloadAnimation():
+    def __init__(self, asset_filepath: str) -> None:
+        self.images: tuple[PreloadImage] = tuple()
+    
+    def load(self, size):
+        return elong_list
+
+class MediaManager():
+    def __init__(self):
+        self.audios = dict()
+        self.images: dict[str,PreloadImage] = dict()
+        self.animations = dict()
+    
+    def preload_asset(self, asset_filepath: str):
+        return PreloadAsset(asset_filepath)
+    
+    def preload_all_assets(self):
+        for dirname, dirnames, filenames in os.walk(assets_dirname):
+            for filename in filenames:
+                self.preload_asset(f'{dirname}/{filename}')
+
 class Controller():
     current_scene: scenes.Scene
     __visited: set[scenes.Scene]
@@ -38,6 +81,8 @@ class Controller():
         self.events = events
         self.scenes = scenes
         self.cursor = CursorManager()
+        self.media = MediaManager()
+        self.media.preload_all_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()
 
