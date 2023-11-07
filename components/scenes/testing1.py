@@ -20,6 +20,8 @@ def init():
         (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)
     ]]
 
+    # 添加 click 事件監聽器 (reload)
+    children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
     # 添加 click 事件監聽器
     children[2].add_event_listener(events.CLICK, lambda: print('blue clicked'))
     # 添加 click 事件監聽器（頁面轉跳）
