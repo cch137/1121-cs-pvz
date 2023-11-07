@@ -43,6 +43,10 @@ class Controller():
         media.preload_all_images()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()
+    
+    def unload_sceen(self, scene: scenes.Scene):
+        scene.kill()
+        self.__visited.remove(scene)
 
     def goto_scene(self, scene: scenes.Scene):
         self.current_scene = scene
