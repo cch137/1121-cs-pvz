@@ -40,7 +40,7 @@ class Controller():
         self.scenes = scenes
         self.cursor = CursorManager()
         self.media = media
-        media.preload_all_images()
+        media.preload_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()
     

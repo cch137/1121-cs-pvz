@@ -66,13 +66,23 @@ class MediaManager():
             self.animations[asset_filepath] = PreloadAnimation(asset_filepath, frames, format)
         return self.animations[asset_filepath]
     
-    def preload_all_images(self):
+    def preload_assets(self, images: bool = True, audio: bool = False):
         for dirname, dirnames, filenames in os.walk(ASSETS_DIRNAME):
             for filename in filenames:
                 fp = f'{dirname}/{filename}'
-                if utils.media.determine_file_type(fp)[0] == 'image':
-                    try: self.preload_image(fp)
-                    except: pass
+                match utils.media.determine_file_type(fp)[0]:
+                    case 'image':
+                        try:
+                            if images:
+                                self.preload_image(fp)
+                        except:
+                            pass
+                    case 'audio':
+                        try:
+                            if audio:
+                                self.preload_sound(fp)
+                        except:
+                            pass
     
     def load_sound(self, asset_filepath: str, volume: float = 1):
         return self.preload_sound(asset_filepath).load(volume)
