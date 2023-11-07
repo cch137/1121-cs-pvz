@@ -43,6 +43,7 @@ class Controller():
         media.preload_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited = set()
+        self.__playing_bg_music_fp: str | None = None
     
     def unload_sceen(self, scene: scenes.Scene):
         scene.kill()
@@ -53,11 +54,21 @@ class Controller():
         if scene not in self.__visited:
             scene.init()
             self.__visited.add(scene)
-        if scene.background_music_fp is not None:
+        if scene.background_music is not None:
             try:
-                pygame.mixer.music.load(scene.background_music_fp)
-                pygame.mixer.music.play(-1)
-                pygame.mixer.music.set_volume(scene.background_music_volume)
+                if type(scene.background_music) is str:
+                    if self.__playing_bg_music_fp == scene.background_music:
+                        pygame.mixer.music.unpause()
+                    else:
+                        self.__playing_bg_music_fp = scene.background_music
+                        pygame.mixer.music.load(scene.background_music)
+                        pygame.mixer.music.play(-1)
+                        pygame.mixer.music.set_volume(scene.background_music_volume)
+                elif scene.background_music is True:
+                    pygame.mixer.music.pause()
+                else:
+                    self.__playing_bg_music_fp = None
+                    pygame.mixer.music.stop()
             except Exception as e:
                 print(e)
 

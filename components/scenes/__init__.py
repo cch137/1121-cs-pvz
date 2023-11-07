@@ -17,8 +17,20 @@ class Scene():
 
     background_color = BACKGROUND_COLOR
     
-    background_music_fp: str | None = None
-    '''背景音樂的文件路徑，以根目錄為相對路徑。'''
+    background_music: str | bool | None = None
+    '''背景音樂的文件路徑，以根目錄為相對路徑。\\
+    為 None 延續上一個背景音樂。\\
+    為 True 終止背景音樂，該音樂在下次切入時在暫停點繼續。\\
+    為 False 為無背景音樂，該音樂在下次切入時重播。
+    '''
+
+    @property
+    def background_music_fp(self):
+        raise 'This property has been deprecated, please use `background_music`'
+    @background_music_fp.setter
+    def background_music_fp(self, value):
+        raise 'This property has been deprecated, please use `background_music`'
+
     background_music_volume: float = 1
     '''從 0 到 1 的音量比值。'''
 
