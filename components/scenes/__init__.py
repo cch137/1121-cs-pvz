@@ -103,6 +103,12 @@ class Scene():
         for element in tuple(self.elements_generator):
             element.kill()
         controller.current_scene = None
+    
+    def reload(self):
+        is_current_scene = self is controller.current_scene
+        controller.unload_sceen(self)
+        if is_current_scene:
+            controller.goto_scene(self)
 
     def play(self):
         self.update()
