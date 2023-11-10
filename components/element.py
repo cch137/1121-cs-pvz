@@ -492,8 +492,8 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 class TextBox(Element):
     def __init__(
             self,
-            text: str | refs.Ref,
-            font_size: int = 12,
+            text: Any | refs.Ref,
+            font_size: int = 24,
             font_color: tuple[int,int,int] = FONT_COLOR,
             font_background: tuple[int,int,int] | None = None,
             font_name: str = pygame.font.get_default_font(),
@@ -534,14 +534,14 @@ class TextBox(Element):
     __font_size: int = 12
     __font_color: tuple[int,int,int] | None = None
     __font_background: tuple[int,int,int] | None = None
-    __ref: refs.Ref[str] | None = None
+    __ref: refs.Ref[Any] | None = None
 
     @property
     def ref(self):
         return self.__ref
 
     @ref.setter
-    def ref(self, value: refs.Ref[str]):
+    def ref(self, value: refs.Ref[Any]):
         if self.__ref is not None:
             self.__ref.unbind(self)
         self.__ref = value
@@ -550,11 +550,11 @@ class TextBox(Element):
 
     @property
     def text(self):
-        return self.ref.value
+        return str(self.ref.value)
 
     @text.setter
-    def text(self, value: str):
-        self.update_image(value)
+    def text(self, value: Any):
+        self.update_image(str(value))
 
     @property
     def font_name(self):

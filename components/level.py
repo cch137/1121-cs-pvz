@@ -4,6 +4,7 @@ from constants import *
 from components.entities import Entity, Element
 import components.events as events
 import components.scenes as scenes
+from utils.refs import Ref
 
 class Level(Element):
     ticks: int
@@ -58,17 +59,17 @@ class Level(Element):
         Element.__init__(self, (0, 0))
         self.__spawners = set(BoundSpawner(self, s) for s in spawners)
         self.ticks = 0
-        self.__suns = 0
+        self.__suns = Ref(0)
     
     @property
     def suns(self):
         return self.__suns
     
     def inc_suns(self, value: int):
-        self.__suns += value
+        self.__suns.value += value
     
     def dec_suns(self, value: int):
-        self.__suns -= value
+        self.__suns.value -= value
     
     def add_spawner(self, spawner: Spawner):
         self.remove_spawner(spawner)

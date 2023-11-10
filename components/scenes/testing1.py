@@ -24,6 +24,8 @@ def init():
         (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)
     ]]
 
+    children.append(TextBox(level.suns))
+
     # 添加 click 事件監聽器 (reload)
     children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
     # 添加 click 事件監聽器 (sun)
