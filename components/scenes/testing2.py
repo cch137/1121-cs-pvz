@@ -7,7 +7,7 @@ testing2 = scenes.Scene()
 
 def init():
     from components import Element, TextBox, media, \
-        events, Entity, Plant, Zombie, controller
+        events, Entity, Plant, Zombie, controller, levels
 
     # 創建 outer_element
     outer_element = Element()

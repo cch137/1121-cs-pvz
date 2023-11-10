@@ -7,7 +7,7 @@ the_end = scenes.Scene()
 
 def init():
     from components import Element, TextBox, media, \
-        events, Entity, Plant, Zombie, controller
+        events, Entity, Plant, Zombie, controller, levels
     pass
 
 the_end.init = init

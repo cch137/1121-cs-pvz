@@ -1,14 +1,15 @@
 from typing import Callable, Any
 import time
 import threading
+import asyncio
 
 def is_asyncfunc(func: Callable):
     return bool(func.__code__.co_flags & 0x80)
 
-async def asyncwrapper(listener: Callable, *args):
-    if is_asyncfunc(listener):
-        return await listener(*args)
-    return listener(*args)
+async def wrapper(callback: Callable, *args):
+    if is_asyncfunc(callback):
+        return await callback(*args)
+    return callback(*args)
 
 __index = 0
 __runnings: dict[int, bool] = {}
@@ -24,6 +25,10 @@ def __delete_index(index: int):
 
 def __is_running(index: int):
     return index in __runnings
+
+def run_threads(*callbacks: Callable):
+    for callback in callbacks:
+        threading.Thread(target=callback).start()
 
 def set_timeout(callback: Callable, milliseconds: float, *args: Any) -> int:
     '''
