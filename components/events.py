@@ -26,6 +26,7 @@ REF_CHANGE = 'ref_change'
 CHANGE = 'change'
 
 _FLYOUT = 'flyout'
+KILL = 'KILL'
 
 # Custom Events
 SUN_CHANGES = 'suns_change'
@@ -81,6 +82,10 @@ class RefChangeEvent(UserEvent):
 class ChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, CHANGE, target)
+
+class KillEvent(UserEvent):
+    def __init__(self, target: EventTarget | None = None):
+        UserEvent.__init__(self, KILL, target)
 
 class EventTarget():
     def __init__(self) -> None:
