@@ -5,3 +5,4 @@ from components.element import Element, load_image, load_animation, create_textb
 from components.entities import Entity
 from components.entities.plants import Plant
 from components.entities.zombies import Zombie
+from components.media import media
