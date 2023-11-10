@@ -1,7 +1,6 @@
 from typing import Callable, Any
 import time
 import threading
-import asyncio
 
 def is_asyncfunc(func: Callable):
     return bool(func.__code__.co_flags & 0x80)

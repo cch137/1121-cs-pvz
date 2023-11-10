@@ -17,10 +17,7 @@ class Ref(typing.Generic[T]):
     def value(self, value):
         self.__value = value
         for target in tuple(self.__targets):
-            try:
-                asynclib.run_threads(lambda: target.dispatch_event(events.RefChangeEvent(target)))
-            except Exception as e:
-                print(e)
+            asynclib.run_threads(lambda: target.dispatch_event(events.RefChangeEvent(target)))
 
     def __str__(self) -> str:
         return str(self.value)
