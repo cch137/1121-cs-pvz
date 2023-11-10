@@ -4,6 +4,7 @@ import pygame
 import math
 import utils.process as process
 from components import Element
+from pygame.transform import rotate
 
 class Effect: pass
 
@@ -89,8 +90,11 @@ class Entity(Element):
     '''視野。單位：格(地圖 tile)'''
     velocity_x: int = 0
     velocity_y: int = 0
+    velocity_a: int = 0
+    __rotated: int = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
+    acceleration_a: int = 0
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
 
@@ -118,6 +122,11 @@ class Entity(Element):
         self.__collision_effects = collision_effects or set()
         '''此屬性的 Effect 將在此實體對其他實體造成攻擊時，對其他實體所施加的效果。\\
         注意：如果要使用“子彈”對其他實體造成攻擊，你應該設置“子彈”的 Effect 而不是設置發出子彈的實體。'''
+    
+    image_0: pygame.Surface | None = None
+
+    def save_image_0(self):
+        self.image_0 = self.image.copy()
     
     def damage(self, value: int, *effects: Effect):
         '''對本實體造成傷害和效果。'''
@@ -159,8 +168,6 @@ class Entity(Element):
             return
         # 處理位移
         if self.move_limit is None or self.move_limit > 0:
-            self.velocity_x += self.acceleration_x
-            self.velocity_y += self.acceleration_y
             x1, y1 = self.x, self.y
             real_velocity_x = self.velocity_x * max(0, 1 - slow_down_rate)
             real_velocity_y = self.velocity_y * max(0, 1 - slow_down_rate)
@@ -168,6 +175,17 @@ class Entity(Element):
             self.y += real_velocity_y
             if self.move_limit is not None:
                 self.move_limit -= math.dist((self.x, self.y), (x1, y1))
+            self.velocity_x += self.acceleration_x
+            self.velocity_y += self.acceleration_y
+        # 處理旋轉
+        if self.velocity_a:
+            if self.image_0 is None:
+                self.save_image_0()
+            self.__rotated = (self.__rotated + self.velocity_a) % 360
+            center = self.rect.center
+            self.image = rotate(self.image_0, self.__rotated)
+            self.rect.center = center
+            self.velocity_a += self.acceleration_a
         
         if isinstance(self, Character) and self.is_touch_with_enemy:
             return # 遊戲角色會被敵人阻擋，於是無法前進
