@@ -6,7 +6,7 @@ import components.scenes as scenes
 testing2 = scenes.Scene()
 
 def init():
-    from components import Element, media, create_textbox, \
+    from components import Element, TextBox, media, \
         events, Entity, Plant, Zombie, controller
 
     # 創建 outer_element
@@ -51,7 +51,7 @@ def init():
     btn3.append_child(btn3_1, btn3_2, btn3_3)
 
     # 創建 textbox
-    text_element = Element(create_textbox('Hello World', 32))
+    text_element = TextBox('Hello World', 32)
     text_element.x = 20
     text_element.y = 20
     testing2.add_element(text_element)

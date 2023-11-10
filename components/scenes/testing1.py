@@ -7,7 +7,7 @@ testing1 = scenes.Scene()
 
 def init():
     import components.level as _level
-    from components import Element, media, create_textbox, \
+    from components import Element, TextBox, media, \
         events, Entity, Plant, Zombie, controller
     
     level = _level.Level()
@@ -103,12 +103,12 @@ def init():
 
     # 創建轉跳按鈕
     def create_link(scene_name: str, scene: scenes.Scene):
-        element = Element(create_textbox(scene_name, 24))
+        element = TextBox(scene_name, 24)
         element.add_event_listener(events.CLICK, lambda: controller.goto_scene(scene))
         def mouseenter():
-            element.image = create_textbox(scene_name, 24, (0, 0, 255))
+            element.font_color = (0, 0, 255)
         def mouseleave():
-            element.image = create_textbox(scene_name, 24)
+            element.font_color = None
         element.add_event_listener(events.MOUSEENTER, mouseenter)
         element.add_event_listener(events.MOUSELEAVE, mouseleave)
         element.cursor = 'hand'

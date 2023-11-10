@@ -6,7 +6,7 @@ import components.scenes as scenes
 main_menu = scenes.Scene()
 
 def init():
-    from components import Element, media, create_textbox, \
+    from components import Element, TextBox, media, \
         events, Entity, Plant, Zombie, controller
     pass
 

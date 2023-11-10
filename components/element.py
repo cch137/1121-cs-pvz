@@ -1,6 +1,7 @@
 from typing import *
 from constants import *
 import utils.process as process
+import utils.refs as refs
 import pygame
 
 def load_image(filepath: str, size: Tuple[int,int] = None):
@@ -11,16 +12,6 @@ def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[
     
     函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
     return media.load_animation(filepath, duration_sec, size, frames)
-
-def create_textbox(
-        text: str,
-        size: int = 12,
-        color: tuple[int,int,int] = FONT_COLOR,
-        background: tuple[int,int,int] | None = None,
-        font_name: str = pygame.font.get_default_font()
-    ):
-    font = pygame.font.Font(font_name, size)
-    return font.render(text, True, color, background)
 
 class Element(pygame.sprite.Sprite):
     pass
@@ -497,5 +488,105 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.remove_all_event_listeners()
         self.disconnect_scene()
         pygame.sprite.Sprite.kill(self)
+
+class TextBox(Element):
+    def __init__(
+            self,
+            text: str | refs.Ref,
+            font_size: int = 12,
+            font_color: tuple[int,int,int] = FONT_COLOR,
+            font_background: tuple[int,int,int] | None = None,
+            font_name: str = pygame.font.get_default_font(),
+            font_antialias: bool = True
+            ):
+        Element.__init__(self)
+        self.ref = refs.to_ref(text)
+        self.font_antialias = font_antialias
+        self.update_font(font_name, font_size, font_color, font_background)
+        self.add_event_listener(events.CHANGE, lambda: self.update_image())
+
+    def update_font(
+            self,
+            font_name: str | None = None,
+            font_size: int | None = None,
+            font_color: tuple[int,int,int] = None,
+            font_background: tuple[int,int,int] = None
+            ):
+        if font_name is not None:
+            self.__font_name = font_name
+        if font_size is not None:
+            self.__font_size = font_size
+        self.__font_color = font_color
+        self.__font_background = font_background
+        self.font = pygame.font.Font(self.font_name, self.font_size)
+        self.update_image()
+        return self.font
+
+    def update_image(self, text: str | None = None):
+        if text is not None:
+            self.ref.value = text
+        if self.font is None:
+            return
+        self.image = self.font.render(self.text, self.font_antialias, self.font_color, self.font_background)
+        return self.image
+
+    font: pygame.font.Font | None = None
+    __font_name: str = pygame.font.get_default_font()
+    __font_size: int = 12
+    __font_color: tuple[int,int,int] | None = None
+    __font_background: tuple[int,int,int] | None = None
+    __ref: refs.Ref[str] | None = None
+
+    @property
+    def ref(self):
+        return self.__ref
+
+    @ref.setter
+    def ref(self, value: refs.Ref[str]):
+        if self.__ref is not None:
+            self.__ref.unbind(self)
+        self.__ref = value
+        value.bind(self)
+        self.update_image()
+
+    @property
+    def text(self):
+        return self.ref.value
+
+    @text.setter
+    def text(self, value: str):
+        self.update_image(value)
+
+    @property
+    def font_name(self):
+        return self.__font_name
+
+    @font_name.setter
+    def font_name(self, value: str):
+        self.update_font(value)
+
+    @property
+    def font_size(self):
+        return self.__font_size
+
+    @font_size.setter
+    def font_size(self, value: int):
+        self.update_font(None, value)
+
+    @property
+    def font_color(self):
+        return self.__font_color or FONT_COLOR
+
+    @font_color.setter
+    def font_color(self, value: tuple[int,int,int]):
+        self.update_font(None, None, value)
+
+    @property
+    def font_background(self):
+        return self.__font_background
+
+    @font_background.setter
+    def font_background(self, value: tuple[int,int,int]):
+        self.update_font(None, None, None, value)
 
 from components.media import media
