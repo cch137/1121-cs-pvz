@@ -13,9 +13,13 @@ BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
 REF_CHANGE = 'ref_change'
+CHANGE = 'change'
 
 _CURSOR = 'cursor'
 _FLYOUT = 'flyout'
+
+# Custom Events
+SUN_CHANGES = 'suns_change'
 
 class EventTarget: pass
 
@@ -48,6 +52,10 @@ class ClickEvent(MouseEvent):
 class RefChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, REF_CHANGE, target)
+
+class ChangeEvent(UserEvent):
+    def __init__(self, target: EventTarget | None = None):
+        UserEvent.__init__(self, CHANGE, target)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]]
