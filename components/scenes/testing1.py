@@ -24,8 +24,6 @@ def init():
         (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)
     ]]
 
-    children.append(TextBox(level.suns))
-
     # 添加 click 事件監聽器 (reload)
     children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
     # 添加 click 事件監聽器 (sun)
@@ -44,7 +42,7 @@ def init():
     # 創建 parent_ele 並設置樣式
     parent_ele = Element()
     parent_ele.min_width = 150
-    parent_ele.min_height = 480
+    parent_ele.min_height = 520
     parent_ele.x = 50
     parent_ele.y = 50
     parent_ele.spacing = 25
@@ -94,6 +92,9 @@ def init():
     # - 這會導致 children[3] 從 parent_ele 中移除
     # - 然後 children[3] 會重新被添加到 parent_ele.childern 的尾部
     parent_ele.append_child(children[3])
+
+    # 添加太陽數量
+    parent_ele.append_child(TextBox(level.suns))
 
     # 將 Element 添加到場景
     testing1.add_element(parent_ele)
