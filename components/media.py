@@ -1,7 +1,7 @@
 import os
 import io
 import pygame
-from constants import *
+from utils.constants import *
 import utils.media
 from utils.elong_list import elong_list
 

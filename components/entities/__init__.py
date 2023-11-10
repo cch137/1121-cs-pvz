@@ -1,5 +1,5 @@
 from typing import *
-from constants import *
+from utils.constants import *
 import pygame
 import math
 import utils.process as process

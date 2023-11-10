@@ -1,6 +1,6 @@
 import pygame
 import utils.process as process
-from constants import *
+from utils.constants import *
 from components import controller
 
 # 設置視窗圖標、標題，初始化視窗

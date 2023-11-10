@@ -1,4 +1,4 @@
-from constants import *
+from utils.constants import *
 import pygame
 import components.element as element
 

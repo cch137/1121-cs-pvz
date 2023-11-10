@@ -1,7 +1,7 @@
 import pygame
 import components.events as events
 import components.scenes as scenes
-from constants import *
+from utils.constants import *
 from components.media import media
 
 class CursorManager():

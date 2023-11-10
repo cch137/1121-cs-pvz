@@ -1,3 +1,7 @@
+import typing
+
+ColorTuple = typing.NewType('ColorTuple', typing.Tuple[int, int, int])
+
 FPS = 60
 WINDOW_WIDTH = 1080
 WINDOW_HEIGHT = 760

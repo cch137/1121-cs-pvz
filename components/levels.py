@@ -1,5 +1,5 @@
 from typing import *
-from constants import *
+from utils.constants import *
 from components.entities import Entity, Element, Sun
 import components.events as events
 import components.scenes as scenes
