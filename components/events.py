@@ -13,6 +13,13 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
+CLICK_R = 'click_r'
+HOVER_R = 'hover_r'
+MOUSEENTER_R = 'mouseenter_r'
+MOUSELEAVE_R = 'mouseleave_r'
+BUTTONDOWN_R = 'buttondown_r'
+BUTTONUP_R = 'buttonup_r'
+
 REF_CHANGE = 'ref_change'
 CHANGE = 'change'
 
@@ -50,6 +57,22 @@ class ClickEvent(MouseEvent):
     def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
 
+class HoverREvent(MouseEvent):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+        MouseEvent.__init__(self, HOVER_R, pos, target)
+
+class MouseEnterREvent(MouseEvent):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+        MouseEvent.__init__(self, MOUSEENTER_R, pos, target)
+
+class MouseLeaveREvent(MouseEvent):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+        MouseEvent.__init__(self, MOUSELEAVE_R, pos, target)
+
+class ClickREvent(MouseEvent):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+        MouseEvent.__init__(self, CLICK_R, pos, target)
+
 class RefChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, REF_CHANGE, target)
@@ -84,9 +107,12 @@ class EventTarget():
                 self.remove_event_listener(eventName, listener)
 
     def dispatch_event(self, event: UserEvent, callback: Callable | None = None):
-        tasks = set()
         if event.name in self.__listeners:
-            for listener in self.__listeners[event.name]:
+            listeners = self.__listeners[event.name]
+            if len(listeners) == 0:
+                return
+            tasks = set()
+            for listener in listeners:
                 try:
                     args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
                     tasks.add(asynclib.wrapper(listener, *args))
@@ -119,8 +145,8 @@ class EventManager():
         else:
             return set(self.__target_sets.setdefault(eventName, set()))
 
-    def _elements_of(self, eventName: str):
-        return { el for el in self._targets_of(eventName) if isinstance(el, element.Element) and el.is_playing }
+    def _elements_of(self, *eventNames: str):
+        return { el for els in tuple(self._targets_of(eventName) for eventName in eventNames) for el in els if isinstance(el, element.Element) and el.is_playing }
 
     def add_target(self, target: EventTarget, eventName: str):
         self._targets_of(eventName, True).add(target)
@@ -135,24 +161,28 @@ class EventManager():
         x, y = pos
 
         # dispatch HoverEvent
-        for el in self._elements_of(HOVER):
+        for el in self._elements_of(HOVER, HOVER_R):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(HoverEvent(pos, el))
+            if el.point_in_radius(x, y):
+                el.dispatch_event(HoverREvent(pos, el))
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
-        l_mouseenter = self._elements_of(MOUSEENTER)
-        l_mouseleave = self._elements_of(MOUSELEAVE)
-        l_mouse = l_mouseenter | l_mouseleave # union
-        for el in l_mouse:
+        for el in self._elements_of(MOUSEENTER, MOUSELEAVE, MOUSEENTER_R, MOUSELEAVE_R):
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
-                    if el in l_mouseenter:
-                        el.dispatch_event(MouseEnterEvent(pos, el))
-                        el.set_attribute(HOVER, True)
+                    el.dispatch_event(MouseEnterEvent(pos, el))
+                    el.set_attribute(HOVER, True)
             elif el.has_attribute(HOVER):
                 el.remove_attribute(HOVER)
-                if el in l_mouseleave:
-                    el.dispatch_event(MouseLeaveEvent(pos, el))
+                el.dispatch_event(MouseLeaveEvent(pos, el))
+            if el.point_in_radius(x, y):
+                if not el.has_attribute(HOVER_R):
+                    el.dispatch_event(MouseEnterREvent(pos, el))
+                    el.set_attribute(HOVER_R, True)
+            elif el.has_attribute(HOVER_R):
+                el.remove_attribute(HOVER_R)
+                el.dispatch_event(MouseLeaveREvent(pos, el))
         
         # detect _FLYOUT
         for el in self._elements_of(_FLYOUT):
@@ -191,14 +221,16 @@ class EventManager():
         # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            for el in self._elements_of(CLICK):
+            for el in self._elements_of(CLICK, CLICK_R):
                 if el.rect.collidepoint(x, y):
                     el.set_attribute(BUTTONDOWN, (event.button, now))
+                if el.point_in_radius(x, y):
+                    el.set_attribute(BUTTONDOWN_R, (event.button, now))
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
+            # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
             for el in self._elements_of(CLICK):
                 if el.has_attribute(BUTTONDOWN):
-                    # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
                     button, mousedown_at = el.get_attribute(BUTTONDOWN)
                     if el.rect.collidepoint(x, y) \
                         and button == event.button \
@@ -206,5 +238,15 @@ class EventManager():
                         if event.button == pygame.BUTTON_LEFT:
                             el.dispatch_event(ClickEvent(event.pos, el))
                     el.remove_attribute(BUTTONDOWN)
+            # click in radius 的判斷與 click 相同
+            for el in self._elements_of(CLICK_R):
+                if el.has_attribute(BUTTONDOWN_R):
+                    button, mousedown_at = el.get_attribute(BUTTONDOWN_R)
+                    if el.point_in_radius(x, y) \
+                        and button == event.button \
+                        and now - mousedown_at < 1:
+                        if event.button == pygame.BUTTON_LEFT:
+                            el.dispatch_event(ClickREvent(event.pos, el))
+                    el.remove_attribute(BUTTONDOWN_R)
 
 event_manager = EventManager()

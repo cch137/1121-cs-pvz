@@ -3,6 +3,7 @@ from utils.constants import *
 import utils.process as process
 import utils.refs as refs
 import pygame
+import math
 
 def load_image(filepath: str, size: Coordinate = None):
     return media.load_image(filepath, size)
@@ -124,6 +125,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.append_child(*children)
 
     radius_scale = 0.5
+
+    def point_in_radius(self, x: float, y: float):
+        return math.dist((x, y), self.rect.center) < self.radius
 
     @property
     def image(self) -> pygame.Surface:
