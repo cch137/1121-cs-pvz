@@ -1,3 +1,9 @@
+import typing
+import pygame
+
+Coordinate = typing.Union[typing.Tuple[float, float], typing.Sequence[float], pygame.math.Vector2]
+ColorValue = typing.Union[pygame.Color, int, str, typing.Tuple[int, int, int], typing.Tuple[int, int, int, int], typing.Sequence[int]]
+
 FPS = 60
 WINDOW_WIDTH = 1080
 WINDOW_HEIGHT = 760

@@ -1,7 +1,8 @@
 import pygame
 import components.events as events
 import components.scenes as scenes
-from constants import *
+from typing import Set
+from utils.constants import *
 from components.media import media
 
 class CursorManager():
@@ -30,7 +31,7 @@ class CursorManager():
 
 class Controller():
     current_scene: scenes.Scene
-    __visited: set[scenes.Scene]
+    __visited: Set[scenes.Scene]
 
     def __init__(self):
         self.running = True

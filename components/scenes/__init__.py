@@ -1,10 +1,11 @@
-from constants import *
+from typing import Set, Dict
+from utils.constants import *
 import pygame
 import components.element as element
 
 class Scene():
-    __elements: set[element.Element]
-    layers: dict[int, pygame.sprite.Group]
+    __elements: Set[element.Element]
+    layers: Dict[int, pygame.sprite.Group]
 
     def __init__(self, screen: pygame.Surface = None):
         self.screen = screen or controller.screen

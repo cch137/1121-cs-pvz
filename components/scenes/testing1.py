@@ -1,6 +1,6 @@
 import pygame
 from typing import *
-from constants import *
+from utils.constants import *
 import components.scenes as scenes
 
 testing1 = scenes.Scene()

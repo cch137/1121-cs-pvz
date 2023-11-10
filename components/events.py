@@ -1,4 +1,5 @@
-from typing import *
+from typing import Callable, Any, Set, Dict
+from utils.constants import Coordinate
 import pygame
 import asyncio
 import utils.process as process
@@ -29,24 +30,24 @@ class UserEvent():
         self.target = target
 
 class MouseEvent(UserEvent):
-    def __init__(self, name: str, pos: tuple[int, int], target: EventTarget | None = None):
+    def __init__(self, name: str, pos: Coordinate, target: EventTarget | None = None):
         UserEvent.__init__(self, name, target)
         self.pos = pos
 
 class HoverEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, HOVER, pos, target)
 
 class MouseEnterEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, MOUSEENTER, pos, target)
 
 class MouseLeaveEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, MOUSELEAVE, pos, target)
 
 class ClickEvent(MouseEvent):
-    def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
 
 class RefChangeEvent(UserEvent):
@@ -58,12 +59,9 @@ class ChangeEvent(UserEvent):
         UserEvent.__init__(self, CHANGE, target)
 
 class EventTarget():
-    __listeners: dict[str, set[Callable]]
-    __attributes: dict[str, Any]
-
     def __init__(self) -> None:
-        self.__listeners = dict()
-        self.__attributes = dict()
+        self.__listeners: Dict[str, Set[Callable]] = dict()
+        self.__attributes: Dict[str, Any] = dict()
 
     def add_event_listener(self, eventName: str, listener: Callable | None = None):
         if eventName not in self.__listeners:
@@ -113,7 +111,7 @@ class EventTarget():
         return name in self.__attributes
 
 class EventManager():
-    __target_sets: dict[str, set[EventTarget]] = {}
+    __target_sets: Dict[str, Set[EventTarget]] = {}
 
     def _targets_of(self, eventName: str, writable: bool = False):
         if writable:

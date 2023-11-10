@@ -1,8 +1,8 @@
-from typing import *
-from constants import *
 import pygame
 import math
 import utils.process as process
+from typing import Set, Any
+from utils.constants import *
 from components import Element
 from pygame.transform import rotate
 
@@ -91,14 +91,13 @@ class Entity(Element):
     velocity_x: int = 0
     velocity_y: int = 0
     velocity_a: int = 0
-    __rotated: int = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
     acceleration_a: int = 0
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
 
-    collision_targets: set[type[Entity]|Entity]
+    collision_targets: Set[type[Entity]|Entity]
     '''collision_targets 中的項目可以是 class 或者指定的實體。\\
     若目標屬於 class ，當此實體和該 class 的實體碰撞時會對其造成傷害。\\
     若目標屬於指定實體，當此實體和該指定實體碰撞時會對其造成傷害。'''
@@ -107,7 +106,7 @@ class Entity(Element):
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
     def __init__(self, image: pygame.Surface,
-        collision_effects: set[Effect] | None = None, abilities: set[Ability] | None = None):
+        collision_effects: Set[Effect] | None = None, abilities: Set[Ability] | None = None):
         '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)\\
         abilities 是技能'''
         Element.__init__(self, image)
@@ -116,7 +115,7 @@ class Entity(Element):
         all_entities.add(self)
         self.collision_targets = set()
 
-        self.__self_effects: set[Effect] = set()
+        self.__self_effects: Set[Effect] = set()
         '''此屬性是此實體身上目前所擁有的 Effect'''
 
         self.__collision_effects = collision_effects or set()
@@ -125,8 +124,31 @@ class Entity(Element):
     
     image_0: pygame.Surface | None = None
 
-    def save_image_0(self):
-        self.image_0 = self.image.copy()
+    @property
+    def image(self):
+        return Element.image.fget(self)
+
+    @image.setter
+    def image(self, value: pygame.Surface):
+        Element.image.fset(self, value)
+    
+    def clear_image_0(self):
+        self.image_0 = None
+    
+    __rotation_angle: int = 0
+
+    @property
+    def rotation_angle(self):
+        return self.__rotation_angle
+
+    @rotation_angle.setter
+    def rotation_angle(self, angle: int):
+        if self.image_0 is None:
+            self.image_0 = self.image.copy()
+        self.__rotation_angle = angle % 360
+        center = self.rect.center
+        self.image = rotate(self.image_0, self.__rotation_angle)
+        self.rect.center = center
     
     def damage(self, value: int, *effects: Effect):
         '''對本實體造成傷害和效果。'''
@@ -159,6 +181,7 @@ class Entity(Element):
                 if effect.rate > slow_down_rate:
                     slow_down_rate = effect.rate
             effect.update()
+        velocity_rate = max(0, 1 - slow_down_rate)
         
         # 使用技能
         for ability in self.abilities:
@@ -169,8 +192,8 @@ class Entity(Element):
         # 處理位移
         if self.move_limit is None or self.move_limit > 0:
             x1, y1 = self.x, self.y
-            real_velocity_x = self.velocity_x * max(0, 1 - slow_down_rate)
-            real_velocity_y = self.velocity_y * max(0, 1 - slow_down_rate)
+            real_velocity_x = self.velocity_x * velocity_rate
+            real_velocity_y = self.velocity_y * velocity_rate
             self.x += real_velocity_x
             self.y += real_velocity_y
             if self.move_limit is not None:
@@ -179,12 +202,7 @@ class Entity(Element):
             self.velocity_y += self.acceleration_y
         # 處理旋轉
         if self.velocity_a:
-            if self.image_0 is None:
-                self.save_image_0()
-            self.__rotated = (self.__rotated + self.velocity_a) % 360
-            center = self.rect.center
-            self.image = rotate(self.image_0, self.__rotated)
-            self.rect.center = center
+            self.rotation_angle += self.velocity_a * velocity_rate
             self.velocity_a += self.acceleration_a
         
         if isinstance(self, Character) and self.is_touch_with_enemy:
@@ -211,7 +229,7 @@ class Entity(Element):
         Element.kill(self, *args, **kargs)
         all_entities.remove(self)
 
-all_entities: set[Entity] = set()
+all_entities: Set[Entity] = set()
 
 class Character: pass
 
@@ -219,7 +237,7 @@ class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
 
-    def __init__(self, image: pygame.Surface, friends: set[Character], enemies: set[Character], abilities: set[Ability] | None = None):
+    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character], abilities: Set[Ability] | None = None):
         Entity.__init__(self, image, None, abilities)
         friends.add(self)
         self.__friends = friends
@@ -233,7 +251,7 @@ class Character(Entity):
     def enemies(self):
         return set(f for f in self.__enemies if f is not self)
     
-    def __closest_from_set(self, character_set: set[Character]):
+    def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None
         try: return min(character_set, key=lambda x: self.dist(x))
         except: return None

@@ -1,13 +1,13 @@
-import typing
+from typing import TypeVar, Generic, Set, Callable
 import utils.asynclib as asynclib
 import components.events as events
 
-T = typing.TypeVar('T')
+T = TypeVar('T')
 
-class Ref(typing.Generic[T]):
+class Ref(Generic[T]):
     def __init__(self, value: T):
         self.__value = value
-        self.__targets: set[events.EventTarget] = set()
+        self.__targets: Set[events.EventTarget] = set()
     
     @property
     def value(self) -> T:
@@ -29,7 +29,7 @@ class Ref(typing.Generic[T]):
         self.__targets.remove(target)
 
 class Computed(Ref[T], events.EventTarget):
-    def __init__(self, getter: typing.Callable[[], T], *related_refs: Ref):
+    def __init__(self, getter: Callable[[], T], *related_refs: Ref):
         Ref.__init__(self, getter())
         events.EventTarget.__init__(self)
         self.__getter = getter

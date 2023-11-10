@@ -1,6 +1,6 @@
 import pygame
 from typing import *
-from constants import *
+from utils.constants import *
 import components.scenes as scenes
 
 pause_menu = scenes.Scene()
