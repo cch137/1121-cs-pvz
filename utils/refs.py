@@ -10,11 +10,11 @@ class Ref(typing.Generic[T]):
         self.__targets: set[events.EventTarget] = set()
     
     @property
-    def value(self):
+    def value(self) -> T:
         return self.__value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: T):
         self.__value = value
         for target in tuple(self.__targets):
             asynclib.run_threads(lambda: target.dispatch_event(events.RefChangeEvent(target)))
@@ -57,6 +57,7 @@ class Computed(Ref[T], events.EventTarget):
 
     def compute(self):
         Ref.value.fset(self, self.__getter())
+        asynclib.run_threads(lambda: self.dispatch_event(events.ChangeEvent(self)))
 
 def to_ref(value: Ref[T] | T) -> Ref[T]:
     return value if isinstance(value, Ref) else Ref(value)
