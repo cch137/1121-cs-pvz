@@ -2,9 +2,11 @@ from typing import *
 from typing import Any
 from constants import *
 from components.entities import Entity, Element
+import components.events as events
 
 class Level(Element):
     ticks: int
+    suns: int
 
 class Spawner():
     def __init__(self, schedule_tick: int, *entities: Entity):
@@ -14,12 +16,21 @@ class Spawner():
     def spawnable(self, ticks: int):
         return not self.spawned and self.schedule <= ticks
 
+class SunSpawner(Spawner):
+    def __init__(self, schedule_tick: int):
+        from components.entities.sun import Sun
+        self.sun = Sun()
+        Spawner.__init__(self, schedule_tick, self.sun)
+
 class BoundSpawner():
     def __init__(self, level: Level, spawner: Spawner):
         '''Please use `Spawner`, DO NOT use this class directly.'''
         self.level = level
         self.spawner = spawner
         self.__used = False
+        # 處理自動綁定事件
+        if isinstance(spawner, SunSpawner):
+            spawner.add_event_listener(events.CLICK, lambda: level.inc_suns(spawner.sun.value))
     
     @property
     def is_spawnable(self):
@@ -40,6 +51,17 @@ class Level(Element):
         Element.__init__(self, (0, 0))
         self.__spawners = set(BoundSpawner(self, s) for s in spawners)
         self.ticks = 0
+        self.__suns = 0
+    
+    @property
+    def suns(self):
+        return self.__suns
+    
+    def inc_suns(self, value: int):
+        self.__suns += value
+    
+    def dec_suns(self, value: int):
+        self.__suns -= value
     
     def add_spawner(self, spawner: Spawner):
         self.remove_spawner(spawner)
