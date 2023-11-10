@@ -126,7 +126,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     
     @image.setter
     def image(self, value: pygame.Surface):
-        self.set_attribute('image', value)
+        self.set_attribute('image', value.convert_alpha(value))
         self.rect = value.get_rect()
 
     @property
@@ -398,7 +398,12 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @z_index.setter
     def z_index(self, value: int | None):
+        scene = self.scene
+        if scene:
+            scene.disconnect_element(self)
         self.set_attribute('z_index', value)
+        if scene:
+            scene.connect_element(self)
 
     def index(self, child: Element):
         '''Returns the index of the child'''
