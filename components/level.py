@@ -3,6 +3,7 @@ from typing import Any
 from constants import *
 from components.entities import Entity, Element
 import components.events as events
+import components.scenes as scenes
 
 class Level(Element):
     ticks: int
@@ -17,10 +18,16 @@ class Spawner():
         return not self.spawned and self.schedule <= ticks
 
 class SunSpawner(Spawner):
-    def __init__(self, schedule_tick: int):
+    def __init__(self, schedule_tick: int = 0):
         from components.entities.sun import Sun
         self.sun = Sun()
         Spawner.__init__(self, schedule_tick, self.sun)
+    
+    def bind(self, level: Level):
+        return BoundSpawner(level, self)
+    
+    def spawn(self, level: Level):
+        return self.bind(level).spawn()
 
 class BoundSpawner():
     def __init__(self, level: Level, spawner: Spawner):
@@ -30,7 +37,7 @@ class BoundSpawner():
         self.__used = False
         # 處理自動綁定事件
         if isinstance(spawner, SunSpawner):
-            spawner.add_event_listener(events.CLICK, lambda: level.inc_suns(spawner.sun.value))
+            spawner.sun.add_event_listener(events.CLICK, lambda: level.inc_suns(spawner.sun.kill()))
     
     @property
     def is_spawnable(self):
@@ -47,7 +54,7 @@ class BoundSpawner():
         self.__used = True
 
 class Level(Element):
-    def __init__(self, spawners: Iterable[Spawner]):
+    def __init__(self, spawners: Iterable[Spawner] = tuple()):
         Element.__init__(self, (0, 0))
         self.__spawners = set(BoundSpawner(self, s) for s in spawners)
         self.ticks = 0
@@ -78,3 +85,9 @@ class Level(Element):
             if spawner.is_spawnable:
                 spawner.spawn()
         self.ticks += 1
+
+    def bind(self, scene: scenes.Scene):
+        scene.add_element(self)
+
+    def unbind(self, scene: scenes.Scene):
+        scene.remove_element(self)
