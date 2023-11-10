@@ -7,7 +7,7 @@ testing1 = scenes.Scene()
 
 def init():
     from components import Element, TextBox, media, \
-        events, Entity, Plant, Zombie, controller, levels
+        events, Entity, plants, zombies, controller, levels
     
     level = levels.Level()
     testing1.add_element(level)
@@ -59,28 +59,23 @@ def init():
     troll_face.add_event_listener(events.CLICK, image_ele_clicked)
 
     # 創建 demo_plant 並設置其屬性
-    demo_plant = Plant(media.load_image('plants/demo.png', (128, 128)))
-    demo_plant.image = pygame.transform.flip(demo_plant.image, True, False)
-    demo_plant.rect.right = controller.screen_rect.right - 10
-    demo_plant.rect.centery = controller.screen_rect.centery
+    demo_plant = plants.Shooter(
+        pygame.transform.flip(media.load_image('plants/demo.png', (128, 128)), True, False),
+        plants.BulletTemplate(
+            pygame.Surface((10, 10)),
+            (0.26, 0.36),
+            -10,
+            (255, 0, 255),
+            10,
+            [Entity],
+            [],
+            pygame.mixer.Sound('assets/entities/bullet-demo.mp3'),
+        )
+    )
+    demo_plant.rect.center = (controller.screen_rect.right - 10 - demo_plant.rect.width / 2, controller.screen_rect.centery)
     demo_plant.cursor_r = 'hand'
-
-    # 發射子彈子彈
-    def plant_demo_shoot():
-        bullet = Entity((10, 10)) # 創建子彈
-        bullet.allow_flyout = False # 讓元素在超出屏幕時自動消失
-        bullet.background_color = (255, 0, 255) # 設置背景顏色
-        bullet.velocity_x = -10 # 設置速度
-        bullet.rect.center = (demo_plant.rect.centerx - 32, demo_plant.rect.centery - 18) # 設置初始坐標
-        bullet.collision_damage = 10 # 設置碰撞傷害
-        # 將 Entity 設為碰撞目標，也就是當它與 Entity 發生碰撞時，會對那個 Entity 造成傷害
-        bullet.collision_targets.add(Entity)
-        bullet.z_index = 99 # 提高元素所在的層次，以確保它在繪製時能覆蓋其他元素
-        testing1.add_element(bullet) # 把子彈添加到場景
-        bullet_sound.play()
-    bullet_sound = pygame.mixer.Sound('assets/entities/bullet-demo.mp3')
     demo_plant.radius_scale = 0.75
-    demo_plant.add_event_listener(events.CLICK_R, plant_demo_shoot)
+    demo_plant.add_event_listener(events.CLICK_R, lambda: demo_plant.shoot())
 
     # 列印當前場景元素總數
     # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())

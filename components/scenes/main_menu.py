@@ -7,7 +7,7 @@ main_menu = scenes.Scene()
 
 def init():
     from components import Element, TextBox, media, \
-        events, Entity, Plant, Zombie, controller, levels
+        events, Entity, plants, zombies, controller, levels
     pass
 
 main_menu.init = init

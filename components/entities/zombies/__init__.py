@@ -1,7 +1,8 @@
 from typing import Set
 from utils.constants import *
 import pygame
-from components.entities import Character, Effect, Ability
+from components.entities import Entity, Character, Effect, Ability
+import components.events as events
 
 class Zombie: pass
 
