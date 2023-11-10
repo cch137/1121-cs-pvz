@@ -18,7 +18,7 @@ class Ref(typing.Generic[T]):
         import components.events as events
         self.__value = value
         for tx in self.__textboxes:
-            tx.dispatch_event(events.ChangeEvent(tx))
+            tx.update_image()
 
     def __str__(self) -> str:
         return str(self.value)

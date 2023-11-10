@@ -11,7 +11,6 @@ MOUSEENTER = 'mouseenter'
 MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
-CHANGE = 'CHANGE'
 
 _CURSOR = 'cursor'
 _FLYOUT = 'flyout'
@@ -43,10 +42,6 @@ class MouseLeaveEvent(MouseEvent):
 class ClickEvent(MouseEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
-
-class ChangeEvent():
-    def __init__(self, target: EventTarget | None = None):
-        UserEvent.__init__(self, CHANGE, target)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]]
