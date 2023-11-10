@@ -527,7 +527,9 @@ class TextBox(Element):
             self.ref.value = text
         if self.font is None:
             return
+        old_center = self.rect.center
         self.image = self.font.render(self.text, self.font_antialias, self.font_color, self.font_background)
+        self.rect.center = old_center
         return self.image
 
     font: pygame.font.Font | None = None
