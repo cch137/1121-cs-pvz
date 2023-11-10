@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Dict
 import time
 import threading
 
@@ -11,7 +11,7 @@ async def wrapper(callback: Callable, *args):
     return callback(*args)
 
 __index = 0
-__runnings: dict[int, bool] = {}
+__runnings: Dict[int, bool] = {}
 
 def __create_index():
     global __index

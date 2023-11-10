@@ -4,10 +4,10 @@ import utils.process as process
 import utils.refs as refs
 import pygame
 
-def load_image(filepath: str, size: Tuple[int,int] = None):
+def load_image(filepath: str, size: Coordinate = None):
     return media.load_image(filepath, size)
 
-def load_animation(filepath: str, frames: int, duration_sec: float, size: Tuple[int,int] = None):
+def load_animation(filepath: str, frames: int, duration_sec: float, size: Coordinate = None):
     '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
     
     函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
@@ -47,7 +47,7 @@ class CacheItem():
         return value
 
 class CacheManager():
-    __cache_manager_dict: dict[str, CacheItem] = {}
+    __cache_manager_dict: Dict[str, CacheItem] = {}
 
     def create(self, key: str, value: Any = None):
         cache = CacheItem(value)
@@ -75,7 +75,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     display: Literal['block', 'inline', 'row', 'column'] = BLOCK
 
-    background_color: tuple[int] = None
+    background_color: ColorValue = None
 
     min_width: int | None = None
     max_width: int | None = None
@@ -104,7 +104,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def children(self):
         return list(self.__children)
 
-    def __init__(self, image: pygame.Surface | Tuple[int,int] | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: Iterable[Element] = []):
+    def __init__(self, image: pygame.Surface | Coordinate | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: Iterable[Element] = []):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         events.EventTarget.__init__(self)
@@ -112,7 +112,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
             image = (0, 0)
         elif isinstance(image, int):
             image = (image, image)
-        if isinstance(image, tuple):
+        if isinstance(image, (tuple, Sequence, pygame.math.Vector2)):
             if len(image) < 2: image = (image[0], 0)
             self.image = pygame.Surface(image)
             self.min_width, self.min_height = image
@@ -352,7 +352,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
 
     @padding.setter
-    def padding(self, value: int | tuple[int]):
+    def padding(self, value: int | Tuple[int]):
         if not isinstance(value, tuple):
             value = (value,)
         self.padding_top = value[0]
@@ -494,8 +494,8 @@ class TextBox(Element):
             self,
             text: Any | refs.Ref,
             font_size: int = 24,
-            font_color: tuple[int,int,int] = FONT_COLOR,
-            font_background: tuple[int,int,int] | None = None,
+            font_color: ColorValue = FONT_COLOR,
+            font_background: ColorValue | None = None,
             font_name: str = pygame.font.get_default_font(),
             font_antialias: bool = True
             ):
@@ -509,8 +509,8 @@ class TextBox(Element):
             self,
             font_name: str | None = None,
             font_size: int | None = None,
-            font_color: tuple[int,int,int] = None,
-            font_background: tuple[int,int,int] = None
+            font_color: ColorValue = None,
+            font_background: ColorValue = None
             ):
         if font_name is not None:
             self.__font_name = font_name
@@ -535,8 +535,8 @@ class TextBox(Element):
     font: pygame.font.Font | None = None
     __font_name: str = pygame.font.get_default_font()
     __font_size: int = 12
-    __font_color: tuple[int,int,int] | None = None
-    __font_background: tuple[int,int,int] | None = None
+    __font_color: ColorValue | None = None
+    __font_background: ColorValue | None = None
     __ref: refs.Ref[Any] | None = None
 
     @property
@@ -580,7 +580,7 @@ class TextBox(Element):
         return self.__font_color or FONT_COLOR
 
     @font_color.setter
-    def font_color(self, value: tuple[int,int,int]):
+    def font_color(self, value: ColorValue):
         self.update_font(None, None, value)
 
     @property
@@ -588,7 +588,7 @@ class TextBox(Element):
         return self.__font_background
 
     @font_background.setter
-    def font_background(self, value: tuple[int,int,int]):
+    def font_background(self, value: ColorValue):
         self.update_font(None, None, None, value)
 
 from components.media import media

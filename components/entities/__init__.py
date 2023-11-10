@@ -1,8 +1,8 @@
-from typing import *
-from utils.constants import *
 import pygame
 import math
 import utils.process as process
+from typing import Set, Any
+from utils.constants import *
 from components import Element
 from pygame.transform import rotate
 
@@ -97,7 +97,7 @@ class Entity(Element):
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
 
-    collision_targets: set[type[Entity]|Entity]
+    collision_targets: Set[type[Entity]|Entity]
     '''collision_targets 中的項目可以是 class 或者指定的實體。\\
     若目標屬於 class ，當此實體和該 class 的實體碰撞時會對其造成傷害。\\
     若目標屬於指定實體，當此實體和該指定實體碰撞時會對其造成傷害。'''
@@ -106,7 +106,7 @@ class Entity(Element):
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
     def __init__(self, image: pygame.Surface,
-        collision_effects: set[Effect] | None = None, abilities: set[Ability] | None = None):
+        collision_effects: Set[Effect] | None = None, abilities: Set[Ability] | None = None):
         '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)\\
         abilities 是技能'''
         Element.__init__(self, image)
@@ -115,7 +115,7 @@ class Entity(Element):
         all_entities.add(self)
         self.collision_targets = set()
 
-        self.__self_effects: set[Effect] = set()
+        self.__self_effects: Set[Effect] = set()
         '''此屬性是此實體身上目前所擁有的 Effect'''
 
         self.__collision_effects = collision_effects or set()
@@ -229,7 +229,7 @@ class Entity(Element):
         Element.kill(self, *args, **kargs)
         all_entities.remove(self)
 
-all_entities: set[Entity] = set()
+all_entities: Set[Entity] = set()
 
 class Character: pass
 
@@ -237,7 +237,7 @@ class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
 
-    def __init__(self, image: pygame.Surface, friends: set[Character], enemies: set[Character], abilities: set[Ability] | None = None):
+    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character], abilities: Set[Ability] | None = None):
         Entity.__init__(self, image, None, abilities)
         friends.add(self)
         self.__friends = friends
@@ -251,7 +251,7 @@ class Character(Entity):
     def enemies(self):
         return set(f for f in self.__enemies if f is not self)
     
-    def __closest_from_set(self, character_set: set[Character]):
+    def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None
         try: return min(character_set, key=lambda x: self.dist(x))
         except: return None
