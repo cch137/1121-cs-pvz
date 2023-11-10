@@ -51,7 +51,7 @@ def init():
     parent_ele.append_child(*children)
 
     # 創建 troll_face
-    troll_face = Entity(load_image('icon.png', (50, 50)))
+    troll_face = Entity(media.load_image('icon.png', (50, 50)))
     troll_face.cursor = 'hand'
 
     # 添加 click 事件監聽器
@@ -60,7 +60,7 @@ def init():
     troll_face.add_event_listener(events.CLICK, image_ele_clicked)
 
     # 創建 demo_plant 並設置其屬性
-    demo_plant = Plant(load_image('plants/demo.png', (128, 128)))
+    demo_plant = Plant(media.load_image('plants/demo.png', (128, 128)))
     demo_plant.image = pygame.transform.flip(demo_plant.image, True, False)
     demo_plant.rect.right = controller.screen_rect.right - 10
     demo_plant.rect.centery = controller.screen_rect.centery
