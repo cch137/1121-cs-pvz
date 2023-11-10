@@ -108,17 +108,18 @@ class EventTarget():
                 self.remove_event_listener(eventName, listener)
 
     def dispatch_event(self, event: UserEvent, callback: Callable | None = None):
-        if event.name in self.__listeners:
-            listeners = self.__listeners[event.name]
-            if len(listeners) == 0:
-                return
-            tasks = set()
-            for listener in listeners:
-                try:
-                    args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
-                    tasks.add(asynclib.wrapper(listener, *args))
-                except Exception as err:
-                    print(err)
+        if event.name not in self.__listeners:
+            return
+        listeners = self.__listeners[event.name]
+        if len(listeners) == 0:
+            return
+        tasks = set()
+        for listener in listeners:
+            try:
+                args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
+                tasks.add(asynclib.wrapper(listener, *args))
+            except Exception as err:
+                print(err)
         async def _callback():
             await asyncio.gather(*tasks)
             if callback is not None:
@@ -194,43 +195,46 @@ class EventManager():
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self._elements_of(CURSOR, CURSOR_R), key=lambda x: x.z_index)):
-            if el.point_in_radius(x, y):
-                match el.cursor_r:
-                    case 'arrow':
-                        controller.cursor.arrow()
-                    case 'crosshair':
-                        controller.cursor.crosshair()
-                    case 'hand':
-                        controller.cursor.hand()
-                    case 'ibeam':
-                        controller.cursor.ibeam()
-                    case 'sizeall':
-                        controller.cursor.sizeall()
-                    case _:
-                        if isinstance(el.cursor_r, int):
-                            controller.cursor.set(el.cursor_r)
-                        else:
-                            controller.cursor.default()
-                return
-            if el.rect.collidepoint(x, y):
-                match el.cursor:
-                    case 'arrow':
-                        controller.cursor.arrow()
-                    case 'crosshair':
-                        controller.cursor.crosshair()
-                    case 'hand':
-                        controller.cursor.hand()
-                    case 'ibeam':
-                        controller.cursor.ibeam()
-                    case 'sizeall':
-                        controller.cursor.sizeall()
-                    case _:
-                        if isinstance(el.cursor, int):
-                            controller.cursor.set(el.cursor)
-                        else:
-                            controller.cursor.default()
-                return
+        for el in reversed(sorted(self._elements_of(CURSOR), key=lambda x: x.z_index)):
+            if not el.rect.collidepoint(x, y):
+                continue
+            match el.cursor:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if isinstance(el.cursor, int):
+                        controller.cursor.set(el.cursor)
+                    else:
+                        controller.cursor.default()
+            return
+        for el in reversed(sorted(self._elements_of(CURSOR_R), key=lambda x: x.z_index)):
+            if not el.point_in_radius(x, y):
+                continue
+            match el.cursor_r:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if isinstance(el.cursor_r, int):
+                        controller.cursor.set(el.cursor_r)
+                    else:
+                        controller.cursor.default()
+            return
         controller.cursor.default()
 
     def handle(self, event: pygame.event.Event):
