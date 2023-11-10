@@ -1,5 +1,6 @@
 import typing
 import pygame
+import os
 
 Coordinate = typing.Union[typing.Tuple[float, float], typing.Sequence[float], pygame.math.Vector2]
 ColorValue = typing.Union[pygame.Color, int, str, typing.Tuple[int, int, int], typing.Tuple[int, int, int, int], typing.Sequence[int]]
@@ -10,7 +11,7 @@ WINDOW_HEIGHT = 760
 
 TITLE = '植物大戰殭屍'
 
-ASSETS_DIRNAME = 'assets'
+ASSETS_DIRNAME = os.path.abspath('assets/')
 
 BACKGROUND_COLOR = (20, 22, 24)
 FONT_COLOR = (250, 250, 250)
