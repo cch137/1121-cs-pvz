@@ -39,7 +39,7 @@ class MouseLeaveEvent(MouseEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, MOUSELEAVE, pos, target)
 
-class ClickEvent(UserEvent):
+class ClickEvent(MouseEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
 
@@ -77,7 +77,7 @@ class EventTarget():
             for listener in self.__listeners[event.name]:
                 try:
                     args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
-                    tasks.add(asyncfunc.wrapper(listener, *args))
+                    tasks.add(asyncfunc.asyncwrapper(listener, *args))
                 except Exception as err:
                     print(err)
         async def _callback():
