@@ -6,6 +6,7 @@ import utils.process as process
 import utils.asynclib as asynclib
 import components.element as element
 
+CURSOR = 'cursor'
 CLICK = 'click'
 HOVER = 'hover'
 MOUSEENTER = 'mouseenter'
@@ -13,6 +14,7 @@ MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
 
+CURSOR_R = 'cursor_r'
 CLICK_R = 'click_r'
 HOVER_R = 'hover_r'
 MOUSEENTER_R = 'mouseenter_r'
@@ -23,7 +25,6 @@ BUTTONUP_R = 'buttonup_r'
 REF_CHANGE = 'ref_change'
 CHANGE = 'change'
 
-_CURSOR = 'cursor'
 _FLYOUT = 'flyout'
 
 # Custom Events
@@ -193,26 +194,43 @@ class EventManager():
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self._elements_of(_CURSOR), key=lambda x: x.z_index)):
-            if not el.rect.collidepoint(x, y):
-                continue
-            match el.cursor:
-                case 'arrow':
-                    controller.cursor.arrow()
-                case 'crosshair':
-                    controller.cursor.crosshair()
-                case 'hand':
-                    controller.cursor.hand()
-                case 'ibeam':
-                    controller.cursor.ibeam()
-                case 'sizeall':
-                    controller.cursor.sizeall()
-                case _:
-                    if isinstance(el.cursor, int):
-                        controller.cursor.set(el.cursor)
-                    else:
-                        controller.cursor.default()
-            return
+        for el in reversed(sorted(self._elements_of(CURSOR, CURSOR_R), key=lambda x: x.z_index)):
+            if el.point_in_radius(x, y):
+                match el.cursor_r:
+                    case 'arrow':
+                        controller.cursor.arrow()
+                    case 'crosshair':
+                        controller.cursor.crosshair()
+                    case 'hand':
+                        controller.cursor.hand()
+                    case 'ibeam':
+                        controller.cursor.ibeam()
+                    case 'sizeall':
+                        controller.cursor.sizeall()
+                    case _:
+                        if isinstance(el.cursor_r, int):
+                            controller.cursor.set(el.cursor_r)
+                        else:
+                            controller.cursor.default()
+                return
+            if el.rect.collidepoint(x, y):
+                match el.cursor:
+                    case 'arrow':
+                        controller.cursor.arrow()
+                    case 'crosshair':
+                        controller.cursor.crosshair()
+                    case 'hand':
+                        controller.cursor.hand()
+                    case 'ibeam':
+                        controller.cursor.ibeam()
+                    case 'sizeall':
+                        controller.cursor.sizeall()
+                    case _:
+                        if isinstance(el.cursor, int):
+                            controller.cursor.set(el.cursor)
+                        else:
+                            controller.cursor.default()
+                return
         controller.cursor.default()
 
     def handle(self, event: pygame.event.Event):
