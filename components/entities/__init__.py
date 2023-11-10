@@ -91,7 +91,6 @@ class Entity(Element):
     velocity_x: int = 0
     velocity_y: int = 0
     velocity_a: int = 0
-    __rotated: int = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
     acceleration_a: int = 0
@@ -125,8 +124,31 @@ class Entity(Element):
     
     image_0: pygame.Surface | None = None
 
-    def save_image_0(self):
-        self.image_0 = self.image.copy()
+    @property
+    def image(self):
+        return Element.image.fget(self)
+
+    @image.setter
+    def image(self, value: pygame.Surface):
+        Element.image.fset(self, value)
+    
+    def clear_image_0(self):
+        self.image_0 = None
+    
+    __rotation_angle: int = 0
+
+    @property
+    def rotation_angle(self):
+        return self.__rotation_angle
+
+    @rotation_angle.setter
+    def rotation_angle(self, angle: int):
+        if self.image_0 is None:
+            self.image_0 = self.image.copy()
+        self.__rotation_angle = angle % 360
+        center = self.rect.center
+        self.image = rotate(self.image_0, self.__rotation_angle)
+        self.rect.center = center
     
     def damage(self, value: int, *effects: Effect):
         '''對本實體造成傷害和效果。'''
@@ -159,6 +181,7 @@ class Entity(Element):
                 if effect.rate > slow_down_rate:
                     slow_down_rate = effect.rate
             effect.update()
+        velocity_rate = max(0, 1 - slow_down_rate)
         
         # 使用技能
         for ability in self.abilities:
@@ -169,8 +192,8 @@ class Entity(Element):
         # 處理位移
         if self.move_limit is None or self.move_limit > 0:
             x1, y1 = self.x, self.y
-            real_velocity_x = self.velocity_x * max(0, 1 - slow_down_rate)
-            real_velocity_y = self.velocity_y * max(0, 1 - slow_down_rate)
+            real_velocity_x = self.velocity_x * velocity_rate
+            real_velocity_y = self.velocity_y * velocity_rate
             self.x += real_velocity_x
             self.y += real_velocity_y
             if self.move_limit is not None:
@@ -179,12 +202,7 @@ class Entity(Element):
             self.velocity_y += self.acceleration_y
         # 處理旋轉
         if self.velocity_a:
-            if self.image_0 is None:
-                self.save_image_0()
-            self.__rotated = (self.__rotated + self.velocity_a) % 360
-            center = self.rect.center
-            self.image = rotate(self.image_0, self.__rotated)
-            self.rect.center = center
+            self.rotation_angle += self.velocity_a * velocity_rate
             self.velocity_a += self.acceleration_a
         
         if isinstance(self, Character) and self.is_touch_with_enemy:
