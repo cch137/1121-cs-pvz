@@ -69,7 +69,7 @@ def init():
             10,
             [Entity],
             [],
-            pygame.mixer.Sound('assets/entities/bullet-demo.mp3'),
+            media.load_sound('entities/bullet-demo.mp3'),
         )
     )
     demo_plant.rect.center = (controller.screen_rect.right - 10 - demo_plant.rect.width / 2, controller.screen_rect.centery)

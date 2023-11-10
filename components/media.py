@@ -7,8 +7,8 @@ from utils.constants import *
 from utils.elong_list import elong_list
 
 def _resolve_asset_filepath(fp: str):
-    if ASSETS_DIRNAME in fp: return fp
-    return os.path.join(ASSETS_DIRNAME, *fp.replace('\\', '/').split('/'))
+    if ASSETS_DIRNAME in fp: return os.path.abspath(fp)
+    return os.path.abspath(os.path.join(ASSETS_DIRNAME, *fp.replace('\\', '/').split('/')))
 
 class PreloadSound():
     def __init__(self, asset_filepath: str, volume: float = 1) -> None:
