@@ -3,6 +3,7 @@ from utils.constants import *
 import utils.process as process
 import utils.refs as refs
 import pygame
+import math
 
 def load_image(filepath: str, size: Coordinate = None):
     return media.load_image(filepath, size)
@@ -125,6 +126,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     radius_scale = 0.5
 
+    def point_in_radius(self, x: float, y: float):
+        return math.dist((x, y), self.rect.center) < self.radius
+
     @property
     def image(self) -> pygame.Surface:
         return self.get_attribute('image')
@@ -140,15 +144,27 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def cursor(self) -> int:
-        return self.get_attribute(events._CURSOR)
+        return self.get_attribute(events.CURSOR)
 
     @cursor.setter
     def cursor(self, value: None | int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
         if value is None:
-            self.remove_event_listener(events._CURSOR)
+            self.remove_event_listener(events.CURSOR)
             return
-        self.set_attribute(events._CURSOR, value)
-        self.add_event_listener(events._CURSOR)
+        self.set_attribute(events.CURSOR, value)
+        self.add_event_listener(events.CURSOR)
+
+    @property
+    def cursor_r(self) -> int:
+        return self.get_attribute(events.CURSOR_R)
+
+    @cursor_r.setter
+    def cursor_r(self, value: None | int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
+        if value is None:
+            self.remove_event_listener(events.CURSOR_R)
+            return
+        self.set_attribute(events.CURSOR_R, value)
+        self.add_event_listener(events.CURSOR_R)
 
     @property
     def allow_flyout(self):

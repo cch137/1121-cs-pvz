@@ -63,7 +63,7 @@ def init():
     demo_plant.image = pygame.transform.flip(demo_plant.image, True, False)
     demo_plant.rect.right = controller.screen_rect.right - 10
     demo_plant.rect.centery = controller.screen_rect.centery
-    demo_plant.cursor = 'hand'
+    demo_plant.cursor_r = 'hand'
 
     # 發射子彈子彈
     def plant_demo_shoot():
@@ -79,7 +79,8 @@ def init():
         testing1.add_element(bullet) # 把子彈添加到場景
         bullet_sound.play()
     bullet_sound = pygame.mixer.Sound('assets/entities/bullet-demo.mp3')
-    demo_plant.add_event_listener(events.CLICK, plant_demo_shoot)
+    demo_plant.radius_scale = 0.75
+    demo_plant.add_event_listener(events.CLICK_R, plant_demo_shoot)
 
     # 列印當前場景元素總數
     # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())

@@ -32,7 +32,7 @@ class SunSpawner(Spawner):
     
     def spawn(self, level: Level):
         Spawner.spawn(self, level)
-        self.sun.add_event_listener(events.CLICK, lambda: level.eval_suns(self.sun.kill()))
+        self.sun.add_event_listener(events.CLICK_R, lambda: level.eval_suns(self.sun.kill()))
 
 class Level(Element):
     def __init__(self, spawners: Iterable[Spawner] = tuple()):

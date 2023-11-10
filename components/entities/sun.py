@@ -11,7 +11,8 @@ class Sun(Entity):
         self.velocity_y = 3
         self.velocity_a = 1 * (1 if randint(0, 1) else -1)
         self.z_index = 999
-        self.cursor = 'hand'
+        self.radius_scale = 0.6
+        self.cursor_r = 'hand'
     
     def update(self):
         if self.move_limit <= 0:
