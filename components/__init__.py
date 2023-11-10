@@ -6,3 +6,4 @@ from components.entities import Entity
 from components.entities.plants import Plant
 from components.entities.zombies import Zombie
 from components.media import media
+import components.levels as levels

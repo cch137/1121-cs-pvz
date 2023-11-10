@@ -1,7 +1,6 @@
 from typing import *
-from typing import Any
 from constants import *
-from components.entities import Entity, Element
+from components.entities import Entity, Element, Sun
 import components.events as events
 import components.scenes as scenes
 from utils.refs import Ref
@@ -20,7 +19,6 @@ class Spawner():
 
 class SunSpawner(Spawner):
     def __init__(self, schedule_tick: int = 0):
-        from components.entities.sun import Sun
         self.sun = Sun()
         Spawner.__init__(self, schedule_tick, self.sun)
     

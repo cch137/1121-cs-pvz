@@ -6,11 +6,10 @@ import components.scenes as scenes
 testing1 = scenes.Scene()
 
 def init():
-    import components.level as _level
     from components import Element, TextBox, media, \
-        events, Entity, Plant, Zombie, controller
+        events, Entity, Plant, Zombie, controller, levels
     
-    level = _level.Level()
+    level = levels.Level()
     testing1.add_element(level)
 
     # 一個製作 element 的函式
@@ -27,7 +26,7 @@ def init():
     # 添加 click 事件監聽器 (reload)
     children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
     # 添加 click 事件監聽器 (sun)
-    children[1].add_event_listener(events.CLICK, lambda: _level.SunSpawner().spawn(level))
+    children[1].add_event_listener(events.CLICK, lambda: levels.SunSpawner().spawn(level))
     # 添加 click 事件監聽器
     children[2].add_event_listener(events.CLICK, lambda: print('blue clicked'))
     # 添加 click 事件監聽器（頁面轉跳）

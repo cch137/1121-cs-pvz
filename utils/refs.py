@@ -1,12 +1,13 @@
 import typing
+import utils.asynclib as asynclib
+import components.events as events
 
 T = typing.TypeVar('T')
 
 class Ref(typing.Generic[T]):
     def __init__(self, value: T):
-        import components.element as element
         self.__value = value
-        self.__textboxes: set[element.TextBox] = set()
+        self.__targets: set[events.EventTarget] = set()
     
     @property
     def value(self):
@@ -15,17 +16,50 @@ class Ref(typing.Generic[T]):
     @value.setter
     def value(self, value):
         self.__value = value
-        for tx in self.__textboxes:
-            tx.update_image()
+        for target in tuple(self.__targets):
+            try:
+                asynclib.run_threads(lambda: target.dispatch_event(events.RefChangeEvent(target)))
+            except Exception as e:
+                print(e)
 
     def __str__(self) -> str:
         return str(self.value)
 
-    def bind(self, textbox):
-        self.__textboxes.add(textbox)
+    def bind(self, target: events.EventTarget):
+        self.__targets.add(target)
     
-    def unbind(self, textbox):
-        self.__textboxes.remove(textbox)
+    def unbind(self, target: events.EventTarget):
+        self.__targets.remove(target)
+
+class Computed(Ref[T], events.EventTarget):
+    def __init__(self, getter: typing.Callable[[], T], *related_refs: Ref):
+        Ref.__init__(self, getter())
+        events.EventTarget.__init__(self)
+        self.__getter = getter
+        self.__related_refs = set()
+        self.add_related_refs(*related_refs)
+        self.add_event_listener(events.REF_CHANGE, lambda: self.compute())
+    
+    @property
+    def value(self):
+        return Ref.value.fget(self)
+
+    @value.setter
+    def value(self, value):
+        raise 'Computed is read only'
+
+    def add_related_refs(self, *refs: Ref):
+        for ref in refs:
+            self.__related_refs.add(ref)
+            ref.bind(self)
+
+    def remove_related_refs(self, *refs: Ref):
+        for ref in refs:
+            self.__related_refs.remove(ref)
+            ref.unbind(self)
+
+    def compute(self):
+        Ref.value.fset(self, self.__getter())
 
 def to_ref(value: Ref[T] | T) -> Ref[T]:
     return value if isinstance(value, Ref) else Ref(value)

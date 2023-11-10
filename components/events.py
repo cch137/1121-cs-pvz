@@ -2,7 +2,7 @@ from typing import *
 import pygame
 import asyncio
 import utils.process as process
-import utils.asyncfunc as asyncfunc
+import utils.asynclib as asynclib
 import components.element as element
 
 CLICK = 'click'
@@ -11,6 +11,8 @@ MOUSEENTER = 'mouseenter'
 MOUSELEAVE = 'mouseleave'
 BUTTONDOWN = 'buttondown'
 BUTTONUP = 'buttonup'
+
+REF_CHANGE = 'ref_change'
 
 _CURSOR = 'cursor'
 _FLYOUT = 'flyout'
@@ -42,6 +44,10 @@ class MouseLeaveEvent(MouseEvent):
 class ClickEvent(MouseEvent):
     def __init__(self, pos: tuple[int, int], target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK, pos, target)
+
+class RefChangeEvent(UserEvent):
+    def __init__(self, target: EventTarget | None = None):
+        UserEvent.__init__(self, REF_CHANGE, target)
 
 class EventTarget():
     __listeners: dict[str, set[Callable]]
@@ -77,7 +83,7 @@ class EventTarget():
             for listener in self.__listeners[event.name]:
                 try:
                     args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
-                    tasks.add(asyncfunc.asyncwrapper(listener, *args))
+                    tasks.add(asynclib.wrapper(listener, *args))
                 except Exception as err:
                     print(err)
         async def _callback():

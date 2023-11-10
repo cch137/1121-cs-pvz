@@ -276,3 +276,4 @@ class Character(Entity):
 
 import components.entities.plants as plants
 import components.entities.zombies as zombies
+from components.entities.sun import Sun

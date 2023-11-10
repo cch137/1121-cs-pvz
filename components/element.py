@@ -503,6 +503,7 @@ class TextBox(Element):
         self.ref = refs.to_ref(text)
         self.font_antialias = font_antialias
         self.update_font(font_name, font_size, font_color, font_background)
+        self.add_event_listener(events.REF_CHANGE, lambda: self.update_image())
 
     def update_font(
             self,
