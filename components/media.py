@@ -60,6 +60,9 @@ class MediaManager():
         return self.images[asset_filepath]
     
     def preload_animation(self, asset_filepath: str, frames: int, format: str = 'png'):
+        '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
+        
+        函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
         asset_filepath = _resolve_asset_filepath(asset_filepath)
         if asset_filepath not in self.animations:
             self.animations[asset_filepath] = PreloadAnimation(asset_filepath, frames, format)

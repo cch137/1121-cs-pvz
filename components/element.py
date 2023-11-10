@@ -1,19 +1,9 @@
 from typing import *
 from utils.constants import *
 import utils.process as process
-import utils.asynclib as asynclib
 import utils.refs as refs
 import pygame
 import math
-
-def load_image(filepath: str, size: Coordinate = None):
-    return media.load_image(filepath, size)
-
-def load_animation(filepath: str, frames: int, duration_sec: float, size: Coordinate = None):
-    '''動畫圖片命名格式例子：anim_1.png, anim_2.png, ..., anim_10.png （假設圖片放置在 assets 目錄）
-    
-    函式使用例子：load_animation('assets/anim', 10, 1.5, (60, 60))'''
-    return media.load_animation(filepath, duration_sec, size, frames)
 
 class Element(pygame.sprite.Sprite):
     pass
