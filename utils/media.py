@@ -1,5 +1,3 @@
-import struct
-
 def determine_file_type(file_path):
     with open(file_path, 'rb') as file:
         header_data = file.read(12)

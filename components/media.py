@@ -1,8 +1,6 @@
 import os
 import io
 import pygame
-import components.events as events
-import components.scenes as scenes
 from constants import *
 import utils.media
 from utils.elong_list import elong_list

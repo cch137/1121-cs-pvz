@@ -1,5 +1,4 @@
 import typing
-import pygame
 
 T = typing.TypeVar('T')
 
@@ -15,7 +14,6 @@ class Ref(typing.Generic[T]):
 
     @value.setter
     def value(self, value):
-        import components.events as events
         self.__value = value
         for tx in self.__textboxes:
             tx.update_image()
