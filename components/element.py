@@ -94,7 +94,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def children(self):
-        return list(self.__children)
+        return tuple(self.__children)
 
     def __init__(self, image: pygame.Surface | Coordinate | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: Iterable[Element] = []):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
@@ -413,13 +413,13 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         '''Appends elements to the end of the children of this element.'''
         self.remove_child(*children)
         self.__children.extend(children)
-        for child in list(children):
+        for child in children:
             child.parent = self
             child.connect_scene(self.scene)
 
     def remove_child(self, *children: Element):
         '''Remove elements from children of this element.'''
-        for child in list(children):
+        for child in children:
             if child in self.__children:
                 self.__children.remove(child)
                 child.parent = None
@@ -428,8 +428,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def insert_child(self, index: int, *children: Element):
         '''Insert elements into children of this element at the given index.'''
         self.remove_child(*children)
-        children = list(reversed(list(children)))
-        for child in children:
+        for child in tuple(reversed(children)):
             self.__children.insert(index, child)
             child.parent = self
             child.connect_scene(self.scene)
@@ -444,21 +443,19 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         if node not in self.__children:
             raise 'node is not in children'
         index = self.__children.index(node)
-        children = list(reversed(list(children)))
-        for child in children:
+        for child in tuple(reversed(children)):
             self.insert_child(index, child)
     
-    def insert_after(self, node: Element, child: Element):
+    def insert_after(self, node: Element, *children: Element):
         '''Insert elements into children of this element after the given node(element).'''
         if node not in self.__children:
             raise 'node is not in children'
         index = self.__children.index(node) + 1
-        children = list(reversed(list(children)))
-        for child in children:
+        for child in tuple(reversed(children)):
             self.insert_child(index, child)
 
     @property
-    def all_children(self) -> List[Element]:
+    def all_children(self) -> Tuple[Element]:
         '''All hierarchical child elements below this element.
 
         在此元素之下所有層級的子元素。'''
@@ -473,7 +470,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
                     children.add(child)
                     parents.add(child)
                 watched.add(parent)
-        return list(children)
+        return tuple(children)
 
     def connect_scene(self, scene: scenes.Scene | None):
         '''Connect with the scene. (draw and update this element in the scene)

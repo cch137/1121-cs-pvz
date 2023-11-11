@@ -32,6 +32,9 @@ TILE_BG_4 = (20, 167, 26)
 MAP_COLUMNS = 9
 MAP_ROWS = 5
 
+# Spawner 生成多個殭屍時，殭屍之間的距離
+ZOMBIES_GAP = 16
+
 ROW = 'row'
 COLUMN = 'column'
 BLOCK = 'block'
