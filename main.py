@@ -6,9 +6,9 @@ from components import controller
 # 設置視窗圖標、標題，初始化視窗
 pygame.display.set_icon(pygame.image.load('assets/icon.png'))
 pygame.display.set_caption(TITLE)
-pygame.init()
+pygame.mixer.pre_init(44100, 16, 2, 4096)  # 性能優化
 pygame.mixer.init()
-
+pygame.init()
 process.clear_caches()
 
 def main():

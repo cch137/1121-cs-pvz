@@ -87,6 +87,10 @@ class KillEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, KILL, target)
 
+class SunsChangeEvent(UserEvent):
+    def __init__(self, target: EventTarget | None = None):
+        UserEvent.__init__(self, SUN_CHANGES, target)
+
 class EventTarget():
     def __init__(self) -> None:
         self.__listeners: Dict[str, Set[Callable]] = dict()
