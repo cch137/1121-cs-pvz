@@ -13,7 +13,7 @@ def _resolve_asset_filepath(fp: str):
 class PreloadSound():
     def __init__(self, asset_filepath: str, volume: float = 1) -> None:
         self.fp = _resolve_asset_filepath(asset_filepath)
-        self.sounds: Dict[float,pygame.mixer.Sound] = dict()
+        self.sounds: Dict[float, pygame.mixer.Sound] = dict()
         self.load(volume)
     
     def load(self, volume: float = 1):
@@ -28,7 +28,7 @@ class PreloadImage():
         self.bytes = open(self.fp, 'rb').read()
     
     def load(self, size: Coordinate | int | None = None):
-        image = pygame.image.load(io.BytesIO(self.bytes))
+        image = pygame.image.load(io.BytesIO(self.bytes)).convert_alpha()
         if size is not None:
             image = pygame.transform.scale(image, (size, size) if type(size) is int else size)
         return image
@@ -38,14 +38,14 @@ class PreloadAnimation():
         self.fp = _resolve_asset_filepath(asset_filepath)
         self.images = tuple(PreloadImage(f'{self.fp}_{i}.{format}') for i in range(1, frames + 1))
     
-    def load(self, durationSecs: float, size: Coordinate | int = None):
-        return elong_list([i.load(size) for i in self.images], int(FPS * durationSecs))
+    def load(self, duration_ticks: int, size: Coordinate | int = None):
+        return elong_list([i.load(size) for i in self.images], int(duration_ticks))
 
 class MediaManager():
     def __init__(self):
-        self.sounds: Dict[str,PreloadSound] = dict()
-        self.images: Dict[str,PreloadImage] =  dict()
-        self.animations: Dict[str,PreloadAnimation] = dict()
+        self.sounds: Dict[str, PreloadSound] = dict()
+        self.images: Dict[str, PreloadImage] =  dict()
+        self.animations: Dict[str, PreloadAnimation] = dict()
     
     def preload_sound(self, asset_filepath: str):
         asset_filepath = _resolve_asset_filepath(asset_filepath)
@@ -92,7 +92,7 @@ class MediaManager():
     def load_image(self, asset_filepath: str, size: Coordinate | int | None = None):
         return self.preload_image(asset_filepath).load(size)
     
-    def load_animation(self, asset_filepath: str, duration_secs: float, size: Coordinate | int | None = None, frames: int | None = None, format: str = 'png'):
-        return self.preload_animation(asset_filepath, frames, format).load(duration_secs, size)
+    def load_animation(self, asset_filepath: str, duration_ticks: int, size: Coordinate | int | None = None, frames: int | None = None, format: str = 'png'):
+        return self.preload_animation(asset_filepath, frames, format).load(duration_ticks, size)
 
 media = MediaManager()

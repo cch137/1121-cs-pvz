@@ -126,7 +126,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     
     @image.setter
     def image(self, value: pygame.Surface):
-        self.set_attribute('image', value.convert_alpha(value))
+        self.set_attribute('image', value)
         self.rect = value.get_rect()
 
     @property

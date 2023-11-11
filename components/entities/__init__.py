@@ -14,47 +14,47 @@ class Effect():
     def __init__(self, name: str, durationTicks: int):
         '''name 屬性相同的 Effect 可以進行合併。\\
         即當一個實體被連續施加同一效果時，\\
-        效果不會加重，但是持續時間會延長 (以最長的 durationSecs 為值)'''
+        效果不會加重，但是持續時間會延長 (以最長的 duration_ticks 為值)'''
         self.name = name
-        self.durationTicks = durationTicks
+        self.duration_ticks = durationTicks
         self.expired_at_tick = process.ticks + durationTicks
 
     def is_mergeable(self, other: Effect):
         return self.name == other.name
 
     def merge(self, other: Effect):
-        self.durationTicks = max(self.durationTicks, other.durationSecs)
+        self.duration_ticks = max(self.duration_ticks, other.duration_ticks)
     
     def duplicate(self):
-        return Effect(self.name, self.durationTicks)
+        return Effect(self.name, self.duration_ticks)
 
     def apply(self, entity: Entity):
         entity.add_effect(self.duplicate())
     
     @property
     def is_expired(self):
-        return self.durationTicks >= process.ticks
+        return self.expired_at_tick <= process.ticks
 
 class SlowDownEffect(Effect):
-    def __init__(self, name: str, durationTicks: int, rate: float):
-        '''durationSecs 是效果持續的秒數。\\
+    def __init__(self, name: str, duration_ticks: int, rate: float):
+        '''duration_ticks 是效果持續的幀數。\\
         rate 是介於 0 到 1 之間的值。可以對目標的速度減緩。\\
         例如：目標原本速度為 `10`，rate 設為 `0.2`，目標修正後速度為 `8`'''
-        Effect.__init__(self, name, durationTicks)
+        Effect.__init__(self, name, duration_ticks)
         self.rate = rate
     
     def duplicate(self):
-        return SlowDownEffect(self.name, self.durationTicks, self.rate)
+        return SlowDownEffect(self.name, self.duration_ticks, self.rate)
 
 class PoisonEffect(Effect):
-    def __init__(self, name: str, durationTicks: int, attack_power: int):
-        '''durationSecs 是效果持續的秒數。\\
+    def __init__(self, name: str, duration_ticks: int, attack_power: int):
+        '''duration_ticks 是效果持續的幀數。\\
         attack_power 是每一幀對目標造成的傷害值。'''
-        Effect.__init__(self, name, durationTicks)
+        Effect.__init__(self, name, duration_ticks)
         self.attack_power = attack_power
     
     def duplicate(self):
-        return PoisonEffect(self.name, self.durationTicks, self.attack_power)
+        return PoisonEffect(self.name, self.duration_ticks, self.attack_power)
 
 class Ability():
     def __init__(self, colddown: int = 60):

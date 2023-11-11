@@ -31,13 +31,13 @@ def run_threads(*callbacks: Callable):
 
 def set_timeout(callback: Callable, milliseconds: float, *args: Any) -> int:
     '''
-    callback 將在等待 timeoutSecs 後被執行。\\
+    callback 將在等待 milliseconds 後被執行。\\
     在任務執行前可用 clear_timeout 取消定時任務。\\
     函式返會任務 id。
 
     參數：\\
     callback - 須調用的函式 \\
-    timeoutSecs - 須等待的秒數 \\
+    milliseconds - 須等待的毫秒數 \\
     *args - 須傳入 callback 的參數
     '''
     task_id = __create_index()
@@ -54,13 +54,13 @@ def set_timeout(callback: Callable, milliseconds: float, *args: Any) -> int:
 
 def set_interval(callback: Callable, milliseconds: float, *args: Any) -> int:
     '''
-    callback 將以 intervalSecs 為間隔循環執行。\\
+    callback 將以 milliseconds 為間隔循環執行。\\
     在任務執行前可用 clear_interval 取消定時任務。\\
     函式返會任務 id。
 
     參數：\\
     callback - 須調用的函式 \\
-    intervalSecs - 執行間隔的描述 \\
+    milliseconds - 執行間隔的毫秒數 \\
     *args - 須傳入 callback 的參數
     '''
     task_id = __create_index()
