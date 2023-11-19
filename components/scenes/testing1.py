@@ -126,7 +126,12 @@ def init():
     navigator.rect.center = controller.screen_rect.center
 
     # ElementV2 測試
-    e2 = ElementV2().apply(Style(width=100, height=100, background_color=(88,88,88)))
+    import utils.asynclib as asynclib
+    from utils.refs import Ref
+    e2_bg = Ref((255, 255, 255))
+    e2 = ElementV2().apply(Style(width=100, height=100, background_color=e2_bg))
+    def e2_l1(): e2_bg.value = (88, 88, 88)
+    asynclib.set_timeout(e2_l1, 2000)
     testing1.add_element(e2)
 
     # 設置背景音樂
