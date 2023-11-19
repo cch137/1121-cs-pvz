@@ -42,8 +42,8 @@ def init():
     parent_ele = Element()
     parent_ele.min_width = 150
     parent_ele.min_height = 520
-    parent_ele.x = 50
-    parent_ele.y = 50
+    parent_ele.rect.x = 50
+    parent_ele.rect.y = 50
     parent_ele.spacing = 25
 
     # 將 children 添加到 parent_ele

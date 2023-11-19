@@ -200,22 +200,6 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.set_attribute('id', value)
 
     @property
-    def x(self): 
-        return self.rect.x
-
-    @x.setter
-    def x(self, value: int):
-        self.rect.x = value
-
-    @property
-    def y(self):
-        return self.rect.y
-
-    @y.setter
-    def y(self, value: int):
-        self.rect.y = value
-
-    @property
     def is_end_element(self):
         '''是否為末端的元素'''
         return self.display in (BLOCK, INLINE) and len(self) == 0
@@ -909,6 +893,9 @@ class ElementV2(pygame.sprite.Sprite, events.EventTarget):
                     else: self.add_event_listener(events._FLYOUT)
                 case 'z_index':
                     if self.scene: self.scene.reconnect_element(self)
+                case _:
+                    if not self._create_with_surface:
+                        self.image = None
         # 初始化
         style.add_event_listener(events.STYLE_CHANGE, style_change_handler)
         if style.cursor is None: self.remove_event_listener(events.CURSOR)
@@ -945,11 +932,15 @@ class ElementV2(pygame.sprite.Sprite, events.EventTarget):
     def children(self):
         return tuple(self.__children)
 
-    def __init__(self, image: pygame.Surface = None, children: Iterable[ElementV2] = []):
+    def __init__(self, image: pygame.Surface | Style | None = None, children: Iterable[ElementV2] = []):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         self.__attributes: Dict[str, Any] = dict()
-        self.image = image
+        if isinstance(image, Style):
+            self.apply(image)
+            self.image = None
+        else:
+            self.image = image
         self.__children = list()
         self.caches = CacheManager()
         self.append_child(*children)
@@ -982,7 +973,12 @@ class ElementV2(pygame.sprite.Sprite, events.EventTarget):
             style = self.style
             value = pygame.Surface((style.width or 0, style.height or 0))
         self.set_attribute('image', value)
-        self.rect = value.get_rect()
+        rect = value.get_rect()
+        self.rect = rect
+        if style.x is not None:
+            rect.x = style.x
+        if style.y is not None:
+            rect.y = style.y
 
     @property
     def radius(self) -> int:

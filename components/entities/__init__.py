@@ -24,13 +24,13 @@ class Effect():
 
     def merge(self, other: Effect):
         self.duration_ticks = max(self.duration_ticks, other.duration_ticks)
-    
+
     def duplicate(self):
         return Effect(self.name, self.duration_ticks)
 
     def apply(self, entity: Entity):
         entity.add_effect(self.duplicate())
-    
+
     @property
     def is_expired(self):
         return self.expired_at_tick <= process.ticks
@@ -42,7 +42,7 @@ class SlowDownEffect(Effect):
         例如：目標原本速度為 `10`，rate 設為 `0.2`，目標修正後速度為 `8`'''
         Effect.__init__(self, name, duration_ticks)
         self.rate = rate
-    
+
     def duplicate(self):
         return SlowDownEffect(self.name, self.duration_ticks, self.rate)
 
@@ -52,7 +52,7 @@ class PoisonEffect(Effect):
         attack_power 是每一幀對目標造成的傷害值。'''
         Effect.__init__(self, name, duration_ticks)
         self.attack_power = attack_power
-    
+
     def duplicate(self):
         return PoisonEffect(self.name, self.duration_ticks, self.attack_power)
 
@@ -66,7 +66,7 @@ class Ability():
     @property
     def is_cooling_down(self):
         return self.last_used_at + self.colddown > process.ticks
-    
+
     def use(self, entity: Entity):
         if self.is_cooling_down: # 技能正在冷卻中，無法使用
             return
@@ -121,20 +121,12 @@ class Entity(Element):
         self.__collision_effects = collision_effects or set()
         '''此屬性的 Effect 將在此實體對其他實體造成攻擊時，對其他實體所施加的效果。\\
         注意：如果要使用“子彈”對其他實體造成攻擊，你應該設置“子彈”的 Effect 而不是設置發出子彈的實體。'''
-    
+
     image_0: pygame.Surface | None = None
 
-    @property
-    def image(self):
-        return Element.image.fget(self)
-
-    @image.setter
-    def image(self, value: pygame.Surface):
-        Element.image.fset(self, value)
-    
     def clear_image_0(self):
         self.image_0 = None
-    
+
     __rotation_angle: int = 0
 
     @property
@@ -149,7 +141,7 @@ class Entity(Element):
         center = self.rect.center
         self.image = rotate(self.image_0, self.__rotation_angle)
         self.rect.center = center
-    
+
     def damage(self, value: int, *effects: Effect):
         '''對本實體造成傷害和效果。'''
         for effect in effects:
@@ -157,17 +149,17 @@ class Entity(Element):
         self.health -= value * (1 - self.defense / 100)
         if self.dead:
             self.kill()
-    
+
     @property
     def dead(self):
         return self.health <= 0
-    
+
     def add_effect(self, effect: Effect):
         self.__self_effects.add(effect)
-    
+
     def remove_effect(self, effect: Effect):
         self.__self_effects.remove(effect)
-    
+
     def auto_update(self):
         # 處理效果
         slow_down_rate = 0
@@ -191,13 +183,14 @@ class Entity(Element):
             return
         # 處理位移
         if self.move_limit is None or self.move_limit > 0:
-            x1, y1 = self.x, self.y
+            rect = self.rect
+            x1, y1 = rect.x, rect.y
             real_velocity_x = self.velocity_x * velocity_rate
             real_velocity_y = self.velocity_y * velocity_rate
-            self.x += real_velocity_x
-            self.y += real_velocity_y
+            rect.x += real_velocity_x
+            rect.y += real_velocity_y
             if self.move_limit is not None:
-                self.move_limit -= math.dist((self.x, self.y), (x1, y1))
+                self.move_limit -= math.dist((rect.x, rect.y), (x1, y1))
             self.velocity_x += self.acceleration_x
             self.velocity_y += self.acceleration_y
         # 處理旋轉
@@ -221,7 +214,7 @@ class Entity(Element):
                 elif entity == target:
                     entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                     return self.kill()
-    
+
     def dist(self, target: Entity):
         return math.dist(self.rect.center, target.rect.center)
 

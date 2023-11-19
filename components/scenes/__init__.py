@@ -109,13 +109,8 @@ class Scene():
                 try:
                     if element.background_color != None:
                         element.image.fill(element.background_color)
-                except:
-                    try:
-                        if element.style.background_color != None:
-                            print('draw', element.rect.x, element.rect.y, element.rect.width, element.rect.height)
-                            element.image.fill(element.style.background_color)
-                    except Exception as e:
-                        print(e)
+                except Exception as e:
+                    print(e)
             try:
                 layer.draw(self.screen)
             except:

@@ -49,7 +49,7 @@ def set_timeout(callback: Callable, milliseconds: float, *args: Any) -> int:
                 print(e)
             finally:
                 __delete_index(task_id)
-    threading.Timer(max(0, milliseconds), _callback).start()
+    threading.Timer(max(0, milliseconds / 1000), _callback).start()
     return task_id
 
 def set_interval(callback: Callable, milliseconds: float, *args: Any) -> int:
@@ -68,7 +68,7 @@ def set_interval(callback: Callable, milliseconds: float, *args: Any) -> int:
         next_execute_t = time.time()
         while True:
             now = time.time()
-            next_execute_t += milliseconds
+            next_execute_t += milliseconds / 1000
             time.sleep(max(0, next_execute_t - now))
             if __is_running(task_id):
                 try:
