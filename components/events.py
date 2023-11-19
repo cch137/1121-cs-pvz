@@ -24,6 +24,7 @@ BUTTONUP_R = 'buttonup_r'
 
 REF_CHANGE = 'ref_change'
 CHANGE = 'change'
+STYLE_CHANGE = 'style_change'
 
 _FLYOUT = 'flyout'
 KILL = 'KILL'
@@ -79,6 +80,12 @@ class RefChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, REF_CHANGE, target)
 
+class StyleChangeEvent(UserEvent):
+    def __init__(self, target: EventTarget | None = None, attr_name: str | None = None, attr_value: Any = None):
+        self.attr_name = attr_name
+        self.attr_value = attr_value
+        UserEvent.__init__(self, REF_CHANGE, target)
+
 class ChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
         UserEvent.__init__(self, CHANGE, target)
@@ -92,17 +99,19 @@ class SunsChangeEvent(UserEvent):
         UserEvent.__init__(self, SUN_CHANGES, target)
 
 class EventTarget():
-    def __init__(self) -> None:
-        self.__listeners: Dict[str, Set[Callable]] = dict()
-        self.__attributes: Dict[str, Any] = dict()
+    __listeners: Dict[str, Set[Callable]] | None = None
 
     def add_event_listener(self, eventName: str, listener: Callable | None = None):
+        if not self.__listeners:
+            self.__listeners = dict()
         if eventName not in self.__listeners:
             self.__listeners[eventName] = set()
         self.__listeners[eventName].add(listener)
         event_manager.add_target(self, eventName)
 
     def remove_event_listener(self, eventName: str, listener: Callable | None = None):
+        if not self.__listeners:
+            return
         if eventName not in self.__listeners:
             return
         if listener in self.__listeners[eventName]:
@@ -111,41 +120,38 @@ class EventTarget():
                 event_manager.remove_target(self, eventName)
     
     def remove_all_event_listeners(self):
-        for eventName in self.__listeners:
-            listeners = set(self.__listeners[eventName])
-            for listener in listeners:
+        if not self.__listeners:
+            return
+        for eventName, listeners in self.__listeners.items():
+            for listener in tuple(listeners):
                 self.remove_event_listener(eventName, listener)
 
-    def dispatch_event(self, event: UserEvent, callback: Callable | None = None):
+    def dispatch_event(self, event: UserEvent, callback: Callable | None = None, _async=True):
+        if not self.__listeners:
+            return
         if event.name not in self.__listeners:
             return
-        listeners = self.__listeners[event.name]
-        if len(listeners) == 0:
+        listener_zip = tuple((l, (event, ) if l.__code__.co_argcount > 0 else tuple()) for l in self.__listeners[event.name])
+        if len(listener_zip) == 0:
             return
-        tasks = set()
-        for listener in listeners:
-            try:
-                args = (event, ) if listener.__code__.co_argcount > 0 else tuple()
-                tasks.add(asynclib.wrapper(listener, *args))
-            except Exception as err:
-                print(err)
-        async def _callback():
-            await asyncio.gather(*tasks)
-            if callback is not None:
-                callback()
-        asyncio.run(_callback())
-
-    def get_attribute(self, name: str):
-        return self.__attributes.get(name)
-
-    def set_attribute(self, name: str, value: Any = None):
-        self.__attributes[name] = value
-
-    def remove_attribute(self, name: str):
-        del self.__attributes[name]
-    
-    def has_attribute(self, name: str):
-        return name in self.__attributes
+        if _async:
+            tasks = set()
+            for listener, args in listener_zip:
+                try:
+                    tasks.add(asynclib.wrapper(listener, *args))
+                except Exception as err:
+                    print(err)
+            async def _callback():
+                await asyncio.gather(*tasks)
+                if callback is not None:
+                    callback()
+            asyncio.run(_callback())
+        else:
+            for listener, args in listener_zip:
+                try:
+                    listener(*args)
+                except Exception as err:
+                    print(err)
 
 class EventManager():
     __target_sets: Dict[str, Set[EventTarget]] = {}

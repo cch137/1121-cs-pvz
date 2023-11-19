@@ -53,14 +53,14 @@ class Scene():
         for el in self.elements_generator:
             if el.id == id:
                 return el
-    
+
     def add_element(self, *elements: element.Element):
-        for element in list(elements):
+        for element in elements:
             self.__elements.add(element)
             element.connect_scene(self)
-    
+
     def remove_element(self, *elements: element.Element):
-        for element in list(elements):
+        for element in elements:
             self.__elements.remove(element)
             self.disconnect_element(element)
 
@@ -77,6 +77,11 @@ class Scene():
             self.layers[z].remove(element)
             if len(self.layers[z]) == 0:
                 del self.layers[z]
+
+    def reconnect_element(self, element: element.Element):
+        '''注：此方法僅在 Element 內調用'''
+        self.disconnect_element(element)
+        self.connect_element(element)
 
     def update(self):
         import components.entities as entities
@@ -101,8 +106,16 @@ class Scene():
             self.screen.fill(self.background_color)
         for layer in tuple(self.layers.values()):
             for element in layer:
-                if element.background_color != None:
-                    element.image.fill(element.background_color)
+                try:
+                    if element.background_color != None:
+                        element.image.fill(element.background_color)
+                except:
+                    try:
+                        if element.style.background_color != None:
+                            print('draw', element.rect.x, element.rect.y, element.rect.width, element.rect.height)
+                            element.image.fill(element.style.background_color)
+                    except Exception as e:
+                        print(e)
             try:
                 layer.draw(self.screen)
             except:
