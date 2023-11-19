@@ -966,19 +966,20 @@ class ElementV2(pygame.sprite.Sprite, events.EventTarget):
     
     @image.setter
     def image(self, value: pygame.Surface | None):
+        style = self.style
         if isinstance(value, pygame.Surface):
             self._create_with_surface = True
+            rect = value.get_rect()
         else:
             self._create_with_surface = False
-            style = self.style
             value = pygame.Surface((style.width or 0, style.height or 0))
+            rect = value.get_rect()
+            if style.x is not None:
+                rect.x = style.x
+            if style.y is not None:
+                rect.y = style.y
         self.set_attribute('image', value)
-        rect = value.get_rect()
         self.rect = rect
-        if style.x is not None:
-            rect.x = style.x
-        if style.y is not None:
-            rect.y = style.y
 
     @property
     def radius(self) -> int:
@@ -1237,3 +1238,108 @@ class ElementV2(pygame.sprite.Sprite, events.EventTarget):
         self.remove_all_event_listeners()
         self.disconnect_scene()
         pygame.sprite.Sprite.kill(self)
+
+class TextBoxV2(ElementV2):
+    def __init__(
+            self,
+            text: Any | refs.Ref,
+            font_size: int = 24,
+            font_color: ColorValue = FONT_COLOR,
+            font_background: ColorValue | None = None,
+            font_name: str = pygame.font.get_default_font(),
+            font_antialias: bool = True
+            ):
+        ElementV2.__init__(self)
+        self.ref = refs.to_ref(text)
+        self.font_antialias = font_antialias
+        self.update_font(font_name, font_size, font_color, font_background)
+        self.add_event_listener(events.REF_CHANGE, lambda: self.update_image())
+
+    def update_font(
+            self,
+            font_name: str | None = None,
+            font_size: int | None = None,
+            font_color: ColorValue = None,
+            font_background: ColorValue = None
+            ):
+        if font_name is not None:
+            self.__font_name = font_name
+        if font_size is not None:
+            self.__font_size = font_size
+        self.__font_color = font_color
+        self.__font_background = font_background
+        self.font = pygame.font.Font(self.font_name, self.font_size)
+        self.update_image()
+        return self.font
+
+    def update_image(self, text: str | None = None):
+        if text is not None:
+            self.ref.value = text
+        if self.font is None:
+            return
+        old_center = self.rect.center
+        self.image = self.font.render(self.text, self.font_antialias, self.font_color, self.font_background)
+        self.rect.center = old_center
+        return self.image
+
+    font: pygame.font.Font | None = None
+    __font_name: str = pygame.font.get_default_font()
+    __font_size: int = 12
+    __font_color: ColorValue | None = None
+    __font_background: ColorValue | None = None
+    __ref: refs.Ref[Any] | None = None
+
+    @property
+    def ref(self):
+        return self.__ref
+
+    @ref.setter
+    def ref(self, value: refs.Ref[Any]):
+        if self.__ref is not None:
+            self.__ref.unbind(self)
+        self.__ref = value
+        value.bind(self)
+        self.update_image()
+
+    @property
+    def text(self):
+        return str(self.ref.value)
+
+    @text.setter
+    def text(self, value: Any):
+        self.update_image(str(value))
+
+    @property
+    def font_name(self):
+        return self.__font_name
+
+    @font_name.setter
+    def font_name(self, value: str):
+        self.update_font(value)
+
+    @property
+    def font_size(self):
+        return self.__font_size
+
+    @font_size.setter
+    def font_size(self, value: int):
+        self.update_font(None, value)
+
+    @property
+    def font_color(self):
+        return self.__font_color or FONT_COLOR
+
+    @font_color.setter
+    def font_color(self, value: ColorValue):
+        self.update_font(None, None, value)
+
+    @property
+    def font_background(self):
+        return self.__font_background
+
+    @font_background.setter
+    def font_background(self, value: ColorValue):
+        self.update_font(None, None, None, value)
+
+# Element = ElementV2
+# TextBox = TextBoxV2
