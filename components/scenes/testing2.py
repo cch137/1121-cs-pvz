@@ -52,8 +52,8 @@ def init():
 
     # 創建 textbox
     text_element = TextBox('Hello World', 32)
-    text_element.x = 20
-    text_element.y = 20
+    text_element.rect.x = 20
+    text_element.rect.y = 20
     testing2.add_element(text_element)
 
     # 把 outer_element 添加到 testing2 場景

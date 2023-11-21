@@ -101,7 +101,6 @@ class Level(Element):
             asynclib.run_threads(lambda: self.dispatch_event(events.SunsChangeEvent(self)))
 
     def update(self, *args: Any, **kwargs: Any) -> None:
-        Element.update(self, *args, **kwargs)
         for spawner in self.spawners:
             if spawner.is_spawnable(self):
                 spawner.spawn(self)

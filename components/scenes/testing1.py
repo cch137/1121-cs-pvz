@@ -8,10 +8,10 @@ testing1 = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
+    from components.element import ElementV2, Style
     
     level = levels.Level()
     testing1.add_element(level)
-
     # 一個製作 element 的函式
     def make_color_block(color: (255, 255, 255)):
         ele = Element((50, 50))
@@ -42,8 +42,8 @@ def init():
     parent_ele = Element()
     parent_ele.min_width = 150
     parent_ele.min_height = 520
-    parent_ele.x = 50
-    parent_ele.y = 50
+    parent_ele.rect.x = 50
+    parent_ele.rect.y = 50
     parent_ele.spacing = 25
 
     # 將 children 添加到 parent_ele
@@ -124,6 +124,15 @@ def init():
     testing1.add_element(navigator)
     testing1.compose()
     navigator.rect.center = controller.screen_rect.center
+
+    # ElementV2 測試
+    # import utils.asynclib as asynclib
+    # from utils.refs import Ref
+    # e2_bg = Ref((255, 255, 255))
+    # e2 = ElementV2().apply(Style(width=100, height=100, background_color=e2_bg))
+    # def e2_l1(): e2_bg.value = (88, 88, 88)
+    # asynclib.set_timeout(e2_l1, 2000)
+    # testing1.add_element(e2)
 
     # 設置背景音樂
     testing1.background_music = 'assets/soundtracks/Brainiac Maniac.mp3'

@@ -1,14 +1,15 @@
-from typing import TypeVar, Generic, Set, Callable
+from typing import Any, TypeVar, Generic, Set, Callable
 import utils.asynclib as asynclib
 import components.events as events
 
 T = TypeVar('T')
 
-class Ref(Generic[T]):
+class Ref(Generic[T], events.EventTarget):
+    __targets: Set[events.EventTarget] | None = None
+    
     def __init__(self, value: T):
         self.__value = value
-        self.__targets: Set[events.EventTarget] = set()
-    
+
     @property
     def value(self) -> T:
         return self.__value
@@ -16,48 +17,61 @@ class Ref(Generic[T]):
     @value.setter
     def value(self, value: T):
         self.__value = value
-        for target in tuple(self.__targets):
-            asynclib.run_threads(lambda: target.dispatch_event(events.RefChangeEvent(target)))
+        if self.__targets is None: return
+        asynclib.run_threads(lambda: tuple(target.dispatch_event(events.RefChangeEvent(target)) for target in (self, *self.__targets)))
 
     def __str__(self) -> str:
-        return str(self.value)
+        return str(self.__value)
 
     def bind(self, target: events.EventTarget):
+        if self.__targets is None:
+            self.__targets = set()
         self.__targets.add(target)
-    
+
     def unbind(self, target: events.EventTarget):
-        self.__targets.remove(target)
+        if self.__targets is not None:
+            self.__targets.remove(target)
 
 class Computed(Ref[T], events.EventTarget):
+    bound_refs: Set[Ref] | None = None
+
     def __init__(self, getter: Callable[[], T], *related_refs: Ref):
         Ref.__init__(self, getter())
-        events.EventTarget.__init__(self)
-        self.__getter = getter
-        self.__related_refs = set()
-        self.add_related_refs(*related_refs)
-        self.add_event_listener(events.REF_CHANGE, lambda: self.compute())
-    
+        self.getter = getter
+        self.bind_refs(*related_refs)
+
     @property
     def value(self):
         return Ref.value.fget(self)
 
     @value.setter
-    def value(self, value):
+    def value(self, value: T):
         raise 'Computed is read only'
 
-    def add_related_refs(self, *refs: Ref):
+    def bind_refs(self, *refs: Ref):
+        if len(refs) == 0:
+            return
+        if self.bound_refs is None:
+            self.bound_refs = set()
+            self.add_event_listener(events.REF_CHANGE, self.compute)
         for ref in refs:
-            self.__related_refs.add(ref)
             ref.bind(self)
+            self.bound_refs.add(ref)
 
-    def remove_related_refs(self, *refs: Ref):
+    def unbind_refs(self, *refs: Ref):
         for ref in refs:
-            self.__related_refs.remove(ref)
             ref.unbind(self)
+            self.bound_refs.remove(ref)
+        if len(self.bound_refs) == 0:
+            self.bound_refs = None
+            self.remove_event_listener(events.REF_CHANGE, self.compute)
 
     def compute(self):
-        Ref.value.fset(self, self.__getter())
+        Ref.value.fset(self, self.getter())
         asynclib.run_threads(lambda: self.dispatch_event(events.ChangeEvent(self)))
 
 def to_ref(value: Ref[T] | T) -> Ref[T]:
     return value if isinstance(value, Ref) else Ref(value)
+
+def to_value(value: Ref[T] | T) -> T:
+    return value.value if isinstance(value, Ref) else value
