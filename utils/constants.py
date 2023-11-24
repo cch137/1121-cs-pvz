@@ -4,6 +4,9 @@ import os
 
 Coordinate = typing.Union[typing.Tuple[float, float], typing.Sequence[float], pygame.math.Vector2]
 ColorValue = typing.Union[pygame.Color, int, str, typing.Tuple[int, int, int], typing.Tuple[int, int, int, int], typing.Sequence[int]]
+DisplayValue = typing.Literal['block', 'inline', 'row', 'column']
+AlignValue = typing.Literal['start','center','end']
+CursorValue = typing.Union[None, int, typing.Literal['arrow','crosshair','hand','ibeam','sizeall','default']]
 
 FPS = 60
 WINDOW_WIDTH = 1080

@@ -12,10 +12,6 @@ class Scene():
         self.__elements = set()
         self.layers = dict()
 
-    def init(self):
-        '''請覆蓋此方法。此方法將在第一次進入場景時建立調用以建立場景。'''
-        pass
-
     background_color = BACKGROUND_COLOR
     
     background_music: str | bool | None = None
@@ -25,22 +21,11 @@ class Scene():
     為 False 為無背景音樂，該音樂在下次切入時重播。
     '''
 
-    @property
-    def background_music_fp(self):
-        raise 'This property has been deprecated, please use `background_music`'
-    @background_music_fp.setter
-    def background_music_fp(self, value):
-        raise 'This property has been deprecated, please use `background_music`'
-
     background_music_volume: float = 1
     '''從 0 到 1 的音量比值。'''
 
     @property
-    def elements(self):
-        return tuple(self.__elements)
-
-    @property
-    def elements_generator(self):
+    def all_elements(self):
         for _, layer in self.layers.items():
             for element in layer:
                 yield element
@@ -49,8 +34,12 @@ class Scene():
     def is_playing(self):
         return controller.current_scene == self
 
+    def init(self):
+        '''請覆蓋此方法。此方法將在第一次進入場景時調用以建立場景。'''
+        pass
+
     def get_element_by_id(self, id: str) -> element.Element | None:
-        for el in self.elements_generator:
+        for el in self.all_elements:
             if el.id == id:
                 return el
 
@@ -97,7 +86,7 @@ class Scene():
                     except: pass
     
     def compose(self):
-        for element in self.elements:
+        for element in self.__elements:
             element.compose()
     
     def draw(self):
@@ -121,7 +110,7 @@ class Scene():
                     except: pass
 
     def kill(self):
-        for element in tuple(self.elements_generator):
+        for element in tuple(self.all_elements):
             element.kill()
         controller.current_scene = None
     

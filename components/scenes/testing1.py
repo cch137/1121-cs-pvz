@@ -8,7 +8,6 @@ testing1 = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
-    from components.element import ElementV2, Style
     
     level = levels.Level()
     testing1.add_element(level)
