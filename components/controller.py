@@ -38,7 +38,7 @@ class Controller():
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.screen_rect = self.screen.get_rect()
         self.events = events
-        self.scenes = scenes.scenes
+        self.scenes = scenes
         self.cursor = CursorManager()
         self.media = media
         media.preload_assets()
@@ -77,14 +77,14 @@ class Controller():
         # 設置更新幀數
         self.clock.tick(FPS)
 
-        events.el_event_handler.setup()
+        events.event_handler.setup()
         # 讀取使用者的活動
         for event in pygame.event.get():
             # 退出遊戲
             if event.type == pygame.QUIT:
                 self.running = False
             # 處理事件
-            events.el_event_handler.handle(event)
+            events.event_handler.handle(event)
 
         # 繪製當前場景
         if self.current_scene is not None:

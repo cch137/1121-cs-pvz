@@ -108,7 +108,7 @@ class EventTarget():
             self.__listeners[eventName] = set()
         self.__listeners[eventName].add(listener)
         if isinstance(self, element.Element):
-            el_event_handler.add_target(self, eventName)
+            event_handler.add_target(self, eventName)
 
     def remove_event_listener(self, eventName: str, listener: Callable | None = None):
         if not self.__listeners:
@@ -119,7 +119,7 @@ class EventTarget():
             self.__listeners[eventName].remove(listener)
             if self.__listeners[eventName].__len__() == 0:
                 if isinstance(self, element.Element):
-                    el_event_handler.remove_target(self, eventName)
+                    event_handler.remove_target(self, eventName)
 
     def remove_all_event_listeners(self):
         if not self.__listeners:
@@ -158,8 +158,9 @@ class EventTarget():
                 except Exception as err:
                     print(err)
 
-class ElementEventHandler():
-    __target_sets: Dict[str, Set[element.Element]] = {}
+class EventHandler():
+    def __init__(self) -> None:
+        self.__target_sets: Dict[str, Set[EventTarget]] = dict()
 
     def __targets_of(self, eventName: str, writable: bool = False):
         if writable:
@@ -168,12 +169,13 @@ class ElementEventHandler():
             return set(self.__target_sets.setdefault(eventName, set()))
 
     def targets_of(self, *eventNames: str):
-        return { el for els in tuple(self.__targets_of(eventName) for eventName in eventNames) for el in els if el.is_playing }
+        targets: Set[element.Element] = { el for els in tuple(self.__targets_of(eventName) for eventName in eventNames) for el in els if el.is_playing }
+        return targets
 
-    def add_target(self, target: element.Element, eventName: str):
+    def add_target(self, target: EventTarget, eventName: str):
         self.__targets_of(eventName, True).add(target)
 
-    def remove_target(self, target: element.Element, eventName: str):
+    def remove_target(self, target: EventTarget, eventName: str):
         self.__targets_of(eventName, True).remove(target)
 
     def setup(self):
@@ -295,4 +297,4 @@ class ElementEventHandler():
                             el.dispatch_event(ClickREvent(event.pos, el))
                     el.remove_attribute(BUTTONDOWN_R)
 
-el_event_handler = ElementEventHandler()
+event_handler = EventHandler()
