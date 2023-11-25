@@ -77,14 +77,14 @@ class Controller():
         # 設置更新幀數
         self.clock.tick(FPS)
 
-        events.event_manager.setup()
+        events.el_event_handler.setup()
         # 讀取使用者的活動
         for event in pygame.event.get():
             # 退出遊戲
             if event.type == pygame.QUIT:
                 self.running = False
             # 處理事件
-            events.event_manager.handle(event)
+            events.el_event_handler.handle(event)
 
         # 繪製當前場景
         if self.current_scene is not None:

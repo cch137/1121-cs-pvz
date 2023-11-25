@@ -107,7 +107,8 @@ class EventTarget():
         if eventName not in self.__listeners:
             self.__listeners[eventName] = set()
         self.__listeners[eventName].add(listener)
-        event_manager.add_target(self, eventName)
+        if isinstance(self, element.Element):
+            el_event_handler.add_target(self, eventName)
 
     def remove_event_listener(self, eventName: str, listener: Callable | None = None):
         if not self.__listeners:
@@ -117,8 +118,9 @@ class EventTarget():
         if listener in self.__listeners[eventName]:
             self.__listeners[eventName].remove(listener)
             if self.__listeners[eventName].__len__() == 0:
-                event_manager.remove_target(self, eventName)
-    
+                if isinstance(self, element.Element):
+                    el_event_handler.remove_target(self, eventName)
+
     def remove_all_event_listeners(self):
         if not self.__listeners:
             return
@@ -156,23 +158,23 @@ class EventTarget():
                 except Exception as err:
                     print(err)
 
-class EventManager():
-    __target_sets: Dict[str, Set[EventTarget]] = {}
+class ElementEventHandler():
+    __target_sets: Dict[str, Set[element.Element]] = {}
 
-    def _targets_of(self, eventName: str, writable: bool = False):
+    def __targets_of(self, eventName: str, writable: bool = False):
         if writable:
             return self.__target_sets.setdefault(eventName, set())
         else:
             return set(self.__target_sets.setdefault(eventName, set()))
 
-    def _elements_of(self, *eventNames: str):
-        return { el for els in tuple(self._targets_of(eventName) for eventName in eventNames) for el in els if isinstance(el, element.Element) and el.is_playing }
+    def targets_of(self, *eventNames: str):
+        return { el for els in tuple(self.__targets_of(eventName) for eventName in eventNames) for el in els if el.is_playing }
 
-    def add_target(self, target: EventTarget, eventName: str):
-        self._targets_of(eventName, True).add(target)
+    def add_target(self, target: element.Element, eventName: str):
+        self.__targets_of(eventName, True).add(target)
 
-    def remove_target(self, target: EventTarget, eventName: str):
-        self._targets_of(eventName, True).remove(target)
+    def remove_target(self, target: element.Element, eventName: str):
+        self.__targets_of(eventName, True).remove(target)
 
     def setup(self):
         from components import controller
@@ -181,14 +183,14 @@ class EventManager():
         x, y = pos
 
         # dispatch HoverEvent
-        for el in self._elements_of(HOVER, HOVER_R):
+        for el in self.targets_of(HOVER, HOVER_R):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(HoverEvent(pos, el))
             if el.point_in_radius(x, y):
                 el.dispatch_event(HoverREvent(pos, el))
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
-        for el in self._elements_of(MOUSEENTER, MOUSELEAVE, MOUSEENTER_R, MOUSELEAVE_R):
+        for el in self.targets_of(MOUSEENTER, MOUSELEAVE, MOUSEENTER_R, MOUSELEAVE_R):
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
                     el.dispatch_event(MouseEnterEvent(pos, el))
@@ -205,35 +207,19 @@ class EventManager():
                 el.dispatch_event(MouseLeaveREvent(pos, el))
         
         # detect _FLYOUT
-        for el in self._elements_of(_FLYOUT):
-            if el.rect.left > controller.screen_rect.right \
-            or el.rect.right < controller.screen_rect.left \
-            or el.rect.top > controller.screen_rect.bottom \
-            or el.rect.bottom < controller.screen_rect.top:
+        screen_rect = controller.screen_rect
+        screen_right = screen_rect.right
+        screen_left = screen_rect.left
+        screen_bottom = screen_rect.bottom
+        screen_top = screen_rect.top
+        for el in self.targets_of(_FLYOUT):
+            rect = el.rect
+            if rect.left > screen_right or rect.right < screen_left\
+            or rect.top > screen_bottom or rect.bottom < screen_top:
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self._elements_of(CURSOR), key=lambda x: x.z_index)):
-            if not el.rect.collidepoint(x, y):
-                continue
-            match el.cursor:
-                case 'arrow':
-                    controller.cursor.arrow()
-                case 'crosshair':
-                    controller.cursor.crosshair()
-                case 'hand':
-                    controller.cursor.hand()
-                case 'ibeam':
-                    controller.cursor.ibeam()
-                case 'sizeall':
-                    controller.cursor.sizeall()
-                case _:
-                    if isinstance(el.cursor, int):
-                        controller.cursor.set(el.cursor)
-                    else:
-                        controller.cursor.default()
-            return
-        for el in reversed(sorted(self._elements_of(CURSOR_R), key=lambda x: x.z_index)):
+        for el in reversed(sorted(self.targets_of(CURSOR_R), key=lambda x: x.z_index)):
             if not el.point_in_radius(x, y):
                 continue
             match el.cursor_r:
@@ -253,6 +239,26 @@ class EventManager():
                     else:
                         controller.cursor.default()
             return
+        for el in reversed(sorted(self.targets_of(CURSOR), key=lambda x: x.z_index)):
+            if not el.rect.collidepoint(x, y):
+                continue
+            match el.cursor:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if isinstance(el.cursor, int):
+                        controller.cursor.set(el.cursor)
+                    else:
+                        controller.cursor.default()
+            return
         controller.cursor.default()
 
     def handle(self, event: pygame.event.Event):
@@ -261,7 +267,7 @@ class EventManager():
         # dispatch ClickEvent
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
-            for el in self._elements_of(CLICK, CLICK_R):
+            for el in self.targets_of(CLICK, CLICK_R):
                 if el.rect.collidepoint(x, y):
                     el.set_attribute(BUTTONDOWN, (event.button, now))
                 if el.point_in_radius(x, y):
@@ -269,7 +275,7 @@ class EventManager():
         elif event.type == pygame.MOUSEBUTTONUP:
             x, y = event.pos
             # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
-            for el in self._elements_of(CLICK):
+            for el in self.targets_of(CLICK):
                 if el.has_attribute(BUTTONDOWN):
                     button, mousedown_at = el.get_attribute(BUTTONDOWN)
                     if el.rect.collidepoint(x, y) \
@@ -279,7 +285,7 @@ class EventManager():
                             el.dispatch_event(ClickEvent(event.pos, el))
                     el.remove_attribute(BUTTONDOWN)
             # click in radius 的判斷與 click 相同
-            for el in self._elements_of(CLICK_R):
+            for el in self.targets_of(CLICK_R):
                 if el.has_attribute(BUTTONDOWN_R):
                     button, mousedown_at = el.get_attribute(BUTTONDOWN_R)
                     if el.point_in_radius(x, y) \
@@ -289,4 +295,4 @@ class EventManager():
                             el.dispatch_event(ClickREvent(event.pos, el))
                     el.remove_attribute(BUTTONDOWN_R)
 
-event_manager = EventManager()
+el_event_handler = ElementEventHandler()
