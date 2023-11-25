@@ -38,7 +38,7 @@ class Controller():
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.screen_rect = self.screen.get_rect()
         self.events = events
-        self.scenes = scenes
+        self.scenes = scenes.scenes
         self.cursor = CursorManager()
         self.media = media
         media.preload_assets()
