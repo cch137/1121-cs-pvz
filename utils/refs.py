@@ -70,6 +70,9 @@ class Computed(Ref[T], events.EventTarget):
         Ref.value.fset(self, self.getter())
         asynclib.run_threads(lambda: self.dispatch_event(events.ChangeEvent(self)))
 
+def is_ref(value: Ref[T] | T) -> bool:
+    return isinstance(value, Ref)
+
 def to_ref(value: Ref[T] | T) -> Ref[T]:
     return value if isinstance(value, Ref) else Ref(value)
 
