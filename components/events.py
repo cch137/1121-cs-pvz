@@ -148,7 +148,7 @@ class EventTarget():
             try:
                 asyncio.run(_callback())
             except Exception as err:
-                asynclib.run_threads(_callback)
+                asynclib.run_threads(lambda: asyncio.run(_callback()))
         else:
             for listener, args in listener_zip:
                 try:
