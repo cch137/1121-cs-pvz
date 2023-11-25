@@ -231,6 +231,7 @@ class Character(Entity):
     '''視野範圍（單位：像素）'''
 
     def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character], abilities: Set[Ability] | None = None):
+        '''角色'''
         Entity.__init__(self, image, None, abilities)
         friends.add(self)
         self.__friends = friends
@@ -266,8 +267,8 @@ class Character(Entity):
 
     @property
     def is_touch_with_enemy(self):
-        return pygame.sprite.collide_circle(self, self.closest_enemy) \
-            or pygame.sprite.collide_circle(self, self.closest_enemy_on_row)
+        return pygame.sprite.collide_circle(self, self.closest_enemy_on_row) \
+            or pygame.sprite.collide_circle(self, self.closest_enemy)
     
     def is_on_same_horizontal(self, other: Character):
         other_rect: pygame.Rect = other.rect.center

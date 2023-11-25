@@ -15,9 +15,9 @@ class ColdShooter(Shooter):
             media.load_image("") , 
             (0.5, 0.5),
             (WINDOW_WIDTH/5),
-            (0,30,30),
+            None,
             10,
             [Zombie]
-            [SlowDownEffect(self,120,0.3)]
+            [SlowDownEffect('ColdShooter', 120, 0.3)]
         ))
         self.health = 20

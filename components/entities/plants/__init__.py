@@ -1,7 +1,7 @@
 from typing import Set, Iterable
 from utils.constants import *
 import pygame
-from components.entities import Entity, Character, Effect, Ability
+from components.entities import Element, Entity, Character, Effect, Ability
 import components.events as events
 
 class Plant: pass
@@ -13,6 +13,8 @@ import components.entities.zombies as zombies
 class Plant(Character):
     def __init__(self, image: pygame.Surface, abilities: Set[Ability] | None = None):
         Character.__init__(self, image, all_plants, all_zombies, abilities)
+    
+    tile: Element
 
 class BulletTemplate():
     def __init__(
@@ -60,14 +62,6 @@ class BulletTemplate():
         return bullet
 
 class Shooter(Plant):
-    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, abilities: Set[Ability] | None = None):
-        Plant.__init__(self, image, abilities)
-        self.bullet_generator = bullet_template
-    
-    def shoot(self):
-        self.bullet_generator.create(self)
-
-class Shooter2(Plant):
     def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, abilities: Set[Ability] | None = None):
         Plant.__init__(self, image, abilities)
         self.bullet_generator = bullet_template
