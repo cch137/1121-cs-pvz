@@ -1,4 +1,5 @@
 import pygame
+import components.element as element
 import components.events as events
 import components.scenes as scenes
 from typing import Set
@@ -77,14 +78,16 @@ class Controller():
         # 設置更新幀數
         self.clock.tick(FPS)
 
-        events.event_handler.setup()
+        event_handler = element.event_handler
+        handle_event = event_handler.handle
+        event_handler.setup()
         # 讀取使用者的活動
         for event in pygame.event.get():
             # 退出遊戲
             if event.type == pygame.QUIT:
                 self.running = False
             # 處理事件
-            events.event_handler.handle(event)
+            handle_event(event)
 
         # 繪製當前場景
         if self.current_scene is not None:

@@ -79,11 +79,8 @@ class Scene():
                 if isinstance(el, entities.Entity):
                     try: el.auto_update()
                     except: pass
-            try: layer.update()
-            except:
-                for el in layer:
-                    try: el.update()
-                    except: pass
+                try: el.update()
+                except: pass
     
     def compose(self):
         for element in self.__elements:
