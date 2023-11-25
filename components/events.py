@@ -145,7 +145,10 @@ class EventTarget():
                 await asyncio.gather(*tasks)
                 if callback is not None:
                     callback()
-            asyncio.run(_callback())
+            try:
+                asyncio.run(_callback())
+            except Exception as err:
+                asynclib.run_threads(lambda: asyncio.run(_callback()))
         else:
             for listener, args in listener_zip:
                 try:
