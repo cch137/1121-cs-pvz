@@ -47,3 +47,5 @@ DISPLAY_MODES = (ROW, COLUMN, BLOCK, INLINE)
 CENTER = 'center'
 START = 'start'
 END = 'end'
+
+StyleAttrName = typing.Literal['display','x','y','width','height','min_width','max_width','min_height','max_height','background_color','radius_scale','cursor','cursor_r','allow_flyout','spacing','padding','padding_x','padding_y','padding_top','padding_bottom','padding_left','padding_right','justify_content','align_items','z_index','font_name','font_size','color']

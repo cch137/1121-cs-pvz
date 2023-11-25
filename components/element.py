@@ -1,7 +1,7 @@
 from typing import *
 from utils.constants import *
 import utils.process as process
-import utils.refs as refs
+from utils.refs import Ref, is_ref, to_ref, to_value
 import pygame
 import math
 
@@ -202,7 +202,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     @property
     def is_end_element(self):
         '''是否為末端的元素'''
-        return self.display in (BLOCK, INLINE) and len(self) == 0
+        return len(self) == 0
 
     @property
     def content_width(self) -> int:
@@ -498,7 +498,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 class TextBox(Element):
     def __init__(
             self,
-            text: Any | refs.Ref,
+            text: Any | Ref,
             font_size: int = 24,
             font_color: ColorValue = FONT_COLOR,
             font_background: ColorValue | None = None,
@@ -506,7 +506,7 @@ class TextBox(Element):
             font_antialias: bool = True
             ):
         Element.__init__(self)
-        self.ref = refs.to_ref(text)
+        self.ref = to_ref(text)
         self.font_antialias = font_antialias
         self.update_font(font_name, font_size, font_color, font_background)
         self.add_event_listener(events.REF_CHANGE, lambda: self.update_image())
@@ -541,14 +541,14 @@ class TextBox(Element):
     __font_size: int = 12
     __font_color: ColorValue | None = None
     __font_background: ColorValue | None = None
-    __ref: refs.Ref[Any] | None = None
+    __ref: Ref[Any] | None = None
 
     @property
     def ref(self):
         return self.__ref
 
     @ref.setter
-    def ref(self, value: refs.Ref[Any]):
+    def ref(self, value: Ref[Any]):
         if self.__ref is not None:
             self.__ref.unbind(self)
         self.__ref = value
