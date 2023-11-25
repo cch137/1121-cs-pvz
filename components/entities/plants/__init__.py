@@ -67,4 +67,12 @@ class Shooter(Plant):
     def shoot(self):
         self.bullet_generator.create(self)
 
+class Shooter2(Plant):
+    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, abilities: Set[Ability] | None = None):
+        Plant.__init__(self, image, abilities)
+        self.bullet_generator = bullet_template
+    
+    def shoot(self):
+        self.bullet_generator.create(self)
+
 from components.entities.zombies import all_zombies
