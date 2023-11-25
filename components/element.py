@@ -138,7 +138,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     
     @image.setter
     def image(self, value: pygame.Surface):
-        self.set_attribute('image', value)
+        if not (value.get_flags() & pygame.SRCALPHA):
+            value = value.convert_alpha()
+        self.set_attribute('image', value.convert_alpha())
         self.rect = value.get_rect()
 
     @property

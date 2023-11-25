@@ -18,7 +18,8 @@ class Ref(Generic[T], events.EventTarget):
     def value(self, value: T):
         self.__value = value
         if self.__targets is None: return
-        asynclib.run_threads(lambda: tuple(target.dispatch_event(events.RefChangeEvent(target)) for target in (self, *self.__targets)))
+        for target in (self, *self.__targets):
+            target.dispatch_event(events.RefChangeEvent(target))
 
     def __str__(self) -> str:
         return str(self.__value)
@@ -68,7 +69,7 @@ class Computed(Ref[T], events.EventTarget):
 
     def compute(self):
         Ref.value.fset(self, self.getter())
-        asynclib.run_threads(lambda: self.dispatch_event(events.ChangeEvent(self)))
+        self.dispatch_event(events.ChangeEvent(self))
 
 def is_ref(value: Ref[T] | T) -> bool:
     return isinstance(value, Ref)
