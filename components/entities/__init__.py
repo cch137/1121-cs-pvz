@@ -63,14 +63,17 @@ class Entity(Element):
     '''number between 0 and 100'''
     vision_range: int = 3
     '''視野。單位：格(地圖 tile)'''
-    velocity_x: int = 0
-    velocity_y: int = 0
-    velocity_a: int = 0
+    velocity_x: float = 0
+    velocity_y: float = 0
+    velocity_a: float = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
     acceleration_a: int = 0
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
+
+    __velocity_x_remainder: float = 0
+    __velocity_y_remainder: float = 0
 
     collision_targets: Set[type[Entity]|Entity]
     '''collision_targets 中的項目可以是 class 或者指定的實體。\\
@@ -99,14 +102,14 @@ class Entity(Element):
     def clear_image_0(self):
         self.image_0 = None
 
-    __rotation_angle: int = 0
+    __rotation_angle: float = 0
 
     @property
     def rotation_angle(self):
         return self.__rotation_angle
 
     @rotation_angle.setter
-    def rotation_angle(self, angle: int):
+    def rotation_angle(self, angle: float):
         if self.image_0 is None:
             self.image_0 = self.image.copy()
         self.__rotation_angle = angle % 360
@@ -133,6 +136,7 @@ class Entity(Element):
         self.__self_effects.remove(effect)
 
     def auto_update(self):
+        '''Entity 的自動更新方法，每一幀會執行。'''
         # 處理效果
         slow_down_rate = 0
         for effect in tuple(self.__self_effects):
@@ -150,13 +154,27 @@ class Entity(Element):
         if self.dead:
             return
         # 處理位移
-        if self.move_limit is None or self.move_limit > 0:
+        if (self.move_limit is None or self.move_limit > 0) and (self.velocity_x or self.velocity_y):
             rect = self.rect
             x1, y1 = rect.x, rect.y
-            real_velocity_x = self.velocity_x * velocity_rate
-            real_velocity_y = self.velocity_y * velocity_rate
-            rect.x += real_velocity_x
-            rect.y += real_velocity_y
+            if self.velocity_x:
+                real_velocity_x = self.velocity_x * velocity_rate
+                real_velocity_int = int(real_velocity_x)
+                self.__velocity_x_remainder += real_velocity_x - real_velocity_int
+                if self.__velocity_x_remainder and abs(self.__velocity_x_remainder) >= 1:
+                    floored = int(self.__velocity_x_remainder)
+                    self.__velocity_x_remainder -= floored
+                    real_velocity_int += floored
+                rect.x += real_velocity_int
+            if self.velocity_y:
+                real_velocity_y = self.velocity_y * velocity_rate
+                real_velocity_int = int(real_velocity_y)
+                self.__velocity_y_remainder += real_velocity_y - real_velocity_int
+                if self.__velocity_y_remainder and abs(self.__velocity_y_remainder) >= 1:
+                    floored = int(self.__velocity_y_remainder)
+                    self.__velocity_y_remainder -= floored
+                    real_velocity_int += floored
+                rect.y += real_velocity_int
             if self.move_limit is not None:
                 self.move_limit -= math.dist((rect.x, rect.y), (x1, y1))
             self.velocity_x += self.acceleration_x
@@ -182,9 +200,6 @@ class Entity(Element):
                 elif entity == target:
                     entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                     return self.kill()
-
-    def dist(self, target: Entity):
-        return math.dist(self.rect.center, target.rect.center)
 
     def kill(self, *args: Any, **kargs):
         Element.kill(self, *args, **kargs)
@@ -214,7 +229,8 @@ class Character(Entity):
     
     def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None
-        try: return min(character_set, key=lambda x: self.dist(x))
+        selfcenter = self.rect.center
+        try: return min(character_set, key=lambda x: math.dist(selfcenter, x.rect.center))
         except: return None
     
     @property
@@ -230,7 +246,8 @@ class Character(Entity):
         return self.__closest_from_set(set(self.enemies_on_row))
     
     def enemies_in_radius(self, radius: int):
-        return tuple(i for i in self.enemies if self.dist(i) < radius)
+        selfcenter = self.rect.center
+        return tuple(i for i in self.enemies if math.dist(selfcenter, i.rect.center) < radius)
 
     @property
     def is_touch_with_enemy(self):
@@ -251,7 +268,7 @@ class Character(Entity):
 
     def in_fov(self, other: Character):
         '''判斷 other 是否位於視野範圍內。'''
-        return self.dist(other) <= self.fov
+        return math.dist(self.rect.center, other.rect.center) <= self.fov
 
     def has_seen_enemy(self, on_left: bool = False, on_right: bool = False):
         '''on_left 判斷是否左方有敵人，on_right 判斷是否右方有敵人。\\
