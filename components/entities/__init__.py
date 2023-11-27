@@ -56,31 +56,6 @@ class PoisonEffect(Effect):
     def duplicate(self):
         return PoisonEffect(self.name, self.duration_ticks, self.attack_power)
 
-class Ability():
-    def __init__(self, colddown: int = 60):
-        self.colddown = colddown
-        '''unit: tick'''
-        self.last_used_at: int = 0
-        '''unit: tick'''
-
-    @property
-    def is_cooling_down(self):
-        return self.last_used_at + self.colddown > process.ticks
-
-    def use(self, entity: Entity):
-        if self.is_cooling_down: # 技能正在冷卻中，無法使用
-            return
-        if self.effect.__code__.co_argcount > 0:
-            if self.effect(entity):
-                self.last_used_at = process.ticks
-        elif self.effect():
-            self.last_used_at = process.ticks
-
-    def effect(self, entity: Entity) -> bool:
-        '''重寫此函式以賦予 Ability 效果。
-        注意：此函式須返回一個布林值！布林值表示為此能力是否使用成功。'''
-        return True
-
 class Entity(Element):
     health: int = 100
     '''本實體的生命值。注意：若要對本實體造成傷害，請使用 .damage()，不要直接更動此值。'''
@@ -105,13 +80,10 @@ class Entity(Element):
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
-    def __init__(self, image: pygame.Surface,
-        collision_effects: Set[Effect] | None = None, abilities: Set[Ability] | None = None):
-        '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)\\
-        abilities 是技能'''
+    def __init__(self, image: pygame.Surface, collision_effects: Set[Effect] | None = None):
+        '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)'''
         Element.__init__(self, image)
 
-        self.abilities = abilities or set()
         all_entities.add(self)
         self.collision_targets = set()
 
@@ -174,10 +146,6 @@ class Entity(Element):
                     slow_down_rate = effect.rate
             effect.update()
         velocity_rate = max(0, 1 - slow_down_rate)
-        
-        # 使用技能
-        for ability in self.abilities:
-            ability.use(self)
 
         if self.dead:
             return
@@ -230,8 +198,8 @@ class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
 
-    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character], abilities: Set[Ability] | None = None):
-        Entity.__init__(self, image, None, abilities)
+    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character]):
+        Entity.__init__(self, image, None)
         friends.add(self)
         self.__friends = friends
         self.__enemies = enemies
