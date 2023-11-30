@@ -98,7 +98,7 @@ class Level(Element):
         '''對太陽數量進行運算'''
         if value != 0:
             self.__suns.value += value
-            asynclib.run_threads(lambda: self.dispatch_event(events.SunsChangeEvent(self)))
+            self.dispatch_event(events.SunsChangeEvent(self))
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         for spawner in self.spawners:

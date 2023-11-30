@@ -1,7 +1,7 @@
 from typing import *
 from utils.constants import *
 import utils.process as process
-import utils.refs as refs
+from utils.refs import Ref, is_ref, to_ref, to_value
 import pygame
 import math
 
@@ -65,7 +65,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     parent: Element | None = None
     '''`.parent` is a READ ONLY property, please do not modify it.'''
 
-    display: Literal['block', 'inline', 'row', 'column'] = BLOCK
+    display: DisplayValue = BLOCK
 
     background_color: ColorValue = None
 
@@ -82,12 +82,12 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     spacing: int = 0
     '''The spacing between child elements.'''
 
-    justify_content: Literal['start','center','end'] = CENTER
+    justify_content: AlignValue = CENTER
     '''Horizontal alignment.
     
     水平排列，e.g. 靠左、居中、靠右'''
 
-    align_items: Literal['start','center','end'] = CENTER
+    align_items: AlignValue = CENTER
     '''Vertical alignment.
     
     縱向排列，e.g. 靠上、居中、靠下'''
@@ -96,7 +96,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     def children(self):
         return tuple(self.__children)
 
-    def __init__(self, image: pygame.Surface | Coordinate | None = None, display: Literal['block', 'inline', 'row', 'column'] | None = None, children: Iterable[Element] = []):
+    def __init__(self, image: pygame.Surface | Coordinate | None = None, display: DisplayValue = None, children: Iterable[Element] = []):
         '''使用大小創建 Element 會將該大小設為此 Element 的 min_width 和 min_height'''
         pygame.sprite.Sprite.__init__(self)
         self.__attributes: Dict[str, Any] = dict()
@@ -138,7 +138,9 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     
     @image.setter
     def image(self, value: pygame.Surface):
-        self.set_attribute('image', value)
+        if not (value.get_flags() & pygame.SRCALPHA):
+            value = value.convert_alpha()
+        self.set_attribute('image', value.convert_alpha())
         self.rect = value.get_rect()
 
     @property
@@ -146,11 +148,11 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         return (min(self.rect.width, self.rect.height) / 2) * self.radius_scale
 
     @property
-    def cursor(self) -> int:
+    def cursor(self) -> CursorValue:
         return self.get_attribute(events.CURSOR)
 
     @cursor.setter
-    def cursor(self, value: None | int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
+    def cursor(self, value: CursorValue):
         if value is None:
             self.remove_event_listener(events.CURSOR)
             return
@@ -158,11 +160,11 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
         self.add_event_listener(events.CURSOR)
 
     @property
-    def cursor_r(self) -> int:
+    def cursor_r(self) -> CursorValue:
         return self.get_attribute(events.CURSOR_R)
 
     @cursor_r.setter
-    def cursor_r(self, value: None | int | Literal['arrow','crosshair','hand','ibeam','sizeall','default']):
+    def cursor_r(self, value: CursorValue):
         if value is None:
             self.remove_event_listener(events.CURSOR_R)
             return
@@ -202,7 +204,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     @property
     def is_end_element(self):
         '''是否為末端的元素'''
-        return self.display in (BLOCK, INLINE) and len(self) == 0
+        return len(self) == 0
 
     @property
     def content_width(self) -> int:
@@ -498,7 +500,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 class TextBox(Element):
     def __init__(
             self,
-            text: Any | refs.Ref,
+            text: Any | Ref,
             font_size: int = 24,
             font_color: ColorValue = FONT_COLOR,
             font_background: ColorValue | None = None,
@@ -506,7 +508,7 @@ class TextBox(Element):
             font_antialias: bool = True
             ):
         Element.__init__(self)
-        self.ref = refs.to_ref(text)
+        self.ref = to_ref(text)
         self.font_antialias = font_antialias
         self.update_font(font_name, font_size, font_color, font_background)
         self.add_event_listener(events.REF_CHANGE, lambda: self.update_image())
@@ -526,7 +528,6 @@ class TextBox(Element):
         self.__font_background = font_background
         self.font = pygame.font.Font(self.font_name, self.font_size)
         self.update_image()
-        return self.font
 
     def update_image(self, text: str | None = None):
         if text is not None:
@@ -536,21 +537,20 @@ class TextBox(Element):
         old_center = self.rect.center
         self.image = self.font.render(self.text, self.font_antialias, self.font_color, self.font_background)
         self.rect.center = old_center
-        return self.image
 
     font: pygame.font.Font | None = None
     __font_name: str = pygame.font.get_default_font()
     __font_size: int = 12
     __font_color: ColorValue | None = None
     __font_background: ColorValue | None = None
-    __ref: refs.Ref[Any] | None = None
+    __ref: Ref[Any] | None = None
 
     @property
     def ref(self):
         return self.__ref
 
     @ref.setter
-    def ref(self, value: refs.Ref[Any]):
+    def ref(self, value: Ref[Any]):
         if self.__ref is not None:
             self.__ref.unbind(self)
         self.__ref = value
@@ -596,269 +596,3 @@ class TextBox(Element):
     @font_background.setter
     def font_background(self, value: ColorValue):
         self.update_font(None, None, None, value)
-
-from utils.refs import Ref, to_ref, to_value
-import utils.asynclib as asynclib
-from typing import Union, TypeVar
-
-T = TypeVar('T')
-Attr = Union[Ref[T], T]
-
-DisplayValue = Literal['block', 'inline', 'row', 'column']
-AlignValue = Literal['start','center','end']
-CursorValue = Union[None, int, Literal['arrow','crosshair','hand','ibeam','sizeall','default']]
-
-class ElementV2(pygame.sprite.Sprite, events.EventTarget): pass
-
-class Style(events.EventTarget):
-    def __init__(
-            self,
-            display: Attr[DisplayValue] = BLOCK,
-            x: Attr[int | None] = None,
-            y: Attr[int | None] = None,
-            width: Attr[int | None] = None,
-            height: Attr[int | None] = None,
-            min_width: Attr[int | None] = None,
-            max_width: Attr[int | None] = None,
-            min_height: Attr[int | None] = None,
-            max_height: Attr[int | None] = None,
-            background_color: Attr[ColorValue | None] = None,
-            radius_scale: Attr[float] = 0.5,
-            cursor: Attr[CursorValue] = None,
-            cursor_r: Attr[CursorValue] = None,
-            allow_flyout: Attr[bool] = True,
-            spacing: Attr[int] = 0,
-            padding: Attr[int] | None = None,
-            padding_x: Attr[int] | None = None,
-            padding_y: Attr[int] | None = None,
-            padding_top: Attr[int | None] = None,
-            padding_bottom: Attr[int | None] = None,
-            padding_left: Attr[int | None] = None,
-            padding_right: Attr[int | None] = None,
-            justify_content: Attr[AlignValue] = CENTER,
-            align_items: Attr[AlignValue] = CENTER,
-            z_index: Attr[int | None] = None,
-            font_name: Attr[str] = pygame.font.get_default_font(),
-            font_size: Attr[int] = 12,
-            color: Attr[ColorValue | None] = None,
-        ):
-        self.__attributes: Dict[str, Ref[Any] | Any] = dict()
-        self.display = display
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.min_width = min_width
-        self.max_width = max_width
-        self.min_height = min_height
-        self.max_height = max_height
-        self.background_color = background_color
-        self.radius_scale = radius_scale
-        self.cursor = cursor
-        self.cursor_r = cursor_r
-        self.allow_flyout = allow_flyout
-        self.spacing = spacing
-        self.padding_top = ((padding if padding_y is None else padding_y) if padding_top is None else padding_top) or 0
-        self.padding_right = ((padding if padding_x is None else padding_x) if padding_right is None else padding_right) or 0
-        self.padding_bottom = ((padding if padding_y is None else padding_y) if padding_bottom is None else padding_bottom) or 0
-        self.padding_left = ((padding if padding_x is None else padding_x) if padding_left is None else padding_left) or 0
-        self.justify_content = justify_content
-        self.align_items = align_items
-        self.z_index = z_index
-        self.font_size = font_size
-        self.font_name = font_name
-        self.color = color
-        self.__inited = True
-    
-    __inited = False
-
-    def get_attributes(self):
-        return self.__attributes
-
-    def __getattr(self, name: str, default_value = None):
-        return default_value if name not in self.__attributes else to_value(self.__attributes.get(name))
-
-    def __setattr(self, name: str, newvalue: Any):
-        if isinstance(newvalue, Ref):
-            self.__attributes[name] = newvalue
-        elif isinstance(self.__attributes.get(name), Ref):
-            self.__attributes[name].value = newvalue
-        else:
-            self.__attributes[name] = newvalue
-        if self.__inited:
-            self.dispatch_event(events.StyleChangeEvent(self, name), None, False)
-
-    @property
-    def display(self) -> DisplayValue: return self.__getattr('display', BLOCK)
-    @display.setter
-    def display(self, value: DisplayValue): self.__setattr('display', value)
-
-    @property
-    def x(self) -> int | None: return self.__getattr('x')
-    @x.setter
-    def x(self, value: int | None): self.__setattr('x', value)
-
-    @property
-    def y(self) -> int | None: return self.__getattr('y')
-    @y.setter
-    def y(self, value: int | None): self.__setattr('y', value)
-
-    @property
-    def width(self) -> int: return self.__getattr('width')
-    @width.setter
-    def width(self, value: int): self.__setattr('width', value)
-
-    @property
-    def height(self) -> int: return self.__getattr('height')
-    @height.setter
-    def height(self, value: int): self.__setattr('height', value)
-
-    @property
-    def min_width(self) -> int | None: return self.__getattr('min_width')
-    @min_width.setter
-    def min_width(self, value: int | None): self.__setattr('min_width', value)
-
-    @property
-    def max_width(self) -> int | None: return self.__getattr('max_width')
-    @max_width.setter
-    def max_width(self, value: int | None): self.__setattr('max_width', value)
-
-    @property
-    def min_height(self) -> int | None: return self.__getattr('min_height')
-    @min_height.setter
-    def min_height(self, value: int | None): self.__setattr('min_height', value)
-
-    @property
-    def max_height(self) -> int | None: return self.__getattr('max_height')
-    @max_height.setter
-    def max_height(self, value: int | None): self.__setattr('max_height', value)
-
-    @property
-    def background_color(self) -> ColorValue | None: return self.__getattr('background_color')
-    @background_color.setter
-    def background_color(self, value: ColorValue): self.__setattr('background_color', value)
-
-    @property
-    def radius_scale(self) -> float: return self.__getattr('radius_scale')
-    @radius_scale.setter
-    def radius_scale(self, value: float): self.__setattr('radius_scale', value)
-
-    @property
-    def cursor(self) -> CursorValue: return self.__getattr('cursor')
-    @cursor.setter
-    def cursor(self, value: CursorValue): self.__setattr('cursor', value)
-
-    @property
-    def cursor_r(self) -> CursorValue: return self.__getattr('cursor_r')
-    @cursor_r.setter
-    def cursor_r(self, value: CursorValue): self.__setattr('cursor_r', value)
-
-    @property
-    def allow_flyout(self) -> bool:
-        '''如果把 allow_flyout 設為 False 那麼此元素離開視窗可視範圍時會自動被銷毀(kill)'''
-        return self.__getattr('allow_flyout')
-    @allow_flyout.setter
-    def allow_flyout(self, value: bool): self.__setattr('allow_flyout', value)
-
-    @property
-    def padding_top(self) -> int: return self.__getattr('padding_top')
-    @padding_top.setter
-    def padding_top(self, value: int): self.__setattr('padding_top', value)
-
-    @property
-    def padding_right(self) -> int: return self.__getattr('padding_right')
-    @padding_right.setter
-    def padding_right(self, value: int): self.__setattr('padding_right', value)
-
-    @property
-    def padding_bottom(self) -> int: return self.__getattr('padding_bottom')
-    @padding_bottom.setter
-    def padding_bottom(self, value: int): self.__setattr('padding_bottom', value)
-
-    @property
-    def padding_left(self) -> int: return self.__getattr('padding_left')
-    @padding_left.setter
-    def padding_left(self, value: int): self.__setattr('padding_left', value)
-
-    @property
-    def padding_x(self) -> int: return (self.padding_left + self.padding_right) / 2
-    @padding_x.setter
-    def padding_x(self, value: int): self.padding_left = value, self.padding_right = value
-
-    @property
-    def padding_y(self) -> int: return (self.padding_top + self.padding_bottom) / 2
-    @padding_y.setter
-    def padding_y(self, value: int): self.padding_top = value, self.padding_bottom = value
-
-    @property
-    def padding(self) -> int:
-        '''The spacing between this element's edge and its children.'''
-        return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
-    @padding.setter
-    def padding(self, value: int | Tuple[int]):
-        if not isinstance(value, tuple):
-            value = (value,)
-        self.padding_top = value[0]
-        match len(value):
-            case 1:
-                self.padding_right = value[0]
-                self.padding_bottom = value[0]
-                self.padding_left = value[0]
-            case 2:
-                self.padding_right = value[1]
-                self.padding_bottom = value[0]
-                self.padding_left = value[1]
-            case 3:
-                self.padding_right = value[1]
-                self.padding_bottom = value[2]
-                self.padding_left = value[1]
-            case _:
-                self.padding_right = value[1]
-                self.padding_bottom = value[2]
-                self.padding_left = value[3]
-
-    @property
-    def spacing(self) -> int:
-        '''The spacing between child elements.'''
-        return self.__getattr('spacing')
-    @spacing.setter
-    def spacing(self, value: int): self.__setattr('spacing', value)
-
-    @property
-    def justify_content(self) -> AlignValue:
-        '''Horizontal alignment. 水平排列，e.g. 靠左、居中、靠右'''
-        return self.__getattr('justify_content') or CENTER
-    @justify_content.setter
-    def justify_content(self, value: AlignValue): self.__setattr('justify_content', value)
-
-    @property
-    def align_items(self) -> AlignValue:
-        '''Vertical alignment. 縱向排列，e.g. 靠上、居中、靠下'''
-        return self.__getattr('align_items') or CENTER
-    @align_items.setter
-    def align_items(self, value: AlignValue): self.__setattr('align_items', value)
-
-    @property
-    def z_index(self) -> int | None: return self.__getattr('z_index')
-    @z_index.setter
-    def z_index(self, value: int | None): self.__setattr('z_index', value)
-
-    @property
-    def font_size(self) -> int | None: return self.__getattr('font_size')
-    @font_size.setter
-    def font_size(self, value: int | None): self.__setattr('font_size', value)
-
-    @property
-    def font_name(self) -> str: return self.__getattr('font_name')
-    @font_name.setter
-    def font_name(self, value: str | None): self.__setattr('font_name', value)
-
-    @property
-    def color(self) -> ColorValue | None:
-        '''Font color.'''
-        return self.__getattr('color')
-    @color.setter
-    def color(self, value: ColorValue | None): self.__setattr('color', value)
-
-    def radius(self, el: ElementV2) -> float:
-        return (min(el.rect.width, el.rect.height) / 2) * self.radius_scale
