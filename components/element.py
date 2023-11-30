@@ -55,10 +55,12 @@ class CacheManager():
     def set(self, key: str, value: Any):
         return self.get_cache_item(key).set(value)
 
-import components.events as events
+from components.events import *
 import components.scenes as scenes
 
-class Element(pygame.sprite.Sprite, events.EventTarget):
+_FLYOUT = 'flyout'
+
+class Element(pygame.sprite.Sprite, EventTarget):
     __children: List[Element]
 
     scene: scenes.Scene | None = None
@@ -149,40 +151,40 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
 
     @property
     def cursor(self) -> CursorValue:
-        return self.get_attribute(events.CURSOR)
+        return self.get_attribute(CURSOR)
 
     @cursor.setter
     def cursor(self, value: CursorValue):
         if value is None:
-            self.remove_event_listener(events.CURSOR)
+            self.remove_event_listener(CURSOR)
             return
-        self.set_attribute(events.CURSOR, value)
-        self.add_event_listener(events.CURSOR)
+        self.set_attribute(CURSOR, value)
+        self.add_event_listener(CURSOR)
 
     @property
     def cursor_r(self) -> CursorValue:
-        return self.get_attribute(events.CURSOR_R)
+        return self.get_attribute(CURSOR_R)
 
     @cursor_r.setter
     def cursor_r(self, value: CursorValue):
         if value is None:
-            self.remove_event_listener(events.CURSOR_R)
+            self.remove_event_listener(CURSOR_R)
             return
-        self.set_attribute(events.CURSOR_R, value)
-        self.add_event_listener(events.CURSOR_R)
+        self.set_attribute(CURSOR_R, value)
+        self.add_event_listener(CURSOR_R)
 
     @property
     def allow_flyout(self):
         '''如果把 allow_flyout 設為 False 那麼此元素離開視窗可視範圍時會自動被銷毀(kill)'''
-        return not self.has_attribute(events._FLYOUT)
+        return not self.has_attribute(_FLYOUT)
 
     @allow_flyout.setter
     def allow_flyout(self, value: bool):
         if value:
-            self.remove_event_listener(events._FLYOUT)
+            self.remove_event_listener(_FLYOUT)
             return
-        self.set_attribute(events._FLYOUT, False)
-        self.add_event_listener(events._FLYOUT)
+        self.set_attribute(_FLYOUT, False)
+        self.add_event_listener(_FLYOUT)
 
     def __len__(self):
         return self.__children.__len__()
@@ -354,7 +356,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     @property
     def padding(self):
         '''The spacing between this element's edge and its children.'''
-        return (self.padding_top + self.padding_bottom + self.padding_left + self.padding_right) / 4
+        return (self.padding_top, self.padding_right, self.padding_bottom, self.padding_left)
 
     @padding.setter
     def padding(self, value: int | Tuple[int]):
@@ -492,7 +494,7 @@ class Element(pygame.sprite.Sprite, events.EventTarget):
     
     def kill(self):
         '''Remove the Element from all Groups. Remove all event listeners of the Element.'''
-        self.dispatch_event(events.KillEvent(self))
+        self.dispatch_event(KillEvent(self))
         self.remove_all_event_listeners()
         self.disconnect_scene()
         pygame.sprite.Sprite.kill(self)
@@ -511,7 +513,7 @@ class TextBox(Element):
         self.ref = to_ref(text)
         self.font_antialias = font_antialias
         self.update_font(font_name, font_size, font_color, font_background)
-        self.add_event_listener(events.REF_CHANGE, lambda: self.update_image())
+        self.add_event_listener(REF_CHANGE, lambda: self.update_image())
 
     def update_font(
             self,
@@ -596,3 +598,143 @@ class TextBox(Element):
     @font_background.setter
     def font_background(self, value: ColorValue):
         self.update_font(None, None, None, value)
+
+class EventHandler():
+    def __init__(self) -> None:
+        self.__target_sets: Dict[str, Set[Element]] = dict()
+
+    def __targets_of(self, eventName: str, writable: bool = False):
+        if writable:
+            return self.__target_sets.setdefault(eventName, set())
+        else:
+            return set(self.__target_sets.setdefault(eventName, set()))
+
+    def targets_of(self, *eventNames: str):
+        return { el for els in tuple(self.__targets_of(eventName) for eventName in eventNames) for el in els if el.is_playing }
+
+    def add_target(self, target: Element, eventName: str):
+        self.__targets_of(eventName, True).add(target)
+
+    def remove_target(self, target: Element, eventName: str):
+        self.__targets_of(eventName, True).remove(target)
+
+    def setup(self):
+        from components import controller
+
+        pos = pygame.mouse.get_pos()
+        x, y = pos
+
+        # dispatch HoverEvent
+        for el in self.targets_of(HOVER, HOVER_R):
+            if el.rect.collidepoint(x, y):
+                el.dispatch_event(HoverEvent(pos, el))
+            if el.point_in_radius(x, y):
+                el.dispatch_event(HoverREvent(pos, el))
+
+        # dispatch MouseEnterEvent and MouseLeaveEvent
+        for el in self.targets_of(MOUSEENTER, MOUSELEAVE, MOUSEENTER_R, MOUSELEAVE_R):
+            if el.rect.collidepoint(x, y):
+                if not el.has_attribute(HOVER):
+                    el.dispatch_event(MouseEnterEvent(pos, el))
+                    el.set_attribute(HOVER, True)
+            elif el.has_attribute(HOVER):
+                el.remove_attribute(HOVER)
+                el.dispatch_event(MouseLeaveEvent(pos, el))
+            if el.point_in_radius(x, y):
+                if not el.has_attribute(HOVER_R):
+                    el.dispatch_event(MouseEnterREvent(pos, el))
+                    el.set_attribute(HOVER_R, True)
+            elif el.has_attribute(HOVER_R):
+                el.remove_attribute(HOVER_R)
+                el.dispatch_event(MouseLeaveREvent(pos, el))
+        
+        # detect _FLYOUT
+        screen_rect = controller.screen_rect
+        screen_right = screen_rect.right
+        screen_left = screen_rect.left
+        screen_bottom = screen_rect.bottom
+        screen_top = screen_rect.top
+        for el in self.targets_of(_FLYOUT):
+            rect = el.rect
+            if rect.left > screen_right or rect.right < screen_left\
+            or rect.top > screen_bottom or rect.bottom < screen_top:
+                el.kill()
+
+        # detect cursor style
+        for el in reversed(sorted(self.targets_of(CURSOR_R), key=lambda x: x.z_index)):
+            if not el.point_in_radius(x, y):
+                continue
+            match el.cursor_r:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if isinstance(el.cursor_r, int):
+                        controller.cursor.set(el.cursor_r)
+                    else:
+                        controller.cursor.default()
+            return
+        for el in reversed(sorted(self.targets_of(CURSOR), key=lambda x: x.z_index)):
+            if not el.rect.collidepoint(x, y):
+                continue
+            match el.cursor:
+                case 'arrow':
+                    controller.cursor.arrow()
+                case 'crosshair':
+                    controller.cursor.crosshair()
+                case 'hand':
+                    controller.cursor.hand()
+                case 'ibeam':
+                    controller.cursor.ibeam()
+                case 'sizeall':
+                    controller.cursor.sizeall()
+                case _:
+                    if isinstance(el.cursor, int):
+                        controller.cursor.set(el.cursor)
+                    else:
+                        controller.cursor.default()
+            return
+        controller.cursor.default()
+
+    def handle(self, event: pygame.event.Event):
+        now = process.timestamp
+
+        # dispatch ClickEvent
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = event.pos
+            for el in self.targets_of(CLICK, CLICK_R):
+                if el.rect.collidepoint(x, y):
+                    el.set_attribute(BUTTONDOWN, (event.button, now))
+                if el.point_in_radius(x, y):
+                    el.set_attribute(BUTTONDOWN_R, (event.button, now))
+        elif event.type == pygame.MOUSEBUTTONUP:
+            x, y = event.pos
+            # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
+            for el in self.targets_of(CLICK):
+                if el.has_attribute(BUTTONDOWN):
+                    button, mousedown_at = el.get_attribute(BUTTONDOWN)
+                    if el.rect.collidepoint(x, y) \
+                        and button == event.button \
+                        and now - mousedown_at < 1:
+                        if event.button == pygame.BUTTON_LEFT:
+                            el.dispatch_event(ClickEvent(event.pos, el))
+                    el.remove_attribute(BUTTONDOWN)
+            # click in radius 的判斷與 click 相同
+            for el in self.targets_of(CLICK_R):
+                if el.has_attribute(BUTTONDOWN_R):
+                    button, mousedown_at = el.get_attribute(BUTTONDOWN_R)
+                    if el.point_in_radius(x, y) \
+                        and button == event.button \
+                        and now - mousedown_at < 1:
+                        if event.button == pygame.BUTTON_LEFT:
+                            el.dispatch_event(ClickREvent(event.pos, el))
+                    el.remove_attribute(BUTTONDOWN_R)
+
+event_handler = EventHandler()

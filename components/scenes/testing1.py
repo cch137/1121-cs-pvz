@@ -9,8 +9,10 @@ def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
     
+    # 創建 Level（關卡的數據, eg. 太陽）
     level = levels.Level()
     testing1.add_element(level)
+
     # 一個製作 element 的函式
     def make_color_block(color: (255, 255, 255)):
         ele = Element((50, 50))
@@ -18,23 +20,21 @@ def init():
         return ele
 
     # 根據給定數據（rgb 值）製作一個 list 的 element
-    children = [make_color_block(c) for c in [
-        (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)
-    ]]
+    children = [make_color_block(c) for c in ((255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0))]
 
-    # 添加 click 事件監聽器 (reload)
+    # 添加 click 事件監聽器，當按下紅色方塊是會重新加載場景。
     children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
-    # 添加 click 事件監聽器 (sun)
+
+    # 添加 click 事件監聽器，當按下綠色方塊時會掉下太陽。
     children[1].add_event_listener(events.CLICK, lambda: levels.SunSpawner().spawn(level))
-    # 添加 click 事件監聽器
-    children[2].add_event_listener(events.CLICK, lambda: print('blue clicked'))
+
     # 添加 click 事件監聽器（頁面轉跳）
     children[3].add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.testing2))
 
     # 設置鼠標在元素上的樣式
     children[0].cursor = 'crosshair'
-    children[1].cursor = 'sizeall'
-    children[2].cursor = 'ibeam'
+    children[1].cursor = 'hand'
+    children[2].cursor = 'hand'
     children[3].cursor = 'hand'
 
     # 創建 parent_ele 並設置樣式
@@ -52,7 +52,7 @@ def init():
     troll_face = Entity(media.load_image('icon.png', (50, 50)))
     troll_face.cursor = 'hand'
 
-    # 添加 click 事件監聽器
+    # 添加 click 事件監聽器，當 troll face 被按下時它會左右反轉
     def image_ele_clicked():
         troll_face.image = pygame.transform.flip(troll_face.image, True, False)
     troll_face.add_event_listener(events.CLICK, image_ele_clicked)
@@ -76,18 +76,13 @@ def init():
     demo_plant.radius_scale = 0.75
     demo_plant.add_event_listener(events.CLICK_R, lambda: demo_plant.shoot())
 
-    # 列印當前場景元素總數
-    # parent_ele.update = lambda: print(tuple(testing1.elements_generator).__len__())
-
     # 將元素添加到 parent_ele
     parent_ele.append_child(troll_face)
 
     # 重新添加 children[3] 到 parent_ele
-    # - 這會導致 children[3] 從 parent_ele 中移除
-    # - 然後 children[3] 會重新被添加到 parent_ele.childern 的尾部
     parent_ele.append_child(children[3])
 
-    # 添加太陽數量
+    # 創建一個 TextBox 綁定關卡的太陽數量
     parent_ele.append_child(TextBox(level.suns))
 
     # 將 Element 添加到場景
@@ -110,6 +105,8 @@ def init():
         element.add_event_listener(events.MOUSELEAVE, mouseleave)
         element.cursor = 'hand'
         navigator.append_child(element)
+    
+    # 創建每個轉跳按鈕
     for scene_name, scene in (
         ('main_menu', scenes.main_menu),
         ('main_game', scenes.main_game),
@@ -117,21 +114,11 @@ def init():
         ('the_end', scenes.the_end),
     ): create_link(scene_name, scene)
 
-    # 注意！透過 .rect 設置坐標的時候，先將 Element 添加到場景
-    # 然後使用 Scene.compose() 進行排版，最後才設置坐標
-    # 這是為了防止坐標設置失敗（子元素尚未加載所導致的）
+    # 注意！透過 .rect 設置坐標的前，須先將 Element 添加到場景和排版。
+    # 這是為了使子元素預先加載，以免坐標設置失敗。
     testing1.add_element(navigator)
     testing1.compose()
     navigator.rect.center = controller.screen_rect.center
-
-    # ElementV2 測試
-    # import utils.asynclib as asynclib
-    # from utils.refs import Ref
-    # e2_bg = Ref((255, 255, 255))
-    # e2 = ElementV2().apply(Style(width=100, height=100, background_color=e2_bg))
-    # def e2_l1(): e2_bg.value = (88, 88, 88)
-    # asynclib.set_timeout(e2_l1, 2000)
-    # testing1.add_element(e2)
 
     # 設置背景音樂
     testing1.background_music = 'assets/soundtracks/Brainiac Maniac.mp3'

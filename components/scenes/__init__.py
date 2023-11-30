@@ -79,11 +79,8 @@ class Scene():
                 if isinstance(el, entities.Entity):
                     try: el.auto_update()
                     except: pass
-            try: layer.update()
-            except:
-                for el in layer:
-                    try: el.update()
-                    except: pass
+                try: el.update()
+                except: pass
     
     def compose(self):
         for element in self.__elements:
@@ -132,3 +129,13 @@ from components.scenes.main_game import main_game
 from components.scenes.the_end import the_end
 from components.scenes.testing1 import testing1
 from components.scenes.testing2 import testing2
+
+class SceneCollection:
+    main_menu = main_menu
+    pause_menu = pause_menu
+    main_game = main_game
+    the_end = the_end
+    testing1 = testing1
+    testing2 = testing2
+
+scenes = SceneCollection()
