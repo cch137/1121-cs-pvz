@@ -15,8 +15,7 @@ class SunFlower(Plant):
         self.health = 40
         self.__spawned_tick = process.ticks
 
-    def auto_update(self):
-        Entity.auto_update(self)
+    def update(self):
         now = process.ticks
         centerx, centery = self.rect.center
         if now - self.__spawned_tick >= 600:

@@ -23,8 +23,7 @@ class Nut(Plant):
         self.image = media.load_image('#哭哭圖', ())
         return super().damage(value, *effects)
 
-    def auto_update(self):
-        Entity.auto_update(self)
+    def update(self):
         if self.__is_crying:
             if process.ticks < self.__cry_stop_tick:
                 self.image = media.load_image('#原圖', ())
