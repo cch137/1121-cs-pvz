@@ -56,31 +56,6 @@ class PoisonEffect(Effect):
     def duplicate(self):
         return PoisonEffect(self.name, self.duration_ticks, self.attack_power)
 
-class Ability():
-    def __init__(self, colddown: int = 60):
-        self.colddown = colddown
-        '''unit: tick'''
-        self.last_used_at: int = 0
-        '''unit: tick'''
-
-    @property
-    def is_cooling_down(self):
-        return self.last_used_at + self.colddown > process.ticks
-
-    def use(self, entity: Entity):
-        if self.is_cooling_down: # 技能正在冷卻中，無法使用
-            return
-        if self.effect.__code__.co_argcount > 0:
-            if self.effect(entity):
-                self.last_used_at = process.ticks
-        elif self.effect():
-            self.last_used_at = process.ticks
-
-    def effect(self, entity: Entity) -> bool:
-        '''重寫此函式以賦予 Ability 效果。
-        注意：此函式須返回一個布林值！布林值表示為此能力是否使用成功。'''
-        return True
-
 class Entity(Element):
     health: int = 100
     '''本實體的生命值。注意：若要對本實體造成傷害，請使用 .damage()，不要直接更動此值。'''
@@ -88,14 +63,17 @@ class Entity(Element):
     '''number between 0 and 100'''
     vision_range: int = 3
     '''視野。單位：格(地圖 tile)'''
-    velocity_x: int = 0
-    velocity_y: int = 0
-    velocity_a: int = 0
+    velocity_x: float = 0
+    velocity_y: float = 0
+    velocity_a: float = 0
     acceleration_x: int = 0
     acceleration_y: int = 0
     acceleration_a: int = 0
     move_limit: int | None = None
     '''實體的自動移動距離限制'''
+
+    __velocity_x_remainder: float = 0
+    __velocity_y_remainder: float = 0
 
     collision_targets: Set[type[Entity]|Entity]
     '''collision_targets 中的項目可以是 class 或者指定的實體。\\
@@ -105,13 +83,10 @@ class Entity(Element):
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
-    def __init__(self, image: pygame.Surface,
-        collision_effects: Set[Effect] | None = None, abilities: Set[Ability] | None = None):
-        '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)\\
-        abilities 是技能'''
+    def __init__(self, image: pygame.Surface, collision_effects: Set[Effect] | None = None):
+        '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)'''
         Element.__init__(self, image)
 
-        self.abilities = abilities or set()
         all_entities.add(self)
         self.collision_targets = set()
 
@@ -127,14 +102,14 @@ class Entity(Element):
     def clear_image_0(self):
         self.image_0 = None
 
-    __rotation_angle: int = 0
+    __rotation_angle: float = 0
 
     @property
     def rotation_angle(self):
         return self.__rotation_angle
 
     @rotation_angle.setter
-    def rotation_angle(self, angle: int):
+    def rotation_angle(self, angle: float):
         if self.image_0 is None:
             self.image_0 = self.image.copy()
         self.__rotation_angle = angle % 360
@@ -161,6 +136,7 @@ class Entity(Element):
         self.__self_effects.remove(effect)
 
     def auto_update(self):
+        '''Entity 的自動更新方法，每一幀會執行。'''
         # 處理效果
         slow_down_rate = 0
         for effect in tuple(self.__self_effects):
@@ -174,21 +150,31 @@ class Entity(Element):
                     slow_down_rate = effect.rate
             effect.update()
         velocity_rate = max(0, 1 - slow_down_rate)
-        
-        # 使用技能
-        for ability in self.abilities:
-            ability.use(self)
 
         if self.dead:
             return
         # 處理位移
-        if self.move_limit is None or self.move_limit > 0:
+        if (self.move_limit is None or self.move_limit > 0) and (self.velocity_x or self.velocity_y):
             rect = self.rect
             x1, y1 = rect.x, rect.y
-            real_velocity_x = self.velocity_x * velocity_rate
-            real_velocity_y = self.velocity_y * velocity_rate
-            rect.x += real_velocity_x
-            rect.y += real_velocity_y
+            if self.velocity_x:
+                real_velocity_x = self.velocity_x * velocity_rate
+                real_velocity_int = int(real_velocity_x)
+                self.__velocity_x_remainder += real_velocity_x - real_velocity_int
+                if self.__velocity_x_remainder and abs(self.__velocity_x_remainder) >= 1:
+                    floored = int(self.__velocity_x_remainder)
+                    self.__velocity_x_remainder -= floored
+                    real_velocity_int += floored
+                rect.x += real_velocity_int
+            if self.velocity_y:
+                real_velocity_y = self.velocity_y * velocity_rate
+                real_velocity_int = int(real_velocity_y)
+                self.__velocity_y_remainder += real_velocity_y - real_velocity_int
+                if self.__velocity_y_remainder and abs(self.__velocity_y_remainder) >= 1:
+                    floored = int(self.__velocity_y_remainder)
+                    self.__velocity_y_remainder -= floored
+                    real_velocity_int += floored
+                rect.y += real_velocity_int
             if self.move_limit is not None:
                 self.move_limit -= math.dist((rect.x, rect.y), (x1, y1))
             self.velocity_x += self.acceleration_x
@@ -215,9 +201,6 @@ class Entity(Element):
                     entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                     return self.kill()
 
-    def dist(self, target: Entity):
-        return math.dist(self.rect.center, target.rect.center)
-
     def kill(self, *args: Any, **kargs):
         Element.kill(self, *args, **kargs)
         all_entities.remove(self)
@@ -230,8 +213,8 @@ class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
 
-    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character], abilities: Set[Ability] | None = None):
-        Entity.__init__(self, image, None, abilities)
+    def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character]):
+        Entity.__init__(self, image, None)
         friends.add(self)
         self.__friends = friends
         self.__enemies = enemies
@@ -246,7 +229,8 @@ class Character(Entity):
     
     def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None
-        try: return min(character_set, key=lambda x: self.dist(x))
+        selfcenter = self.rect.center
+        try: return min(character_set, key=lambda x: math.dist(selfcenter, x.rect.center))
         except: return None
     
     @property
@@ -262,7 +246,8 @@ class Character(Entity):
         return self.__closest_from_set(set(self.enemies_on_row))
     
     def enemies_in_radius(self, radius: int):
-        return tuple(i for i in self.enemies if self.dist(i) < radius)
+        selfcenter = self.rect.center
+        return tuple(i for i in self.enemies if math.dist(selfcenter, i.rect.center) < radius)
 
     @property
     def is_touch_with_enemy(self):
@@ -283,7 +268,7 @@ class Character(Entity):
 
     def in_fov(self, other: Character):
         '''判斷 other 是否位於視野範圍內。'''
-        return self.dist(other) <= self.fov
+        return math.dist(self.rect.center, other.rect.center) <= self.fov
 
     def has_seen_enemy(self, on_left: bool = False, on_right: bool = False):
         '''on_left 判斷是否左方有敵人，on_right 判斷是否右方有敵人。\\
