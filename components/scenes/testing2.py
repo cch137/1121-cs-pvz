@@ -45,6 +45,12 @@ def init():
     btn1.add_event_listener(events.CLICK, goto_testing1)
     btn1.cursor = 'hand'
 
+    # 添加 click 事件監聽器（頁面轉跳）
+    def goto_testing3():
+        controller.goto_scene(controller.scenes.testing3)
+    btn2.add_event_listener(events.CLICK, goto_testing3)
+    btn2.cursor = 'hand'
+
     # 把 elements 添加到父級元素
     outer_element.append_child(inner_element)
     inner_element.append_child(btn1, btn2, btn3)
