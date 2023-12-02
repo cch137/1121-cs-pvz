@@ -16,7 +16,7 @@ TITLE = '植物大戰殭屍'
 
 ASSETS_DIRNAME = os.path.abspath('assets/')
 
-BACKGROUND_COLOR = (20, 22, 24)
+BACKGROUND_COLOR = (0, 0, 0)
 FONT_COLOR = (250, 250, 250)
 
 # Tiles background color:

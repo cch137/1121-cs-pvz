@@ -1,10 +1,10 @@
 import pygame
 import utils.process as process
 from utils.constants import *
-from components import controller
+from components import controller, media
 
 # 設置視窗圖標、標題，初始化視窗
-pygame.display.set_icon(pygame.image.load('assets/icon.png'))
+pygame.display.set_icon(media.load_image('icon.png'))
 pygame.display.set_caption(TITLE)
 pygame.mixer.pre_init(44100, 16, 2, 4096)  # 性能優化
 pygame.mixer.init()
