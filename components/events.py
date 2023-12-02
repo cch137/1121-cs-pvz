@@ -1,8 +1,6 @@
 from typing import Callable, Any, Set, Dict
 from utils.constants import Coordinate
-import pygame
 import asyncio
-import utils.process as process
 import utils.asynclib as asynclib
 import components.element as element
 

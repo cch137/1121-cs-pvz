@@ -32,7 +32,7 @@ class CursorManager():
 
 class Controller():
     current_scene: scenes.Scene
-    __visited: Set[scenes.Scene]
+    __visited_scenes: Set[scenes.Scene]
 
     def __init__(self):
         self.running = True
@@ -44,18 +44,18 @@ class Controller():
         self.media = media
         media.preload_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
-        self.__visited = set()
+        self.__visited_scenes = set()
         self.__playing_bg_music_fp: str | None = None
     
     def unload_sceen(self, scene: scenes.Scene):
         scene.kill()
-        self.__visited.remove(scene)
+        self.__visited_scenes.remove(scene)
 
     def goto_scene(self, scene: scenes.Scene):
         self.current_scene = scene
-        if scene not in self.__visited:
+        if scene not in self.__visited_scenes:
             scene.init()
-            self.__visited.add(scene)
+            self.__visited_scenes.add(scene)
         if scene.background_music is not None:
             try:
                 if type(scene.background_music) is str:
@@ -79,8 +79,8 @@ class Controller():
         self.clock.tick(FPS)
 
         event_handler = element.event_handler
+        event_handler.dispatch_basic_events()
         handle_event = event_handler.handle
-        event_handler.setup()
         # 讀取使用者的活動
         for event in pygame.event.get():
             # 退出遊戲
