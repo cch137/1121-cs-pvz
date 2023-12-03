@@ -33,6 +33,7 @@ class CursorManager():
 
 class Controller():
     current_scene: scenes.Scene
+    level: levels.Level | None
     __visited_scenes: Set[scenes.Scene]
 
     def __init__(self):
@@ -43,7 +44,6 @@ class Controller():
         self.scenes = scenes
         self.cursor = CursorManager()
         self.media = media
-        self.level = levels.Level()
         media.preload_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited_scenes = set()
