@@ -1,9 +1,9 @@
 from typing import Set, Iterable
 from utils.constants import *
 import pygame
-from components.entities import Entity, Character, Effect
+from components.entities import Entity, Character, Effect, Ability
 import components.events as events
-
+import utils.process as process
 class Plant: pass
 
 all_plants: Set[Plant] = set()
@@ -14,6 +14,7 @@ class Plant(Character):
     def __init__(self, image: pygame.Surface):
         Character.__init__(self, image, all_plants, all_zombies)
 
+attack_frequency = int
 class BulletTemplate():
     def __init__(
             self,
@@ -60,11 +61,18 @@ class BulletTemplate():
         return bullet
 
 class Shooter(Plant):
-    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate):
+    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency):
         Plant.__init__(self, image)
         self.bullet_generator = bullet_template
-    
+        now = process.ticks
+
     def shoot(self):
         self.bullet_generator.create(self)
 
+    def update(self,attack_frequency):
+        now = process.ticks        
+        if self.borned_time > attack_frequency:
+            self.borned_time = now 
+            self.shoot
+        
 from components.entities.zombies import all_zombies
