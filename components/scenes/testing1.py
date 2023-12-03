@@ -49,7 +49,7 @@ def init():
     parent_ele.append_child(*children)
 
     # 創建 troll_face
-    troll_face = Entity(media.load_image('icon.png', (50, 50)))
+    troll_face = Entity(media.load_image('troll.png', (50, 50)))
     troll_face.cursor = 'hand'
 
     # 添加 click 事件監聽器，當 troll face 被按下時它會左右反轉

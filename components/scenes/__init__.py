@@ -129,6 +129,7 @@ from components.scenes.main_game import main_game
 from components.scenes.the_end import the_end
 from components.scenes.testing1 import testing1
 from components.scenes.testing2 import testing2
+from components.scenes.testing3 import testing3
 
 class SceneCollection:
     main_menu = main_menu
@@ -137,5 +138,6 @@ class SceneCollection:
     the_end = the_end
     testing1 = testing1
     testing2 = testing2
+    testing3 = testing3
 
 scenes = SceneCollection()

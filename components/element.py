@@ -142,7 +142,7 @@ class Element(pygame.sprite.Sprite, EventTarget):
     def image(self, value: pygame.Surface):
         if not (value.get_flags() & pygame.SRCALPHA):
             value = value.convert_alpha()
-        self.set_attribute('image', value.convert_alpha())
+        self.set_attribute('image', value)
         self.rect = value.get_rect()
 
     @property
@@ -603,36 +603,37 @@ class EventHandler():
     def __init__(self) -> None:
         self.__target_sets: Dict[str, Set[Element]] = dict()
 
-    def __targets_of(self, eventName: str, writable: bool = False):
+    def get_targets(self, eventName: str, writable: bool = False):
         if writable:
             return self.__target_sets.setdefault(eventName, set())
         else:
-            return set(self.__target_sets.setdefault(eventName, set()))
+            return tuple(self.__target_sets.setdefault(eventName, set()))
 
-    def targets_of(self, *eventNames: str):
-        return { el for els in tuple(self.__targets_of(eventName) for eventName in eventNames) for el in els if el.is_playing }
+    def get_playing_targets(self, *eventNames: str):
+        return tuple(el for els in tuple(self.get_targets(eventName) for eventName in eventNames) for el in els if el.is_playing)
 
     def add_target(self, target: Element, eventName: str):
-        self.__targets_of(eventName, True).add(target)
+        self.get_targets(eventName, True).add(target)
 
     def remove_target(self, target: Element, eventName: str):
-        self.__targets_of(eventName, True).remove(target)
+        self.get_targets(eventName, True).remove(target)
 
-    def setup(self):
+    def dispatch_basic_events(self):
         from components import controller
 
         pos = pygame.mouse.get_pos()
         x, y = pos
 
         # dispatch HoverEvent
-        for el in self.targets_of(HOVER, HOVER_R):
+        for el in self.get_playing_targets(HOVER):
             if el.rect.collidepoint(x, y):
                 el.dispatch_event(HoverEvent(pos, el))
+        for el in self.get_playing_targets(HOVER_R):
             if el.point_in_radius(x, y):
                 el.dispatch_event(HoverREvent(pos, el))
 
         # dispatch MouseEnterEvent and MouseLeaveEvent
-        for el in self.targets_of(MOUSEENTER, MOUSELEAVE, MOUSEENTER_R, MOUSELEAVE_R):
+        for el in self.get_playing_targets(MOUSEENTER, MOUSELEAVE):
             if el.rect.collidepoint(x, y):
                 if not el.has_attribute(HOVER):
                     el.dispatch_event(MouseEnterEvent(pos, el))
@@ -640,6 +641,7 @@ class EventHandler():
             elif el.has_attribute(HOVER):
                 el.remove_attribute(HOVER)
                 el.dispatch_event(MouseLeaveEvent(pos, el))
+        for el in self.get_playing_targets(MOUSEENTER_R, MOUSELEAVE_R):
             if el.point_in_radius(x, y):
                 if not el.has_attribute(HOVER_R):
                     el.dispatch_event(MouseEnterREvent(pos, el))
@@ -654,14 +656,14 @@ class EventHandler():
         screen_left = screen_rect.left
         screen_bottom = screen_rect.bottom
         screen_top = screen_rect.top
-        for el in self.targets_of(_FLYOUT):
+        for el in self.get_playing_targets(_FLYOUT):
             rect = el.rect
             if rect.left > screen_right or rect.right < screen_left\
             or rect.top > screen_bottom or rect.bottom < screen_top:
                 el.kill()
 
         # detect cursor style
-        for el in reversed(sorted(self.targets_of(CURSOR_R), key=lambda x: x.z_index)):
+        for el in reversed(sorted(self.get_playing_targets(CURSOR_R), key=lambda x: x.z_index)):
             if not el.point_in_radius(x, y):
                 continue
             match el.cursor_r:
@@ -681,7 +683,7 @@ class EventHandler():
                     else:
                         controller.cursor.default()
             return
-        for el in reversed(sorted(self.targets_of(CURSOR), key=lambda x: x.z_index)):
+        for el in reversed(sorted(self.get_playing_targets(CURSOR), key=lambda x: x.z_index)):
             if not el.rect.collidepoint(x, y):
                 continue
             match el.cursor:
@@ -707,34 +709,35 @@ class EventHandler():
         now = process.timestamp
 
         # dispatch ClickEvent
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = event.pos
-            for el in self.targets_of(CLICK, CLICK_R):
-                if el.rect.collidepoint(x, y):
-                    el.set_attribute(BUTTONDOWN, (event.button, now))
-                if el.point_in_radius(x, y):
-                    el.set_attribute(BUTTONDOWN_R, (event.button, now))
-        elif event.type == pygame.MOUSEBUTTONUP:
-            x, y = event.pos
-            # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
-            for el in self.targets_of(CLICK):
-                if el.has_attribute(BUTTONDOWN):
-                    button, mousedown_at = el.get_attribute(BUTTONDOWN)
-                    if el.rect.collidepoint(x, y) \
-                        and button == event.button \
-                        and now - mousedown_at < 1:
-                        if event.button == pygame.BUTTON_LEFT:
-                            el.dispatch_event(ClickEvent(event.pos, el))
-                    el.remove_attribute(BUTTONDOWN)
-            # click in radius 的判斷與 click 相同
-            for el in self.targets_of(CLICK_R):
-                if el.has_attribute(BUTTONDOWN_R):
-                    button, mousedown_at = el.get_attribute(BUTTONDOWN_R)
-                    if el.point_in_radius(x, y) \
-                        and button == event.button \
-                        and now - mousedown_at < 1:
-                        if event.button == pygame.BUTTON_LEFT:
-                            el.dispatch_event(ClickREvent(event.pos, el))
-                    el.remove_attribute(BUTTONDOWN_R)
+        match event.type:
+            case pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                for el in self.get_playing_targets(CLICK, CLICK_R):
+                    if el.rect.collidepoint(x, y):
+                        el.set_attribute(BUTTONDOWN, (event.button, now))
+                    if el.point_in_radius(x, y):
+                        el.set_attribute(BUTTONDOWN_R, (event.button, now))
+            case pygame.MOUSEBUTTONUP:
+                x, y = event.pos
+                # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
+                for el in self.get_playing_targets(CLICK):
+                    if el.has_attribute(BUTTONDOWN):
+                        button, mousedown_at = el.get_attribute(BUTTONDOWN)
+                        if el.rect.collidepoint(x, y) \
+                            and button == event.button \
+                            and now - mousedown_at < 1:
+                            if event.button == pygame.BUTTON_LEFT:
+                                el.dispatch_event(ClickEvent(event.pos, el))
+                        el.remove_attribute(BUTTONDOWN)
+                # click in radius 的判斷與 click 相同
+                for el in self.get_playing_targets(CLICK_R):
+                    if el.has_attribute(BUTTONDOWN_R):
+                        button, mousedown_at = el.get_attribute(BUTTONDOWN_R)
+                        if el.point_in_radius(x, y) \
+                            and button == event.button \
+                            and now - mousedown_at < 1:
+                            if event.button == pygame.BUTTON_LEFT:
+                                el.dispatch_event(ClickREvent(event.pos, el))
+                        el.remove_attribute(BUTTONDOWN_R)
 
 event_handler = EventHandler()
