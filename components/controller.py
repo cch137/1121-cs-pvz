@@ -2,6 +2,7 @@ import pygame
 import components.element as element
 import components.events as events
 import components.scenes as scenes
+import components.levels as levels
 from typing import Set
 from utils.constants import *
 from components.media import media
@@ -42,6 +43,7 @@ class Controller():
         self.scenes = scenes
         self.cursor = CursorManager()
         self.media = media
+        self.level = levels.Level()
         media.preload_assets()
         self.clock = pygame.time.Clock() # 渲染時鐘
         self.__visited_scenes = set()
