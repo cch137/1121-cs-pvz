@@ -23,7 +23,7 @@ def init():
     zombie_demo = zombies.Zombie(pygame.Surface((20, 40)))
     zombie_demo.background_color = (0, 200, 100)
     zombie_demo.rect.center = (WINDOW_WIDTH, WINDOW_HEIGHT * 0.25)
-    zombie_demo.update = zombies.zombie_mover(zombie_demo)
+    zombie_demo.update = zombies.zombie_mover(zombie_demo, -2)
     testing3.add_element(zombie_demo)
 
 testing3.init = init
