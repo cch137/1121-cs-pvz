@@ -48,7 +48,7 @@ def init():
         button_group = Element(None, None, [button1, button2, score_board])
         button_group.rect.topleft = (8, 8)
         return button_group
-    
+
     main_game.add_element(TopLeftButtons())
 
 main_game.init = init
