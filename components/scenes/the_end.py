@@ -8,8 +8,10 @@ the_end = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
-    
-    if controller.level.victory:
+
+    level: levels.Level = controller.level
+
+    if level.victory:
         bg_image = media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
     else:
         bg_image = media.load_image('scenes/game_over.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
