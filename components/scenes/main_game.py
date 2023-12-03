@@ -38,11 +38,8 @@ def init():
         button_text.font_color = (255, 255, 255)
         button.background_color = (0, 0, 0, 0)
         def _mouseenter():
-            center = button.rect.center
             button_text.font_color = (240, 240, 240)
             button.background_color = (0, 0, 0, 128)
-            button.image = pygame.Surface((button.computed_width, button.computed_height))
-            button.rect.center = center
         def _mouseleave():
             button_text.font_color = (255, 255, 255)
             button.background_color = (0, 0, 0, 0)

@@ -3,6 +3,7 @@ from utils.constants import *
 import utils.process as process
 from utils.refs import Ref, is_ref, to_ref, to_value
 import pygame
+from pygame.transform import scale
 import math
 
 class Element(pygame.sprite.Sprite):
@@ -282,24 +283,27 @@ class Element(pygame.sprite.Sprite, EventTarget):
         '''Layouts (positions) itself and all child elements, but does not draw them.
 
         排版不進行繪製。此方法也同時對所有層級的子元素作用。'''
-        self.width = self.computed_width
-        self.height = self.computed_height
+        w = self.computed_width
+        h = self.computed_height
+        if self.width != w or self.height != h:
+            self.image = scale(self.image, (w, h))
+        rect = self.rect
         align_items = self.align_items
         justify_content = self.justify_content
         if self.display in (ROW, INLINE):
             # 設定 x 座標
             if justify_content == START:
-                x = self.rect.left + self.padding_left
+                x = rect.left + self.padding_left
                 for child in self.__children:
                     child.rect.left = x
                     x += child.computed_width + self.spacing
             elif justify_content == END:
-                x = self.rect.right - self.padding_right
+                x = rect.right - self.padding_right
                 for child in reversed(self.__children):
                     child.rect.right = x
                     x -= child.computed_width + self.spacing
             else:
-                x = self.rect.left + self.padding_left \
+                x = rect.left + self.padding_left \
                     + (self.computed_width - self.padding_left - self.padding_right) / 2 \
                     - (self.content_width / 2)
                 for child in self.__children:
@@ -307,44 +311,44 @@ class Element(pygame.sprite.Sprite, EventTarget):
                     x += child.computed_width + self.spacing
             # 設定 y 座標
             if align_items == START:
-                y = self.rect.top + self.padding_top
+                y = rect.top + self.padding_top
                 for child in self.__children:
                     child.rect.top = y
             elif align_items == END:
-                y = self.rect.bottom - self.padding_bottom
+                y = rect.bottom - self.padding_bottom
                 for child in self.__children:
                     child.rect.bottom = y
             else:
-                y = self.rect.centery
+                y = rect.centery
                 for child in self.__children:
                     child.rect.centery = y
         else: # display in (COLUMN, BLOCK, default)
             # 設定 x 座標
             if justify_content == START:
-                x = self.rect.left + self.padding_left
+                x = rect.left + self.padding_left
                 for child in self.__children:
                     child.rect.left = x
             elif justify_content == END:
-                x = self.rect.right - self.padding_right
+                x = rect.right - self.padding_right
                 for child in self.__children:
                     child.rect.right = x
             else:
-                x = self.rect.centerx
+                x = rect.centerx
                 for child in self.__children:
                     child.rect.centerx = x
             # 設定 y 座標
             if align_items == START:
-                y = self.rect.top + self.padding_top
+                y = rect.top + self.padding_top
                 for child in self.__children:
                     child.rect.top = y
                     y += child.computed_height + self.spacing
             elif align_items == END:
-                y = self.rect.bottom - self.padding_bottom
+                y = rect.bottom - self.padding_bottom
                 for child in reversed(self.__children):
                     child.rect.bottom = y
                     y -= child.computed_height + self.spacing
             else:
-                y = self.rect.top + self.padding_top \
+                y = rect.top + self.padding_top \
                     + (self.computed_height - self.padding_top - self.padding_bottom) / 2 \
                     - (self.content_height / 2)
                 for child in self.__children:
