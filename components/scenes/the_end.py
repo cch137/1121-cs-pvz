@@ -8,6 +8,17 @@ the_end = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
-    pass
+    
+    bg = Element(media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT)))
+    the_end.add_element(bg)
 
+    ele = Element((315, 65))
+    ele.background_color = (0,0,0,0)
+    ele.cursor = 'hand'
+    ele.rect.center = (528, 490)
+    the_end.add_element(ele)
+    ele.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.testing1))
 the_end.init = init
+
+
+ 
