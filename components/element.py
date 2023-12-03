@@ -3,6 +3,7 @@ from utils.constants import *
 import utils.process as process
 from utils.refs import Ref, is_ref, to_ref, to_value
 import pygame
+from pygame.transform import scale
 import math
 
 class Element(pygame.sprite.Sprite):
@@ -282,9 +283,11 @@ class Element(pygame.sprite.Sprite, EventTarget):
         '''Layouts (positions) itself and all child elements, but does not draw them.
 
         排版不進行繪製。此方法也同時對所有層級的子元素作用。'''
+        w = self.computed_width
+        h = self.computed_height
+        if self.width != w or self.height != h:
+            self.image = scale(self.image, (w, h))
         rect = self.rect
-        self.width = self.computed_width
-        self.height = self.computed_height
         align_items = self.align_items
         justify_content = self.justify_content
         if self.display in (ROW, INLINE):
