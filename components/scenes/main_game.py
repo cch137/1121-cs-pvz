@@ -9,6 +9,10 @@ def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
     
+    level = levels.Level()
+    controller.level = level
+    main_game.add_element(level)
+    
     bg = Element(media.load_image('scenes/game_map.jpg', (WINDOW_WIDTH, WINDOW_HEIGHT)))
     main_game.add_element(bg)
 
@@ -28,28 +32,37 @@ def init():
     main_game.add_element(game_map)
 
     def PauseButton():
-        pause_button_text = TextBox('PAUSE')
-        pause_button = Element(None, None, [pause_button_text])
-        pause_button.padding = 4
-        pause_button_text.font_color = (255, 255, 255)
-        pause_button.background_color = (0, 0, 0, 0)
+        button_text = TextBox('PAUSE')
+        button = Element(None, None, [button_text])
+        button.padding = 4
+        button_text.font_color = (255, 255, 255)
+        button.background_color = (0, 0, 0, 0)
         def _mouseenter():
-            center = pause_button.rect.center
-            pause_button_text.font_color = (240, 240, 240)
-            pause_button.background_color = (0, 0, 0, 128)
-            pause_button.image = pygame.Surface((pause_button.computed_width, pause_button.computed_height))
-            pause_button.rect.center = center
+            center = button.rect.center
+            button_text.font_color = (240, 240, 240)
+            button.background_color = (0, 0, 0, 128)
+            button.image = pygame.Surface((button.computed_width, button.computed_height))
+            button.rect.center = center
         def _mouseleave():
-            pause_button_text.font_color = (255, 255, 255)
-            pause_button.background_color = (0, 0, 0, 0)
-        pause_button.add_event_listener(events.MOUSEENTER, _mouseenter)
-        pause_button.add_event_listener(events.MOUSELEAVE, _mouseleave)
-        pause_button.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.pause_menu))
-        pause_button.compose()
-        pause_button.rect.topright = (WINDOW_WIDTH - 8, 8)
-        pause_button.cursor = 'hand'
-        return pause_button
+            button_text.font_color = (255, 255, 255)
+            button.background_color = (0, 0, 0, 0)
+        button.add_event_listener(events.MOUSEENTER, _mouseenter)
+        button.add_event_listener(events.MOUSELEAVE, _mouseleave)
+        button.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.pause_menu))
+        button.compose()
+        button.rect.topright = (WINDOW_WIDTH - 8, 8)
+        button.cursor = 'hand'
+        return button
     
     main_game.add_element(PauseButton())
+
+    def EndTestButton():
+        button = TextBox('END TEST')
+        button.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.the_end))
+        button.rect.topleft = (8, 8)
+        button.cursor = 'hand'
+        return button
+    
+    main_game.add_element(EndTestButton())
 
 main_game.init = init

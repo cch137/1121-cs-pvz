@@ -14,7 +14,7 @@ def init():
     title_el.rect.center = (WINDOW_WIDTH/2, 250)
     main_menu.add_element(title_el)
 
-    start_button = TextBox('CLICK TO START')
+    start_button = TextBox('開始遊戲')
     start_button.rect.center = (WINDOW_WIDTH/2, 600)
     start_button.add_event_listener(events.KEYDOWN, lambda: controller.goto_scene(controller.scenes.main_game))
     start_button.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.main_game))

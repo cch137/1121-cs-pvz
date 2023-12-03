@@ -506,7 +506,7 @@ class TextBox(Element):
             font_size: int = 24,
             font_color: ColorValue = FONT_COLOR,
             font_background: ColorValue | None = None,
-            font_name: str = pygame.font.get_default_font(),
+            font_name: str = 'assets/fonts/Cubic_11_1.100_R.ttf' or pygame.font.get_default_font(),
             font_antialias: bool = True
             ):
         Element.__init__(self)

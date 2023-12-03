@@ -8,8 +8,10 @@ the_end = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
-    
-    if controller.level.victory:
+
+    level: levels.Level = controller.level
+
+    if level.victory:
         bg_image = media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
     else:
         bg_image = media.load_image('scenes/game_over.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -21,7 +23,7 @@ def init():
     ele.cursor = 'hand'
     ele.rect.center = (528, 490)
     the_end.add_element(ele)
-    ele.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.testing1))
+    ele.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.main_menu))
 
 the_end.init = init
 
