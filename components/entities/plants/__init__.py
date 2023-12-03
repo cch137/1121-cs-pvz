@@ -1,7 +1,7 @@
 from typing import Set, Iterable
 from utils.constants import *
 import pygame
-from components.entities import Entity, Character, Effect, Ability
+from components.entities import Entity, Character, Effect
 import components.events as events
 import utils.process as process
 class Plant: pass
@@ -61,15 +61,15 @@ class BulletTemplate():
         return bullet
 
 class Shooter(Plant):
-    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency):
+    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency=0):
         Plant.__init__(self, image)
         self.bullet_generator = bullet_template
-        now = process.ticks
+        self.attack_frequency = 0
 
     def shoot(self):
         self.bullet_generator.create(self)
 
-    def update(self,attack_frequency):
+    def update(self,attack_frequency=0):
         now = process.ticks        
         if self.borned_time > attack_frequency:
             self.borned_time = now 

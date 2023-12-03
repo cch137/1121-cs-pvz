@@ -20,6 +20,8 @@ MOUSELEAVE_R = 'mouseleave_r'
 BUTTONDOWN_R = 'buttondown_r'
 BUTTONUP_R = 'buttonup_r'
 
+KEYDOWN = 'keydown'
+
 REF_CHANGE = 'ref_change'
 CHANGE = 'change'
 STYLE_CHANGE = 'style_change'
@@ -72,6 +74,10 @@ class MouseLeaveREvent(MouseEvent):
 class ClickREvent(MouseEvent):
     def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK_R, pos, target)
+
+class KeydownEvent(MouseEvent):
+    def __init__(self, key: Any, target: EventTarget | None = None):
+        UserEvent.__init__(self, KEYDOWN, target)
 
 class RefChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):
