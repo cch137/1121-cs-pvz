@@ -15,10 +15,6 @@ class Sun(Entity):
         self.radius_scale = 0.6
         self.cursor_r = 'hand'
     
-    def update(self):
-        if self.move_limit <= 0:
-            self.velocity_a = 0
-    
     def kill(self, *args: Any, **kwargs: Any):
         '''Returns sun value.'''
         Entity.kill(self, *args, **kwargs)
