@@ -50,6 +50,8 @@ class Tile(element.Element):
     def __init__(self, size: Coordinate, r: int, c: int):
         element.Element.__init__(self, size)
         self.id = f'tile-{r}-{c}'
+        self.max_width = size[0]
+        self.max_height = size[1]
         self.background_color = (0, 0, 0, 0)
         self.justify_content = CENTER
         self.align_items = CENTER
@@ -66,7 +68,7 @@ class Tile(element.Element):
     
     @property
     def growable(self):
-        return bool(self.plant)
+        return not bool(self.plant)
 
     def grow(self, plant: plants.Plant):
         if not self.growable:
@@ -95,16 +97,17 @@ class Level(element.Element):
     def get_row_bottom(self, row: int, pad: int):
         return self.__rows[row].rect.bottom - pad
 
-    def get_tile(self, row: int, col: int):
+    def get_tile(self, row: int, col: int) -> Tile:
         return self.scene.get_element_by_id(f'tile-{row}-{col}')
 
     def grow_plant(self, plant: plants.Plant, row: int, col: int):
-        '''種植一個植物到 tile，成功種植植物時返回 Ture，否則 Fasle。種植失敗時執行 plant.kill()'''
-        if self.is_growable_tile(row, col):
-            self.map.get_tile(row, col).append_child(plant)
-            return True
-        plant.kill()
-        return False
+        self.get_tile(row, col).grow(plant)
+        # '''種植一個植物到 tile，成功種植植物時返回 Ture，否則 Fasle。種植失敗時執行 plant.kill()'''
+        # if self.is_growable_tile(row, col):
+        #     self.map.get_tile(row, col).append_child(plant)
+        #     return True
+        # plant.kill()
+        # return False
 
     @property
     def victory(self) -> bool:
