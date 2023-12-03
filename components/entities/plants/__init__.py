@@ -14,7 +14,6 @@ class Plant(Character):
     def __init__(self, image: pygame.Surface):
         Character.__init__(self, image, all_plants, all_zombies)
 
-attack_frequency = int
 class BulletTemplate():
     def __init__(
             self,

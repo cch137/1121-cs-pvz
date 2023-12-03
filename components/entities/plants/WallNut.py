@@ -8,7 +8,7 @@ from components.media import media
 from components.entities.zombies import Zombie
 import utils.process as process
 
-class Nut(Plant):
+class WallNut(Plant):
     def __init__(self):
         Plant.__init__(self, media.load_image('#原圖', (50, 50)))
         self.health = 100
