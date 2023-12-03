@@ -72,7 +72,7 @@ class Tile(element.Element):
 
     def grow(self, plant: plants.Plant):
         if not self.growable:
-            raise 'Tile Not Growable'
+            raise 'Tile is not growable'
         self.append_child(plant)
 
 class Level(element.Element):
@@ -101,13 +101,11 @@ class Level(element.Element):
         return self.scene.get_element_by_id(f'tile-{row}-{col}')
 
     def grow_plant(self, plant: plants.Plant, row: int, col: int):
-        self.get_tile(row, col).grow(plant)
-        # '''種植一個植物到 tile，成功種植植物時返回 Ture，否則 Fasle。種植失敗時執行 plant.kill()'''
-        # if self.is_growable_tile(row, col):
-        #     self.map.get_tile(row, col).append_child(plant)
-        #     return True
-        # plant.kill()
-        # return False
+        '''種植一個植物到 tile，成功種植植物時返回 Ture，否則 Fasle。'''
+        tile = self.get_tile(row, col)
+        if tile is None or not tile.growable:
+            raise 'Tile is not growable'
+        tile.grow(plant)
 
     @property
     def victory(self) -> bool:

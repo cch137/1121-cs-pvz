@@ -1,17 +1,13 @@
-from typing import Set, Iterable
 from utils.constants import *
-import pygame
-from components.entities import Entity, Character, Effect
-import components.events as events
-from components.entities.plants import Plant, BulletTemplate
+from components.entities import Effect
+from components.entities.plants import Plant
 from components.media import media
-from components.entities.zombies import Zombie
 import utils.process as process
 
 class WallNut(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('#原圖', (50, 50)))
-        self.health = 100
+        Plant.__init__(self, media.load_image('#原圖', (50, 50)), 50)
+        self.health = 500
     
     __is_crying: bool = False
     __cry_stop_tick: int = 0
