@@ -91,10 +91,10 @@ class Scene():
             # 設定視窗背景顏色
             self.screen.fill(self.background_color)
         for layer in tuple(self.layers.values()):
-            for element in layer:
+            for el in layer:
                 try:
-                    if element.background_color != None:
-                        element.image.fill(element.background_color)
+                    if el.background_color != None:
+                        el.image.fill(el.background_color)
                 except Exception as e:
                     print(e)
             try:
