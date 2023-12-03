@@ -3,8 +3,8 @@ import math
 import utils.process as process
 from typing import Set, Any
 from utils.constants import *
-from components import Element
 from pygame.transform import rotate
+import components.element as element
 
 class Effect: pass
 
@@ -56,7 +56,7 @@ class PoisonEffect(Effect):
     def duplicate(self):
         return PoisonEffect(self.name, self.duration_ticks, self.attack_power)
 
-class Entity(Element):
+class Entity(element.Element):
     health: int = 100
     '''本實體的生命值。注意：若要對本實體造成傷害，請使用 .damage()，不要直接更動此值。'''
     defense: int = 0
@@ -85,7 +85,7 @@ class Entity(Element):
 
     def __init__(self, image: pygame.Surface, collision_effects: Set[Effect] | None = None):
         '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)'''
-        Element.__init__(self, image)
+        element.Element.__init__(self, image)
 
         all_entities.add(self)
         self.collision_targets = set()
@@ -202,7 +202,7 @@ class Entity(Element):
                     return self.kill()
 
     def kill(self, *args: Any, **kargs):
-        Element.kill(self, *args, **kargs)
+        element.Element.kill(self, *args, **kargs)
         all_entities.remove(self)
 
 all_entities: Set[Entity] = set()
