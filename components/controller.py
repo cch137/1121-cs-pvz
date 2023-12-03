@@ -2,7 +2,6 @@ import pygame
 import components.element as element
 import components.events as events
 import components.scenes as scenes
-import components.levels as levels
 from typing import Set
 from utils.constants import *
 from components.media import media

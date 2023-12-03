@@ -9,8 +9,13 @@ def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
     
-    bg = Element(media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT)))
-    the_end.add_element(bg)
+    if controller.victory:
+        bg = Element(media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT)))
+        the_end.add_element(bg)
+    else:
+        bg = Element(media.load_image('scenes/game_over.png', (WINDOW_WIDTH, WINDOW_HEIGHT)))
+        the_end.add_element(bg)
+
 
     ele = Element((315, 65))
     ele.background_color = (0,0,0,0)
