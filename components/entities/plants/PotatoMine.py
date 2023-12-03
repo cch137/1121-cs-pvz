@@ -19,7 +19,7 @@ class ReadyToExplosion(Character):
         self.image = media.load_image('#爆炸', (50, 50))
         asynclib.set_timeout(lambda: self.kill(), 1000)
 
-class Bomb(Plant):
+class PotatoMine(Plant):
     def __init__(self):
         Plant.__init__(self, media.load_image('#原圖', (50, 50)))
         self.health = 1000
