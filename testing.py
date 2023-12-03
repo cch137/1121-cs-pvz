@@ -1,5 +1,5 @@
 import main as Main
 
-Main.controller.goto_scene(Main.controller.scenes.pause_menu)
+Main.controller.goto_scene(Main.controller.scenes.the_end)
 
 Main.main()
