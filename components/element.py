@@ -528,7 +528,6 @@ class TextBox(Element):
             self.__font_size = font_size
         self.__font_color = font_color
         self.__font_background = font_background
-        print(font_name)
         self.font = pygame.font.Font(self.font_name, self.font_size)
         self.update_image()
 
