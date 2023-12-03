@@ -10,8 +10,7 @@ def init():
         events, Entity, plants, zombies, controller, levels
     
     # 創建 Level（關卡的數據, eg. 太陽）
-    level = levels.Level()
-    testing1.add_element(level)
+    level = levels.Level(testing1)
 
     # 一個製作 element 的函式
     def make_color_block(color: (255, 255, 255)):
@@ -26,7 +25,7 @@ def init():
     children[0].add_event_listener(events.CLICK, lambda: testing1.reload())
 
     # 添加 click 事件監聽器，當按下綠色方塊時會掉下太陽。
-    children[1].add_event_listener(events.CLICK, lambda: levels.SunSpawner().spawn(level))
+    children[1].add_event_listener(events.CLICK, lambda: level.drop_sun())
 
     # 添加 click 事件監聽器（頁面轉跳）
     children[3].add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.testing2))
