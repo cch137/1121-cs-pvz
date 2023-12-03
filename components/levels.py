@@ -1,16 +1,18 @@
 from typing import *
 from utils.constants import *
-from components.entities import Entity, Element, Sun, plants, zombies
+import utils.refs as refs
+import components.entities as entities
+import components.entities.plants as plants
+import components.entities.zombies as zombies
+import components.element as element
 import components.events as events
 import components.scenes as scenes
-import utils.refs as refs
-import utils.asynclib as asynclib
 
 class GameMap():
     def __init__(self):
         pass
 
-    def get_tile(self, row: int, col: int) -> Element:
+    def get_tile(self, row: int, col: int) -> element.Element:
         pass
 
     def get_row_bottom(self, row: int) -> int:
@@ -18,14 +20,14 @@ class GameMap():
         # 未完成！
         return 0
 
-class Level(Element):
+class Level(element.Element):
     ticks: int
     suns: int
     get_row_bottom: Callable[[], int]
     map: GameMap
 
 class Spawner():
-    def __init__(self, schedule_tick: int, *entities: Entity):
+    def __init__(self, schedule_tick: int, *entities: entities.Entity):
         self.schedule = schedule_tick
         self.entities = entities
         self.__used = False
@@ -50,7 +52,7 @@ class Spawner():
 
 class SunSpawner(Spawner):
     def __init__(self, schedule_tick: int = 0, x_range: Tuple[int, int] = (100, 980), y_range: Tuple[int, int] = (200, 700), value=25):
-        Spawner.__init__(self, schedule_tick, Sun(x_range, y_range, value))
+        Spawner.__init__(self, schedule_tick, entities.Sun(x_range, y_range, value))
 
     def spawn(self, level: Level):
         Spawner.spawn(self, level)
@@ -66,14 +68,15 @@ class ZombieSpawner(Spawner):
         for i, zombie in enumerate(self.entities):
             zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.map.get_row_bottom(self.row))
 
-class Level(Element):
+class Level(element.Element):
     def __init__(self, spawners: Iterable[Spawner] = tuple()):
         '''遊戲關卡'''
-        Element.__init__(self, (0, 0))
+        element.Element.__init__(self, (0, 0))
         self.spawners = set(spawners)
         self.ticks = 0
         self.map = GameMap()
         self.__suns = refs.Ref(0)
+        self.__victory = refs.Ref(False)
     
     def is_growable_tile(self, row: int, col: int):
         return len(self.map.get_tile(row, col).children) == 0
@@ -89,6 +92,14 @@ class Level(Element):
     @property
     def suns(self):
         return self.__suns
+
+    @property
+    def victory(self) -> bool:
+        return self.__victory
+    
+    @victory.setter
+    def victory(self, value: bool):
+        self.__victory.value = value
 
     def has_suns(self, value: int):
         '''判斷是否有足夠的太陽數量'''

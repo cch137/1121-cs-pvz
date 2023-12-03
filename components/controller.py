@@ -2,6 +2,7 @@ import pygame
 import components.element as element
 import components.events as events
 import components.scenes as scenes
+import components.levels as levels
 from typing import Set
 from utils.constants import *
 from components.media import media
@@ -32,6 +33,7 @@ class CursorManager():
 
 class Controller():
     current_scene: scenes.Scene
+    level: levels.Level | None
     __visited_scenes: Set[scenes.Scene]
 
     def __init__(self):
