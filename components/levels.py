@@ -74,6 +74,7 @@ class Level(Element):
         self.ticks = 0
         self.map = GameMap()
         self.__suns = refs.Ref(0)
+        self.victory = refs.Ref(True)
     
     def is_growable_tile(self, row: int, col: int):
         return len(self.map.get_tile(row, col).children) == 0
