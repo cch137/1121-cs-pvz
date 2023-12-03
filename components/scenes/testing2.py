@@ -66,6 +66,6 @@ def init():
     testing2.add_element(outer_element)
 
     # 設置背景音樂
-    testing2.background_music = 'assets/soundtracks/Rigor Mormist.mp3'
+    # testing2.background_music = 'assets/soundtracks/Rigor Mormist.mp3'
 
 testing2.init = init
