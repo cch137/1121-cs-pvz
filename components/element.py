@@ -739,5 +739,8 @@ class EventHandler():
                             if event.button == pygame.BUTTON_LEFT:
                                 el.dispatch_event(ClickREvent(event.pos, el))
                         el.remove_attribute(BUTTONDOWN_R)
+            case pygame.KEYDOWN:
+                for el in self.get_playing_targets(KEYDOWN):
+                    el.dispatch_event(KeydownEvent(event, el))
 
 event_handler = EventHandler()

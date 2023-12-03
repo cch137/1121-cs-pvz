@@ -61,18 +61,21 @@ class BulletTemplate():
         return bullet
 
 class Shooter(Plant):
-    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency=0):
+    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency_ticks: int = 60):
         Plant.__init__(self, image)
+        self.last_shoot_tick = process.ticks
         self.bullet_generator = bullet_template
-        now = process.ticks
+        self.attack_frequency_ticks = attack_frequency_ticks
 
     def shoot(self):
         self.bullet_generator.create(self)
 
-    def update(self,attack_frequency=0):
-        now = process.ticks        
-        if self.borned_time > attack_frequency:
-            self.borned_time = now 
-            self.shoot
-        
+    def update(self):
+        if not self.has_seen_enemy(False, True):
+            return
+        now = process.ticks
+        if self.last_shoot_tick + self.attack_frequency_ticks <= now:
+            self.last_shoot_tick = now
+            self.shoot()
+
 from components.entities.zombies import all_zombies
