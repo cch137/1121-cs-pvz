@@ -76,7 +76,7 @@ class Level(element.Element):
         self.ticks = 0
         self.map = GameMap()
         self.__suns = refs.Ref(0)
-        self.victory = refs.Ref(True)
+        self.__victory = refs.Ref(False)
     
     def is_growable_tile(self, row: int, col: int):
         return len(self.map.get_tile(row, col).children) == 0
@@ -92,6 +92,14 @@ class Level(element.Element):
     @property
     def suns(self):
         return self.__suns
+
+    @property
+    def victory(self) -> bool:
+        return self.__victory
+    
+    @victory.setter
+    def victory(self, value: bool):
+        self.__victory.value = value
 
     def has_suns(self, value: int):
         '''判斷是否有足夠的太陽數量'''
