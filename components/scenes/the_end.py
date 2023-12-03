@@ -12,9 +12,9 @@ def init():
     level: levels.Level = controller.level
 
     if level.victory:
-        bg_image = media.load_image('scenes/victory.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
+        bg_image = media.load_image('scenes/victory.png', WINDOW_SIZE)
     else:
-        bg_image = media.load_image('scenes/game_over.png', (WINDOW_WIDTH, WINDOW_HEIGHT))
+        bg_image = media.load_image('scenes/game_over.png', WINDOW_SIZE)
     bg = Element(bg_image)
     the_end.add_element(bg)
 

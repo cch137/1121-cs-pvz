@@ -8,23 +8,9 @@ import components.element as element
 import components.events as events
 import components.scenes as scenes
 
-class GameMap():
-    def __init__(self):
-        pass
-
-    def get_tile(self, row: int, col: int) -> element.Element:
-        pass
-
-    def get_row_bottom(self, row: int) -> int:
-        '''取得 row 的地平線'''
-        # 未完成！
-        return 0
-
 class Level(element.Element):
     ticks: int
     suns: int
-    get_row_bottom: Callable[[], int]
-    map: GameMap
 
 class Spawner():
     def __init__(self, schedule_tick: int, *entities: entities.Entity):
@@ -50,14 +36,6 @@ class Spawner():
         for entity in self.entities:
             entity.kill(*args, **kwargs)
 
-class SunSpawner(Spawner):
-    def __init__(self, schedule_tick: int = 0, x_range: Tuple[int, int] = (100, 980), y_range: Tuple[int, int] = (200, 700), value=25):
-        Spawner.__init__(self, schedule_tick, entities.Sun(x_range, y_range, value))
-
-    def spawn(self, level: Level):
-        Spawner.spawn(self, level)
-        self.entity.add_event_listener(events.CLICK_R, lambda: level.eval_suns(self.entity.kill()))
-
 class ZombieSpawner(Spawner):
     def __init__(self, schedule_tick: int, row: int, *zombies: zombies.Zombie):
         self.row = row
@@ -68,18 +46,57 @@ class ZombieSpawner(Spawner):
         for i, zombie in enumerate(self.entities):
             zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.map.get_row_bottom(self.row))
 
+class Tile(element.Element):
+    def __init__(self, size: Coordinate, r: int, c: int):
+        element.Element.__init__(self, size)
+        self.id = f'tile-{r}-{c}'
+        self.background_color = (0, 0, 0, 0)
+        self.justify_content = CENTER
+        self.align_items = CENTER
+        def _mouseenter(): self.background_color = (255, 255, 255, 55)
+        def _mouseleave(): self.background_color = (0, 0, 0, 0)
+        self.add_event_listener(events.MOUSEENTER, _mouseenter)
+        self.add_event_listener(events.MOUSELEAVE, _mouseleave)
+    
+    @property
+    def plant(self):
+        for child in self.children:
+            if isinstance(child, plants.Plant):
+                return child
+    
+    @property
+    def growable(self):
+        return bool(self.plant)
+
+    def grow(self, plant: plants.Plant):
+        if not self.growable:
+            raise 'Tile Not Growable'
+        self.append_child(plant)
+
 class Level(element.Element):
-    def __init__(self, spawners: Iterable[Spawner] = tuple()):
+    def __init__(self, scene: scenes.Scene, spawners: Iterable[Spawner] = tuple()):
         '''遊戲關卡'''
         element.Element.__init__(self, (0, 0))
+        scene.add_element(self)
+
         self.spawners = set(spawners)
         self.ticks = 0
-        self.map = GameMap()
-        self.__suns = refs.Ref(0)
+        
+        self.__tiles = tuple(tuple(Tile(TILE_SIZE, r, c) for c in range(MAP_COLUMNS)) for r in range(MAP_ROWS))
+        self.__rows = tuple(element.Element(None, ROW, r) for r in self.__tiles)
+        self.game_map = element.Element(None, None, self.__rows)
+        self.game_map.compose()
+        scene.add_element(self.game_map)
+
+        self.suns = refs.Ref(0)
+        self.suns.add_event_listener(events.REF_CHANGE, lambda: self.dispatch_event(events.SunsChangeEvent(self)))
         self.__victory = refs.Ref(False)
-    
-    def is_growable_tile(self, row: int, col: int):
-        return len(self.map.get_tile(row, col).children) == 0
+
+    def get_row_bottom(self, row: int, pad: int):
+        return self.__rows[row].rect.bottom - pad
+
+    def get_tile(self, row: int, col: int):
+        return self.scene.get_element_by_id(f'tile-{row}-{col}')
 
     def grow_plant(self, plant: plants.Plant, row: int, col: int):
         '''種植一個植物到 tile，成功種植植物時返回 Ture，否則 Fasle。種植失敗時執行 plant.kill()'''
@@ -90,12 +107,8 @@ class Level(element.Element):
         return False
 
     @property
-    def suns(self):
-        return self.__suns
-
-    @property
     def victory(self) -> bool:
-        return self.__victory
+        return self.__victory.value
     
     @victory.setter
     def victory(self, value: bool):
@@ -103,22 +116,20 @@ class Level(element.Element):
 
     def has_suns(self, value: int):
         '''判斷是否有足夠的太陽數量'''
-        return self.__suns.value >= value
+        return self.suns.value >= value
 
-    def eval_suns(self, value: int = 0):
-        '''對太陽數量進行運算'''
-        if value != 0:
-            self.__suns.value += value
-            self.dispatch_event(events.SunsChangeEvent(self))
+    def add_suns(self, value: int = 0):
+        '''對太陽數量進行加法運算'''
+        self.suns.value += value
 
-    def update(self, *args: Any, **kwargs: Any) -> None:
+    def drop_sun(self):
+        map_rect = self.game_map.rect
+        sun = entities.Sun((map_rect.left, map_rect.right), (map_rect.top, map_rect.bottom))
+        sun.add_event_listener(events.CLICK_R, lambda: self.add_suns(sun.kill()))
+        self.scene.add_element(sun)
+
+    def update(self):
         for spawner in self.spawners:
             if spawner.is_spawnable(self):
                 spawner.spawn(self)
         self.ticks += 1
-
-    def bind(self, scene: scenes.Scene):
-        scene.add_element(self)
-
-    def unbind(self, scene: scenes.Scene):
-        scene.remove_element(self)

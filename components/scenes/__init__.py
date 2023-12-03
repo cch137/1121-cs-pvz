@@ -44,9 +44,12 @@ class Scene():
                 return el
 
     def add_element(self, *elements: element.Element):
-        for element in elements:
-            self.__elements.add(element)
-            element.connect_scene(self)
+        El = element.Element
+        for el in elements:
+            if not isinstance(el, El):
+                continue
+            self.__elements.add(el)
+            el.connect_scene(self)
 
     def remove_element(self, *elements: element.Element):
         for element in elements:

@@ -11,6 +11,7 @@ CursorValue = typing.Union[None, int, typing.Literal['arrow','crosshair','hand',
 FPS = 60
 WINDOW_WIDTH = 1080
 WINDOW_HEIGHT = 760
+WINDOW_SIZE = (WINDOW_WIDTH, WINDOW_HEIGHT)
 
 TITLE = '植物大戰殭屍'
 
@@ -25,8 +26,9 @@ FONT_COLOR = (250, 250, 250)
 # 1 2 ...
 # 3 4 ...
 # 1 2 ...
-TILE_WIDTH = 100
+TILE_WIDTH = 80
 TILE_HEIGHT = 120
+TILE_SIZE = (TILE_WIDTH, TILE_HEIGHT)
 TILE_BG_1 = (1, 172, 31)
 TILE_BG_2 = (0, 139, 20)
 TILE_BG_3 = (28, 198, 36)
