@@ -1,9 +1,10 @@
-from typing import Set, Iterable
+from typing import Set, Tuple, Iterable
 from utils.constants import *
 import pygame
 from components.entities import Entity, Character, Effect
 import components.events as events
 import utils.process as process
+
 class Plant: pass
 
 all_plants: Set[Plant] = set()
@@ -11,14 +12,21 @@ all_plants: Set[Plant] = set()
 import components.entities.zombies as zombies
 
 class Plant(Character):
-    def __init__(self, image: pygame.Surface):
+    def __init__(self, image: pygame.Surface, price: int):
         Character.__init__(self, image, all_plants, all_zombies)
+        self.price = price
+
+    @property
+    def tile(self):
+        return self.parent
+
+class Shooter(Plant):
+    shoot_position: Tuple[float, float]
 
 class BulletTemplate():
     def __init__(
             self,
             image: pygame.Surface,
-            position: tuple[float, float] = (0.5, 0.5),
             velocity_x: int = 10,
             background_color: ColorValue | None = None,
             collision_damage: int = 0,
@@ -28,7 +36,6 @@ class BulletTemplate():
             hit_sound: pygame.mixer.Sound = None,
             ):
         self.template = image
-        self.position = position
         self.velocity_x = velocity_x
         self.background_color = background_color
         self.collision_damage = collision_damage
@@ -36,9 +43,8 @@ class BulletTemplate():
         self.collision_effects = set(collision_effects or tuple())
         self.fire_sound = fire_sound
         self.hit_sound = hit_sound
-        pygame.Surface((50, 50))
     
-    def create(self, plant: Plant):
+    def create(self, plant: Shooter):
         bullet = Entity(self.template.copy(), self.collision_effects)
         bullet.allow_flyout = False
         bullet.velocity_x = self.velocity_x
@@ -50,8 +56,8 @@ class BulletTemplate():
             bullet.add_effect(effect)
         bullet.z_index = 99
         bullet.rect.center = (
-            plant.rect.x + plant.rect.width * self.position[0],
-            plant.rect.y + plant.rect.height * self.position[1]
+            plant.rect.x + plant.rect.width * plant.shoot_position[0],
+            plant.rect.y + plant.rect.height * plant.shoot_position[1]
             )
         plant.scene.add_element(bullet)
         if self.fire_sound:
@@ -60,21 +66,30 @@ class BulletTemplate():
         return bullet
 
 class Shooter(Plant):
-    def __init__(self, image: pygame.Surface, bullet_template: BulletTemplate, attack_frequency_ticks: int = 60):
-        Plant.__init__(self, image)
-        self.last_shoot_tick = process.ticks
+    def __init__(
+        self,
+        image: pygame.Surface,
+        price: int,
+        shoot_position: Tuple[float, float],
+        bullet_template: BulletTemplate,
+        attack_frequency_ticks: int = 60
+    ):
+        Plant.__init__(self, image, price)
+        self.__last_shoot_tick = process.ticks
+        self.shoot_position = shoot_position
+        '''從左上角到右下角的比例，子彈以該點作為中心發射。'''
         self.bullet_generator = bullet_template
         self.attack_frequency_ticks = attack_frequency_ticks
 
     def shoot(self):
-        self.bullet_generator.create(self)
+        self.bullet_generator.create(self, self.shoot_position)
 
     def update(self):
         if not self.has_seen_enemy(False, True):
             return
         now = process.ticks
-        if self.last_shoot_tick + self.attack_frequency_ticks <= now:
-            self.last_shoot_tick = now
+        if self.__last_shoot_tick + self.attack_frequency_ticks <= now:
+            self.__last_shoot_tick = now
             self.shoot()
 
 from components.entities.zombies import all_zombies

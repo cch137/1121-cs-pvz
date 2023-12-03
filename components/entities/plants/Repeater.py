@@ -1,25 +1,23 @@
-from typing import Set, Iterable
 from utils.constants import *
-import pygame
-from components.entities import Entity, Character, Effect
-import components.events as events
-from components.entities.plants import Shooter, BulletTemplate
+from components.entities.plants import Shooter
 from components.media import media
-from components.entities.zombies import Zombie
 import utils.asynclib as asynclib
 
 class Repeater(Shooter):
     def __init__(self):
-        Shooter.__init__(self, media.load_image(""), BulletTemplate(
-            media.load_image("") 
+        from components.entities.plants.PeaShooter import pea_template
+        Shooter.__init__(
+            self,
+            media.load_image("#原圖"),
+            200,
             (0.5, 0.5),
-            (WINDOW_WIDTH/5),
-            None,
-            10,
-            [Zombie]
-        ))
-        self.health = 30
+            pea_template,
+            60,
+        )
+        self.health = 100
+        self.fov = TILE_WIDTH * 10
     
     def shoot(self):
+        # 改寫連發射手的發射方法
         Shooter.shoot(self)
         asynclib.set_timeout(lambda: Shooter.shoot(self), 200)

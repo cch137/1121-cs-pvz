@@ -57,23 +57,23 @@ def init():
     troll_face.add_event_listener(events.CLICK, image_ele_clicked)
 
     # 創建 demo_plant 並設置其屬性
-    demo_plant = plants.Shooter(
-        pygame.transform.flip(media.load_image('plants/demo.png', (128, 128)), True, False),
-        plants.BulletTemplate(
-            pygame.Surface((10, 10)),
-            (0.26, 0.36),
-            -10,
-            (255, 0, 255),
-            10,
-            [Entity],
-            [],
-            media.load_sound('entities/bullet-demo.mp3'),
-        )
-    )
-    demo_plant.rect.center = (controller.screen_rect.right - 10 - demo_plant.rect.width / 2, controller.screen_rect.centery)
-    demo_plant.cursor_r = 'hand'
-    demo_plant.radius_scale = 0.75
-    demo_plant.add_event_listener(events.CLICK_R, lambda: demo_plant.shoot())
+    # demo_plant = plants.Shooter(
+    #     pygame.transform.flip(media.load_image('plants/demo.png', (128, 128)), True, False),
+    #     plants.Bullet-Template(
+    #         pygame.Surface((10, 10)),
+    #         (0.26, 0.36),
+    #         -10,
+    #         (255, 0, 255),
+    #         10,
+    #         [Entity],
+    #         [],
+    #         media.load_sound('entities/bullet-demo.mp3'),
+    #     )
+    # )
+    # demo_plant.rect.center = (controller.screen_rect.right - 10 - demo_plant.rect.width / 2, controller.screen_rect.centery)
+    # demo_plant.cursor_r = 'hand'
+    # demo_plant.radius_scale = 0.75
+    # demo_plant.add_event_listener(events.CLICK_R, lambda: demo_plant.shoot())
 
     # 將元素添加到 parent_ele
     parent_ele.append_child(troll_face)
@@ -86,7 +86,7 @@ def init():
 
     # 將 Element 添加到場景
     testing1.add_element(parent_ele)
-    testing1.add_element(demo_plant)
+    # testing1.add_element(demo_plant)
 
     # 創建導航
     navigator = Element()
