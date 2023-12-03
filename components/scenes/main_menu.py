@@ -17,6 +17,7 @@ def init():
     start_button = TextBox('CLICK TO START')
     start_button.rect.center = (WINDOW_WIDTH/2, 600)
     main_menu.add_element(start_button)
+    start_button.cursor = 'hand'
     start_button.add_event_listener(events.KEYDOWN, lambda: controller.goto_scene(controller.scenes.main_game))
     start_button.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.main_game))
 
