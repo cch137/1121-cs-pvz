@@ -1,3 +1,5 @@
+import time
+t0 = time.time()
 import pygame
 import utils.process as process
 from utils.constants import *
@@ -15,6 +17,9 @@ def main():
     while controller.running:
         controller.play()
         process.update()
+
+print(f'Started in {time.time() - t0} seconds')
+del t0
 
 if __name__ == '__main__':
     controller.goto_scene(controller.scenes.main_menu)
