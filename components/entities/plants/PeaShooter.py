@@ -4,8 +4,7 @@ from components.media import media
 from components.entities.zombies import Zombie
 
 pea_template = BulletTemplate(
-                media.load_image('demo/PeaShooter_0.png', PLANT_SIZE), 
-                (0.5, 0.5),
+                media.load_image('demo/PeaShooter_0.png', PLANT_SIZE),
                 BULLET_SPEED,
                 None,
                 25,
