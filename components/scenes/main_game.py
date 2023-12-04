@@ -42,12 +42,8 @@ def init():
         button1 = TextBox('END TEST')
         button1.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.the_end))
         button1.cursor = 'hand'
-        button2 = TextBox('SUN TEST')
-        button2.add_event_listener(events.CLICK, lambda: level.drop_sun())
-        button2.cursor = 'hand'
-        button_group = Element(None, None, [button1, button2])
-        button_group.rect.topleft = (8, 8)
-        return button_group
+        button1.rect.topleft = (8, 8)
+        return button1
 
     main_game.add_element(TopLeftButtons())
 
