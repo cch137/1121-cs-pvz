@@ -7,18 +7,18 @@ import utils.asynclib as asynclib
 
 class Explosion(Character):
     def __init__(self):
-        Character.__init__(self, media.load_image('#原圖', (50, 50)), all_plants, all_zombies)
+        Character.__init__(self, media.load_image('demo/PotatoMine_0.png', PLANT_SIZE), all_plants, all_zombies)
         asynclib.set_timeout(lambda: self.bomb(), 500)
 
     def bomb(self):
         for enemy in self.enemies_in_radius(TILE_WIDTH):
             enemy.kill()
-        self.image = media.load_image('#爆炸', (50, 50))
+        self.image = media.load_image('demo/PotatoMineExplode_0.png', PLANT_SIZE)
         asynclib.set_timeout(lambda: self.kill(), 1000)
 
 class PotatoMine(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('#原圖', (50, 50)), 25)
+        Plant.__init__(self, media.load_image('demo/PotatoMine_0.png', PLANT_SIZE), 25)
         self.health = 1000
         self.fov = 0.25 * TILE_WIDTH
 

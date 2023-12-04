@@ -8,7 +8,7 @@ class Repeater(Shooter):
         from components.entities.plants.PeaShooter import pea_template
         Shooter.__init__(
             self,
-            media.load_image("#原圖"),
+            media.load_image('demo/RepeaterPea_0.png', PLANT_SIZE),
             200,
             (0.5, 0.5),
             pea_template,

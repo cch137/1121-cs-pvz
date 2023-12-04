@@ -6,7 +6,7 @@ import utils.process as process
 
 class SunFlower(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('#原圖', (50, 50)), 50)
+        Plant.__init__(self, media.load_image('demo/SunFlower_0.png', PLANT_SIZE), 50)
         self.health = 40
         self.__last_produced = process.ticks
         self.__cooldown_ticks = 15 * 60 # 15 seconds

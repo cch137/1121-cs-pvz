@@ -9,11 +9,11 @@ class SnowPea(Shooter):
     def __init__(self):
         Shooter.__init__(
             self,
-            media.load_image("#冰豌豆射手原圖"),
+            media.load_image('demo/SnowPea_0.png', PLANT_SIZE),
             175,
             (0.5, 0.5),
             BulletTemplate(
-                media.load_image("#冰豌豆子彈") , 
+                media.load_image('demo/PeaIce_0.png', BULLET_SIZE) , 
                 BULLET_SPEED,
                 None,
                 15,

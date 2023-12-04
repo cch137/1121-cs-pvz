@@ -10,7 +10,7 @@ import utils.process as process
 
 class BucketHeadZombie(Zombie):
     def __init__(self):
-        Zombie.__init__(self, media.load_image('#原圖', (50, 50)))
+        Zombie.__init__(self, media.load_image('demo/BucketheadZombie_0.png', ZOMBIE_SIZE))
         self.health = 200
         self.move = zombie_mover(self)
 
