@@ -1,7 +1,7 @@
 from utils.constants import *
 from components.entities.plants import Plant 
 from components.media import media
-from components.entities.sun import Sun
+from components.entities.Sun import Sun
 import utils.process as process
 
 class SunFlower(Plant):
