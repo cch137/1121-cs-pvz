@@ -8,6 +8,31 @@ pause_menu = scenes.Scene()
 def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
-    pass
+    
+    pause_menu.background_color = (180 / 2, 134 / 2, 68 / 2)
+    
+    def Button(text: str, listener: Callable):
+        def _():
+            button = TextBox(text, 28)
+            button.cursor = 'hand'
+            def _mouseenter(): button.font_color = (128, 128, 128)
+            def _mouseleave(): button.font_color = (255, 255, 255)
+            button.add_event_listener(events.MOUSEENTER, _mouseenter)
+            button.add_event_listener(events.MOUSELEAVE, _mouseleave)
+            button.add_event_listener(events.CLICK, listener)
+            return button
+        return _()
+
+    button_group = Element(None, None, [Button(t, l) for t, l in [
+        ('Back To Game',    lambda: controller.goto_scene(scenes.main_game)),
+        ('Restart Level',   lambda: (scenes.main_game.reload(), controller.goto_scene(scenes.main_game))),
+        ('Main Menu',       lambda: controller.goto_scene(scenes.main_menu)),
+    ]])
+    button_group.background_color = (180 / 4, 134 / 4, 68 / 4)
+    button_group.padding = (60, 80)
+    button_group.spacing = 20
+    pause_menu.add_element(button_group)
+    button_group.compose()
+    button_group.rect.center = controller.screen_rect.center
 
 pause_menu.init = init
