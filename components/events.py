@@ -113,10 +113,13 @@ class EventTarget():
         if isinstance(self, element.Element):
             element.event_handler.add_target(self, eventName)
 
-    def remove_event_listener(self, eventName: str, listener: Callable | None = None):
+    def remove_event_listener(self, eventName: str, listener: Callable | None = None, remove_all = False):
         if not self.__listeners:
             return
         if eventName not in self.__listeners:
+            return
+        if remove_all:
+            del self.__listeners[eventName]
             return
         if listener in self.__listeners[eventName]:
             self.__listeners[eventName].remove(listener)

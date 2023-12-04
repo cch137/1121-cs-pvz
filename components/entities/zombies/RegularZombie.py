@@ -9,7 +9,7 @@ from components.entities.zombies import Zombie, zombie_mover
 
 class RegularZombie(Zombie):
     def __init__(self):
-        Zombie.__init__(self, media.load_image('#原圖', (50, 50)))
+        Zombie.__init__(self, media.load_image('demo/Zombie_0.png', ZOMBIE_SIZE))
         self.health = 100
         self.move = zombie_mover(self)
 

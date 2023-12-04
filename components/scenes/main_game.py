@@ -16,6 +16,7 @@ def init():
     controller.level = level
 
     level.game_map.rect.center = (475, 445)
+    level.card_board.rect.topleft = (level.game_map.rect.left, 8)
 
     def PauseButton():
         button_text = TextBox('PAUSE')
@@ -44,8 +45,7 @@ def init():
         button2 = TextBox('SUN TEST')
         button2.add_event_listener(events.CLICK, lambda: level.drop_sun())
         button2.cursor = 'hand'
-        score_board = TextBox(level.suns)
-        button_group = Element(None, None, [button1, button2, score_board])
+        button_group = Element(None, None, [button1, button2])
         button_group.rect.topleft = (8, 8)
         return button_group
 

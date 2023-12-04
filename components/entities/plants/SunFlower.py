@@ -1,19 +1,26 @@
 from utils.constants import *
-from components.entities.plants import Plant 
+from components.entities.plants import Plant
 from components.media import media
-from components.entities.sun import Sun
+from components.entities.Sun import Sun
 import utils.process as process
+from random import randint
 
 class SunFlower(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('#原圖', (50, 50)), 50)
+        Plant.__init__(self, media.load_image('demo/SunFlower_0.png', PLANT_SIZE), 50)
         self.health = 40
-        self.__last_produced = process.ticks
+        self.__last_produced = controller.level.ticks if hasattr(controller, 'level') else 0
         self.__cooldown_ticks = 15 * 60 # 15 seconds
 
     def update(self):
-        now = process.ticks
-        if now - self.__last_produced >= self.__cooldown_ticks:
+        now = controller.level.ticks
+        if self.__last_produced + self.__cooldown_ticks <= now:
             self.__last_produced = now
-            centerx, centery = self.rect.center
-            self.scene.add_element(Sun((centerx, centerx), (centery, centery)))
+            tile_rect = self.tile.rect
+            sun = Sun()
+            x_offset = int(tile_rect.width * 0.5)
+            sun.rect.center = (randint(tile_rect.left + x_offset, tile_rect.right - x_offset), tile_rect.top + int(tile_rect.height * 0.2))
+            sun.move_limit = tile_rect.height * 0.5
+            self.scene.add_element(sun)
+
+from components import controller
