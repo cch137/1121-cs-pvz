@@ -288,7 +288,7 @@ class Character(Entity):
         Entity.kill(self, *args, **kargs)
         self.__friends.remove(self)
 
+from components import controller
 import components.entities.plants as plants
 import components.entities.zombies as zombies
 from components.entities.Sun import Sun
-from components import controller
