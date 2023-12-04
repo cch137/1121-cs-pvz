@@ -43,5 +43,5 @@ def update():
     global timestamp
     global ticks
     timestamp = time.time()
-    ticks = pygame.time.get_ticks()
+    ticks += 1
     fps_counter.run()

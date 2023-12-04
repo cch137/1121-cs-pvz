@@ -2,18 +2,17 @@ from utils.constants import *
 from components.entities.plants import Plant
 from components.media import media
 from components.entities.Sun import Sun
-import utils.process as process
 from random import randint
 
 class SunFlower(Plant):
     def __init__(self):
         Plant.__init__(self, media.load_image('demo/SunFlower_0.png', PLANT_SIZE), 50)
         self.health = 40
-        self.__last_produced = controller.level.ticks if hasattr(controller, 'level') else 0
+        self.__last_produced = controller.level_ticks
         self.__cooldown_ticks = 15 * 60 # 15 seconds
 
     def update(self):
-        now = controller.level.ticks
+        now = controller.level_ticks
         if self.__last_produced + self.__cooldown_ticks <= now:
             self.__last_produced = now
             tile_rect = self.tile.rect

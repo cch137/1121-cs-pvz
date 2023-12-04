@@ -17,7 +17,7 @@ class Effect():
         效果不會加重，但是持續時間會延長 (以最長的 duration_ticks 為值)'''
         self.name = name
         self.duration_ticks = durationTicks
-        self.expired_at_tick = process.ticks + durationTicks
+        self.expired_at_tick = controller.level_ticks + durationTicks
 
     def is_mergeable(self, other: Effect):
         return self.name == other.name
@@ -33,7 +33,7 @@ class Effect():
 
     @property
     def is_expired(self):
-        return self.expired_at_tick <= process.ticks
+        return self.expired_at_tick <= controller.level_ticks
 
 class SlowDownEffect(Effect):
     def __init__(self, name: str, duration_ticks: int, rate: float):
@@ -291,3 +291,4 @@ class Character(Entity):
 import components.entities.plants as plants
 import components.entities.zombies as zombies
 from components.entities.Sun import Sun
+from components import controller
