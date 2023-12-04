@@ -93,3 +93,10 @@ class Shooter(Plant):
             self.shoot()
 
 from components.entities.zombies import all_zombies
+
+from components.entities.plants.SunFlower import SunFlower
+from components.entities.plants.WallNut import WallNut
+from components.entities.plants.PeaShooter import PeaShooter
+from components.entities.plants.Repeater import Repeater
+from components.entities.plants.SnowPea import SnowPea
+from components.entities.plants.PotatoMine import PotatoMine

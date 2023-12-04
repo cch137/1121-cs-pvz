@@ -58,3 +58,7 @@ def zombie_mover(zombie: Zombie, rate: float = -0.5):
     return zombie_move
 
 from components.entities.plants import all_plants
+
+from components.entities.zombies.RegularZombie import RegularZombie
+from components.entities.zombies.BucketHeadZombie import BucketHeadZombie
+from components.entities.zombies.NewspaperZombie import NewspaperZombie
