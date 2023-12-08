@@ -11,7 +11,7 @@ class RegularZombie(Zombie):
     def __init__(self):
         Zombie.__init__(self, media.load_image('demo/Zombie_0.png', ZOMBIE_SIZE))
         self.health = 100
-        self.move = zombie_mover(self, -3)
+        self.move = zombie_mover(self, -0.5)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
 
