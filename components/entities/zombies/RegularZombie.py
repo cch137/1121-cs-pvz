@@ -11,8 +11,17 @@ class RegularZombie(Zombie):
     def __init__(self):
         Zombie.__init__(self, media.load_image('demo/Zombie_0.png', ZOMBIE_SIZE))
         self.health = 100
-        self.move = zombie_mover(self)
+        self.move = zombie_mover(self, -3)
+        self.__last_attack = 0
+        self.__cooldown_ticks = 60
 
     def update(self):
+        now = controller.level_ticks
+        if self.has_seen_enemy(True, False) and self.__last_attack + self.__cooldown_ticks <= now:
+            self.__last_attack = now
+            self.closest_enemy.damage(25)
+            return
         self.move()
         #還沒有攻擊
+
+from components import controller

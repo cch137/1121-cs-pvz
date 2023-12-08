@@ -144,7 +144,9 @@ class Element(pygame.sprite.Sprite, EventTarget):
         if not (value.get_flags() & pygame.SRCALPHA):
             value = value.convert_alpha()
         self.set_attribute('image', value)
+        center = self.rect.center if hasattr(self, 'rect') and self.rect is not None else None
         self.rect = value.get_rect()
+        if center: self.rect.center = center
 
     @property
     def radius(self) -> int:
@@ -498,6 +500,8 @@ class Element(pygame.sprite.Sprite, EventTarget):
     
     def kill(self):
         '''Remove the Element from all Groups. Remove all event listeners of the Element.'''
+        if self.parent:
+            self.parent.remove_child(self)
         self.dispatch_event(KillEvent(self))
         self.remove_all_event_listeners()
         self.disconnect_scene()

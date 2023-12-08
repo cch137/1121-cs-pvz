@@ -81,7 +81,7 @@ class Shooter(Plant):
         self.attack_frequency_ticks = attack_frequency_ticks
 
     def shoot(self):
-        self.bullet_generator.create(self, self.shoot_position)
+        self.bullet_generator.create(self)
 
     def update(self):
         if not self.has_seen_enemy(False, True):

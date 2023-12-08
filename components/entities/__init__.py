@@ -193,7 +193,7 @@ class Entity(element.Element):
         for entity in tuple(all_entities):
             if entity == self: continue
             for target in self.collision_targets:
-                if (type(target) is type and type(entity) is target) or target is entity:
+                if (type(target) is type and isinstance(entity, target)) or target is entity:
                     if pygame.sprite.collide_circle(self, entity):
                         entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                         return self.kill()
@@ -207,7 +207,7 @@ class Entity(element.Element):
 
 all_entities: Set[Entity] = set()
 
-class Character: pass
+class Character(Entity): pass
 
 class Character(Entity):
     fov = TILE_WIDTH * 3
@@ -255,7 +255,7 @@ class Character(Entity):
             or pygame.sprite.collide_circle(self, self.closest_enemy)
     
     def is_on_same_horizontal(self, other: Character):
-        other_rect: pygame.Rect = other.rect.center
+        other_rect: pygame.Rect = other.rect
         self_rect = self.rect
         return (self_rect.top < other_rect.centery and self_rect.bottom > other_rect.centery) \
             or (other_rect.top < self_rect.centery and other_rect.bottom > self_rect.centery)
