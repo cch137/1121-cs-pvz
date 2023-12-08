@@ -24,6 +24,5 @@ class RegularZombie(Zombie):
                 self.closest_enemy.damage(25)
             return
         self.move()
-        #還沒有攻擊
 
 from components import controller
