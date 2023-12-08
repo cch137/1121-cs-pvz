@@ -45,9 +45,9 @@ class ZombieSpawner(Spawner):
         Spawner.__init__(self, schedule_tick, *zombies)
 
     def spawn(self, level: Level):
-        Spawner.spawn(self, level)
         for i, zombie in enumerate(self.entities):
-            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.map.get_row_bottom(self.row))
+            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.get_row_bottom(self.row, 2))
+        Spawner.spawn(self, level)
 
 class Tile(element.Element):
     grow_type: type[plants.Plant] | None = None
@@ -64,14 +64,14 @@ class Tile(element.Element):
         def _mouseleave(): self.background_color = (0, 0, 0, 0)
         self.add_event_listener(events.MOUSEENTER, _mouseenter)
         self.add_event_listener(events.MOUSELEAVE, _mouseleave)
-    
+
     @property
     def plant(self):
         for child in self.children:
             if isinstance(child, plants.Plant):
                 return child
         return None
-    
+
     @property
     def growable(self):
         return self.plant is None
@@ -130,7 +130,7 @@ class Level(element.Element):
                 self.compose()
                 def _click():
                     for card in level.cards:
-                        card.selected = card is self
+                        card.selected = card is self and not card.selected
                 self.add_event_listener(events.CLICK, _click)
             
             def update(self):

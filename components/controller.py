@@ -98,4 +98,10 @@ class Controller():
         # 更新視窗
         pygame.display.flip()
 
+    @property
+    def level_ticks(self) -> int:
+        if hasattr(self, 'level'):
+            return self.level.ticks
+        return 0
+
 controller = Controller()

@@ -12,7 +12,17 @@ def init():
     bg = Element(media.load_image('scenes/game_map.jpg', WINDOW_SIZE))
     main_game.add_element(bg)
 
-    level = levels.Level(main_game)
+    level = levels.Level(main_game, [
+        levels.ZombieSpawner(1, 0, zombies.RegularZombie()),
+        levels.ZombieSpawner(1, 1, zombies.RegularZombie()),
+        levels.ZombieSpawner(1, 2, zombies.RegularZombie()),
+        levels.ZombieSpawner(1, 3, zombies.RegularZombie()),
+        levels.ZombieSpawner(1, 4, zombies.RegularZombie()),
+        # levels.ZombieSpawner(1*FPS, 3, zombies.RegularZombie()),
+        # levels.ZombieSpawner(2*FPS, 4, zombies.RegularZombie()),
+        # levels.ZombieSpawner(3*FPS, 0, zombies.RegularZombie()),
+        # levels.ZombieSpawner(4*FPS, 1, zombies.RegularZombie()),
+    ])
     controller.level = level
 
     level.game_map.rect.center = (475, 445)

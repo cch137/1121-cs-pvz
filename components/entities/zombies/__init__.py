@@ -13,6 +13,8 @@ import components.entities.plants as plants
 class Zombie(Character):
     def __init__(self, image: pygame.Surface):
         Character.__init__(self, image, all_zombies, all_plants)
+        self.radius_scale = 0.25
+        self.fov = 30
 
 def zombie_mover(zombie: Zombie, rate: float = -0.5):
     zombie.velocity_x = 0

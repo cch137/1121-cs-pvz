@@ -12,7 +12,7 @@ class Repeater(Shooter):
             200,
             (0.5, 0.5),
             pea_template,
-            60,
+            120,
         )
         self.health = 100
         self.fov = TILE_WIDTH * 10
@@ -20,4 +20,4 @@ class Repeater(Shooter):
     def shoot(self):
         # 改寫連發射手的發射方法
         Shooter.shoot(self)
-        asynclib.set_timeout(lambda: Shooter.shoot(self), 200)
+        asynclib.set_timeout(lambda: Shooter.shoot(self), 50)

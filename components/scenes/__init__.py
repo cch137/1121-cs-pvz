@@ -83,7 +83,7 @@ class Scene():
                     try: el.auto_update()
                     except: pass
                 try: el.update()
-                except Exception as e: print(e)
+                except Exception as e: print(el, 'update error:', e)
     
     def compose(self):
         for element in self.__elements:

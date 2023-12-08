@@ -3,7 +3,6 @@ from utils.constants import *
 import pygame
 from components.entities import Entity, Character, Effect
 import components.events as events
-import utils.process as process
 
 class Plant: pass
 
@@ -75,19 +74,19 @@ class Shooter(Plant):
         attack_frequency_ticks: int = 60
     ):
         Plant.__init__(self, image, price)
-        self.__last_shoot_tick = process.ticks
+        self.__last_shoot_tick = 0
         self.shoot_position = shoot_position
         '''從左上角到右下角的比例，子彈以該點作為中心發射。'''
         self.bullet_generator = bullet_template
         self.attack_frequency_ticks = attack_frequency_ticks
 
     def shoot(self):
-        self.bullet_generator.create(self, self.shoot_position)
+        self.bullet_generator.create(self)
 
     def update(self):
         if not self.has_seen_enemy(False, True):
             return
-        now = process.ticks
+        now = controller.level_ticks
         if self.__last_shoot_tick + self.attack_frequency_ticks <= now:
             self.__last_shoot_tick = now
             self.shoot()
@@ -100,3 +99,5 @@ from components.entities.plants.PeaShooter import PeaShooter
 from components.entities.plants.Repeater import Repeater
 from components.entities.plants.SnowPea import SnowPea
 from components.entities.plants.PotatoMine import PotatoMine
+
+from components import controller

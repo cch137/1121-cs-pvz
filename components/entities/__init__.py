@@ -17,7 +17,7 @@ class Effect():
         效果不會加重，但是持續時間會延長 (以最長的 duration_ticks 為值)'''
         self.name = name
         self.duration_ticks = durationTicks
-        self.expired_at_tick = process.ticks + durationTicks
+        self.expired_at_tick = controller.level_ticks + durationTicks
 
     def is_mergeable(self, other: Effect):
         return self.name == other.name
@@ -33,7 +33,7 @@ class Effect():
 
     @property
     def is_expired(self):
-        return self.expired_at_tick <= process.ticks
+        return self.expired_at_tick <= controller.level_ticks
 
 class SlowDownEffect(Effect):
     def __init__(self, name: str, duration_ticks: int, rate: float):
@@ -146,9 +146,9 @@ class Entity(element.Element):
             if isinstance(effect, PoisonEffect):
                 self.damage(effect.attack_power)
             elif isinstance(effect, SlowDownEffect):
+                print('detect slow down eff', effect, effect.rate, effect.duration_ticks, effect.expired_at_tick)
                 if effect.rate > slow_down_rate:
                     slow_down_rate = effect.rate
-            effect.update()
         velocity_rate = max(0, 1 - slow_down_rate)
 
         if self.dead:
@@ -193,7 +193,7 @@ class Entity(element.Element):
         for entity in tuple(all_entities):
             if entity == self: continue
             for target in self.collision_targets:
-                if (type(target) is type and type(entity) is target) or target is entity:
+                if (type(target) is type and isinstance(entity, target)) or target is entity:
                     if pygame.sprite.collide_circle(self, entity):
                         entity.damage(self.collision_damage, *[effect.duplicate() for effect in self.__collision_effects])
                         return self.kill()
@@ -207,11 +207,14 @@ class Entity(element.Element):
 
 all_entities: Set[Entity] = set()
 
-class Character: pass
+class Character(Entity):
+    visible: bool
 
 class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
+
+    visible: bool = True
 
     def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character]):
         Entity.__init__(self, image, None)
@@ -221,11 +224,11 @@ class Character(Entity):
 
     @property
     def friends(self):
-        return set(f for f in self.__friends if f is not self)
+        return set(f for f in self.__friends if f is not self and f.visible)
 
     @property
     def enemies(self):
-        return set(f for f in self.__enemies if f is not self)
+        return set(f for f in self.__enemies if f is not self and f.visible)
     
     def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None
@@ -255,7 +258,7 @@ class Character(Entity):
             or pygame.sprite.collide_circle(self, self.closest_enemy)
     
     def is_on_same_horizontal(self, other: Character):
-        other_rect: pygame.Rect = other.rect.center
+        other_rect: pygame.Rect = other.rect
         self_rect = self.rect
         return (self_rect.top < other_rect.centery and self_rect.bottom > other_rect.centery) \
             or (other_rect.top < self_rect.centery and other_rect.bottom > self_rect.centery)
@@ -288,6 +291,7 @@ class Character(Entity):
         Entity.kill(self, *args, **kargs)
         self.__friends.remove(self)
 
+from components import controller
 import components.entities.plants as plants
 import components.entities.zombies as zombies
 from components.entities.Sun import Sun

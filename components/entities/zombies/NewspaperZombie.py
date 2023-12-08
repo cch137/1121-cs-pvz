@@ -14,9 +14,20 @@ class NewspaperZombie(Zombie):
         self.health = 150
         self.move1 = zombie_mover(self)
         self.move2 = zombie_mover(self, -2)
+        self.__last_attack = 0
+        self.__cooldown_ticks = 60
 
     def update(self):
+        now = controller.level_ticks
+        if self.has_seen_enemy(True, False):
+            self.velocity_x = 0
+            if self.__last_attack + self.__cooldown_ticks <= now:
+                self.__last_attack = now
+                self.closest_enemy.damage(25)
+            return
         if self.health >= 100:
             self.move1()
         else:
             self.move2()
+
+from components import controller

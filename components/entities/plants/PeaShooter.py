@@ -19,7 +19,7 @@ class PeaShooter(Shooter):
             100,
             (0.5, 0.5),
             pea_template,
-            60,
+            120,
         )
         self.health = 100
         self.fov = TILE_WIDTH * 10
