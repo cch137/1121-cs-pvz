@@ -8,9 +8,9 @@ pea_ice_template = BulletTemplate(
     media.load_image('demo/PeaIce_0.png', BULLET_SIZE) , 
     BULLET_SPEED,
     None,
-    15,
+    10,
     [Zombie],
-    [SlowDownEffect('SnowPea', 180, 0.3)]
+    [SlowDownEffect('SnowPea', 180, 0.5)]
 )
 
 class SnowPea(Shooter):
@@ -21,7 +21,7 @@ class SnowPea(Shooter):
             175,
             (0.5, 0.5),
             pea_ice_template,
-            90,
+            100,
         )
         self.health = 75
         self.fov = TILE_WIDTH * 10
