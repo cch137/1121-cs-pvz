@@ -17,9 +17,11 @@ class RegularZombie(Zombie):
 
     def update(self):
         now = controller.level_ticks
-        if self.has_seen_enemy(True, False) and self.__last_attack + self.__cooldown_ticks <= now:
-            self.__last_attack = now
-            self.closest_enemy.damage(25)
+        if self.has_seen_enemy(True, False):
+            self.velocity_x = 0
+            if self.__last_attack + self.__cooldown_ticks <= now:
+                self.__last_attack = now
+                self.closest_enemy.damage(25)
             return
         self.move()
         #還沒有攻擊

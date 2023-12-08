@@ -14,7 +14,7 @@ class WallNut(Plant):
     def damage(self, value: int, *effects: Effect):
         self.__is_crying = True
         self.__cry_stop_tick = controller.level_ticks + 30
-        # 設置哭泣的圖片
+        # 設置哭泣的圖片（此功能未完善）
         self.image = media.load_image('demo/WallNut_0.png', PLANT_SIZE)
         return super().damage(value, *effects)
 

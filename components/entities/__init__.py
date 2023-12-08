@@ -207,11 +207,14 @@ class Entity(element.Element):
 
 all_entities: Set[Entity] = set()
 
-class Character(Entity): pass
+class Character(Entity):
+    visible: bool
 
 class Character(Entity):
     fov = TILE_WIDTH * 3
     '''視野範圍（單位：像素）'''
+
+    visible: bool = True
 
     def __init__(self, image: pygame.Surface, friends: Set[Character], enemies: Set[Character]):
         Entity.__init__(self, image, None)
@@ -221,11 +224,11 @@ class Character(Entity):
 
     @property
     def friends(self):
-        return set(f for f in self.__friends if f is not self)
+        return set(f for f in self.__friends if f is not self and f.visible)
 
     @property
     def enemies(self):
-        return set(f for f in self.__enemies if f is not self)
+        return set(f for f in self.__enemies if f is not self and f.visible)
     
     def __closest_from_set(self, character_set: Set[Character]):
         if len(character_set) == 0: return None

@@ -12,6 +12,7 @@ class Explosion(Character):
         self.z_index = 999
         self.health  = 999999
         self.targets = set()
+        self.visible = False
     
     def update(self):
         for enemy in self.enemies_in_radius(TILE_WIDTH):
@@ -29,6 +30,7 @@ class PotatoMine(Plant):
         Plant.__init__(self, media.load_image('demo/PotatoMine_0.png', PLANT_SIZE), 25)
         self.health = 1000
         self.fov = 0.25 * TILE_WIDTH
+        self.visible = False
 
     def auto_update(self):
         if self.has_seen_enemy(True, True):

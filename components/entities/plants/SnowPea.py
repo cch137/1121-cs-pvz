@@ -21,7 +21,7 @@ class SnowPea(Shooter):
             175,
             (0.5, 0.5),
             pea_ice_template,
-            100,
+            150,
         )
         self.health = 75
         self.fov = TILE_WIDTH * 10

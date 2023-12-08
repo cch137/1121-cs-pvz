@@ -12,7 +12,7 @@ class Repeater(Shooter):
             200,
             (0.5, 0.5),
             pea_template,
-            90,
+            120,
         )
         self.health = 100
         self.fov = TILE_WIDTH * 10
