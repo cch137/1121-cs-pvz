@@ -15,6 +15,11 @@ class BucketHeadZombie(Zombie):
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
+    
+    def damage(self, value: int, *effects: Effect):
+        if self.health <= 100:
+            self.image = media.load_image('demo/Zombie_0.png', ZOMBIE_SIZE)
+        return super().damage(value, *effects)
 
     def update(self):
         now = controller.level_ticks
