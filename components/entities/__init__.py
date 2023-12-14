@@ -146,7 +146,6 @@ class Entity(element.Element):
             if isinstance(effect, PoisonEffect):
                 self.damage(effect.attack_power)
             elif isinstance(effect, SlowDownEffect):
-                print('detect slow down eff', effect, effect.rate, effect.duration_ticks, effect.expired_at_tick)
                 if effect.rate > slow_down_rate:
                     slow_down_rate = effect.rate
         velocity_rate = max(0, 1 - slow_down_rate)
