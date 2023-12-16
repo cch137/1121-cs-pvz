@@ -155,7 +155,7 @@ class Level(element.Element):
         self.cards = tuple(Card(i, p) for i, p in (
             (media.load_image('demo/SunFlower_0.png', CARD_IMAGE_SIZE), plants.SunFlower),
             (media.load_image('demo/PeaShooter_0.png', CARD_IMAGE_SIZE), plants.PeaShooter),
-            (media.load_image('demo/RepeaterPea_0.png', CARD_IMAGE_SIZE), plants.Repeater),
+            (media.load_image('demo/RepeaterPea_0.png', CARD_IMAGE_SIZE), plants.GatlingPea),
             (media.load_image('demo/SnowPea_0.png', CARD_IMAGE_SIZE), plants.SnowPea),
             (media.load_image('demo/WallNut_0.png', CARD_IMAGE_SIZE), plants.WallNut),
             (media.load_image('demo/PotatoMine_0.png', CARD_IMAGE_SIZE), plants.PotatoMine),

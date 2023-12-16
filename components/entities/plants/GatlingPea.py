@@ -3,7 +3,7 @@ from components.entities.plants import Shooter
 from components.media import media
 import utils.asynclib as asynclib
 
-class Repeater(Shooter):
+class GatlingPea(Shooter):
     def __init__(self):
         from components.entities.plants.PeaShooter import pea_template
         Shooter.__init__(
