@@ -82,6 +82,9 @@ class Scene():
                 if isinstance(el, entities.Entity):
                     try: el.auto_update()
                     except Exception as e: print(el, 'auto update error:', e)
+                    if not el.updateable:
+                        el.updateable = True
+                        continue
                 try: el.update()
                 except Exception as e: print(el, 'update error:', e)
     
