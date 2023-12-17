@@ -17,7 +17,8 @@ class SnowPea(Shooter):
     def __init__(self):
         Shooter.__init__(
             self,
-            media.load_image('demo/SnowPea_0.png', PLANT_SIZE),
+            media.load_image('plants/snowpea.png', PLANT_SIZE),
+            media.load_image('plants/snowpea_attack.png', PLANT_SIZE),
             175,
             (0.5, 0.5),
             pea_ice_template,

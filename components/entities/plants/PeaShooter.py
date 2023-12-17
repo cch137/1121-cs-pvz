@@ -15,7 +15,8 @@ class PeaShooter(Shooter):
     def __init__(self):
         Shooter.__init__(
             self,
-            media.load_image('demo/PeaShooter_0.png', PLANT_SIZE),
+            media.load_image('plants/peashooter.png', PLANT_SIZE),
+            media.load_image('plants/peashooter_attack.png', PLANT_SIZE),
             100,
             (0.5, 0.5),
             pea_template,

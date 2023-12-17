@@ -7,7 +7,7 @@ import utils.asynclib as asynclib
 
 class Explosion(Character):
     def __init__(self):
-        Character.__init__(self, media.load_image('demo/PotatoMine_0.png', PLANT_SIZE), all_plants, all_zombies)
+        Character.__init__(self, media.load_image('plants/potatomine.png', PLANT_SIZE), all_plants, all_zombies)
         asynclib.set_timeout(lambda: self.bomb(), 500)
         self.z_index = 999
         self.health  = 999999
@@ -19,7 +19,7 @@ class Explosion(Character):
             self.targets.add(enemy)
 
     def bomb(self):
-        self.image = media.load_image('demo/PotatoMineExplode_0.png', (PLANT_SIZE[0] * 2, PLANT_SIZE[1] * 2 * 0.7))
+        self.image = media.load_image('plants/potatomine_boom.png', (PLANT_SIZE[0] * 2, PLANT_SIZE[1] * 2))
         for enemy in self.targets:
             try: enemy.kill()
             except: pass
@@ -27,7 +27,7 @@ class Explosion(Character):
 
 class PotatoMine(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('demo/PotatoMine_0.png', PLANT_SIZE), 25)
+        Plant.__init__(self, media.load_image('plants/potatomine.png', PLANT_SIZE), 25)
         self.health = 1000
         self.fov = 0.25 * TILE_WIDTH
         self.visible = False
