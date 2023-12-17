@@ -68,12 +68,16 @@ class Shooter(Plant):
     def __init__(
         self,
         image: pygame.Surface,
+        attack_image: pygame.Surface,
         price: int,
         shoot_position: Tuple[float, float],
         bullet_template: BulletTemplate,
         attack_frequency_ticks: int = 60
     ):
         Plant.__init__(self, image, price)
+        self.rest_image = image
+        self.attack_image = attack_image
+        self.__is_show_attack_image = False
         self.__last_shoot_tick = 0
         self.shoot_position = shoot_position
         '''從左上角到右下角的比例，子彈以該點作為中心發射。'''
@@ -81,12 +85,17 @@ class Shooter(Plant):
         self.attack_frequency_ticks = attack_frequency_ticks
 
     def shoot(self):
+        self.image = self.attack_image
+        self.__is_show_attack_image = True
         self.bullet_generator.create(self)
 
     def update(self):
+        now = controller.level_ticks
+        if self.__is_show_attack_image and self.__last_shoot_tick + 30 <= now:
+            self.__is_show_attack_image = False
+            self.image = self.rest_image
         if not self.has_seen_enemy(False, True):
             return
-        now = controller.level_ticks
         if self.__last_shoot_tick + self.attack_frequency_ticks <= now:
             self.__last_shoot_tick = now
             self.shoot()
