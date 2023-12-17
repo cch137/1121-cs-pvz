@@ -75,9 +75,10 @@ class ClickREvent(MouseEvent):
     def __init__(self, pos: Coordinate, target: EventTarget | None = None):
         MouseEvent.__init__(self, CLICK_R, pos, target)
 
-class KeydownEvent(MouseEvent):
+class KeydownEvent(UserEvent):
     def __init__(self, key: Any, target: EventTarget | None = None):
         UserEvent.__init__(self, KEYDOWN, target)
+        self.key: int = key
 
 class RefChangeEvent(UserEvent):
     def __init__(self, target: EventTarget | None = None):

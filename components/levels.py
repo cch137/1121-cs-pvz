@@ -42,11 +42,11 @@ class Spawner():
 class ZombieSpawner(Spawner):
     def __init__(self, schedule_tick: int, row: int, *zombies: zombies.Zombie):
         self.row = row
-        Spawner.__init__(self, schedule_tick, *zombies)
+        Spawner.__init__(self, max(1, schedule_tick), *zombies)
 
     def spawn(self, level: Level):
         for i, zombie in enumerate(self.entities):
-            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.get_row_bottom(self.row, 2))
+            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.get_row_bottom(self.row, -15))
         Spawner.spawn(self, level)
 
 class Tile(element.Element):
@@ -60,10 +60,10 @@ class Tile(element.Element):
         self.background_color = (0, 0, 0, 0)
         self.justify_content = CENTER
         self.align_items = CENTER
-        def _mouseenter(): self.background_color = (255, 255, 255, 55)
-        def _mouseleave(): self.background_color = (0, 0, 0, 0)
-        self.add_event_listener(events.MOUSEENTER, _mouseenter)
-        self.add_event_listener(events.MOUSELEAVE, _mouseleave)
+        if r % 2 == 0:
+            self.background_color = TILE_BG_1 if c % 2 == 0 else TILE_BG_2
+        else:
+            self.background_color = TILE_BG_3 if c % 2 == 0 else TILE_BG_4
 
     @property
     def plant(self):
@@ -120,13 +120,15 @@ class Level(element.Element):
                 element.Element.__init__(self)
                 self.price = plant_type().price
                 self.plant_type = plant_type
-                self.append_child(element.Element(image))
+                plant_image_el = element.Element(image)
+                plant_image_el.max_height = 100
+                self.append_child(plant_image_el)
                 self.append_child(element.TextBox(self.price, 20))
                 self.max_width = 100
                 self.max_height = 150
                 self.padding = (8, 6, 4)
                 self.spacing = 10
-                self.background_color = (0, 0, 0, 128)
+                self.background_color = (0, 0, 0, 127)
                 self.compose()
                 def _click():
                     for card in level.cards:
@@ -144,13 +146,13 @@ class Level(element.Element):
                         self.selected = False
                     if self.mask is None:
                         self.mask = element.Element(self.rect.size)
-                        self.mask.background_color = (0, 0, 0, 128)
+                        self.mask.background_color = (0, 0, 0, 127)
                         self.mask.z_index = 99
                         scene.add_element(self.mask)
                         self.cursor = None
                 if self.mask is not None:
                     self.mask.rect.center = self.rect.center
-                self.background_color = (40, 40, 40, 128) if self.selected else (0, 0, 0, 128)
+                self.background_color = (60, 50, 30) if self.selected else (48, 30, 24)
 
         self.cards = tuple(Card(i, p) for i, p in (
             (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.SunFlower),
@@ -160,9 +162,12 @@ class Level(element.Element):
             (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.WallNut),
             (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.PotatoMine),
         ))
+        span = element.Element((8, 8))
+        span.background_color = (0, 0, 0, 0)
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
                 element.Element(media.load_image('entities/sun.png', CARD_IMAGE_SIZE)),
+                span,
                 element.TextBox(self.suns)
             ]),
             element.Element(0),
@@ -170,7 +175,7 @@ class Level(element.Element):
         ])
         self.card_board.padding = 10
         self.card_board.spacing = 8
-        self.card_board.background_color = (0, 0, 0, 128)
+        self.card_board.background_color = (65, 60, 45)
         self.card_board.compose()
         scene.add_element(self.card_board)
 
