@@ -83,6 +83,8 @@ class Entity(element.Element):
     collision_damage: int | None = None
     '''與其他實體碰撞時，對該實體產生的傷害。若為 None 則不會與任何其他實體碰撞。'''
 
+    updateable: bool = False
+
     def __init__(self, image: pygame.Surface, collision_effects: Set[Effect] | None = None):
         '''collision_effects 是當實體與其他實體碰撞後對該實體所產生的效果 (若實體為可碰撞的)'''
         element.Element.__init__(self, image)

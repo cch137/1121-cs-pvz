@@ -27,7 +27,7 @@ class PotatoMine(Plant):
         self.fov = 0.5 * TILE_WIDTH
         self.visible = False
 
-    def auto_update(self):
+    def update(self):
         if self.has_seen_enemy(True, True):
             expl = Explosion()
             self.scene.add_element(expl)
