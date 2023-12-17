@@ -81,19 +81,20 @@ class Scene():
             for el in layer:
                 if isinstance(el, entities.Entity):
                     try: el.auto_update()
-                    except: pass
+                    except Exception as e: print(el, 'auto update error:', e)
                 try: el.update()
                 except Exception as e: print(el, 'update error:', e)
     
     def compose(self):
-        for element in self.__elements:
+        for element in tuple(self.__elements):
             element.compose()
     
     def draw(self):
         if self.background_color != None:
             # 設定視窗背景顏色
             self.screen.fill(self.background_color)
-        for layer in tuple(self.layers.values()):
+        for _layer in sorted(self.layers.items(), key=lambda x: x[0]):
+            layer = _layer[1]
             for el in layer:
                 try:
                     if el.background_color != None:
@@ -130,17 +131,11 @@ from components.scenes.main_menu import main_menu
 from components.scenes.pause_menu import pause_menu
 from components.scenes.main_game import main_game
 from components.scenes.the_end import the_end
-from components.scenes.testing1 import testing1
-from components.scenes.testing2 import testing2
-from components.scenes.testing3 import testing3
 
 class SceneCollection:
     main_menu = main_menu
     pause_menu = pause_menu
     main_game = main_game
     the_end = the_end
-    testing1 = testing1
-    testing2 = testing2
-    testing3 = testing3
 
 scenes = SceneCollection()

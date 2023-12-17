@@ -6,7 +6,11 @@ from random import randint
 
 class SunFlower(Plant):
     def __init__(self):
-        Plant.__init__(self, media.load_image('demo/SunFlower_0.png', PLANT_SIZE), 50)
+        rest_image = media.load_image('plants/sunflower.png', PLANT_SIZE)
+        Plant.__init__(self, rest_image, 50)
+        self.rest_image = rest_image
+        self.active_image = media.load_image('plants/sunflower_uuewk.png', PLANT_SIZE)
+        self.__is_activated = False
         self.health = 40
         self.__last_produced = controller.level_ticks
         self.__cooldown_ticks = 15 * 60 # 15 seconds
@@ -21,5 +25,10 @@ class SunFlower(Plant):
             sun.rect.center = (randint(tile_rect.left + x_offset, tile_rect.right - x_offset), tile_rect.top + int(tile_rect.height * 0.2))
             sun.move_limit = tile_rect.height * 0.5
             self.scene.add_element(sun)
+            self.image = self.active_image
+            self.__is_activated = True
+        if self.__is_activated and self.__last_produced + 60 <= now:
+            self.image = self.rest_image
+            self.__is_activated = False
 
 from components import controller

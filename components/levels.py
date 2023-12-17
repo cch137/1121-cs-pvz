@@ -2,6 +2,7 @@ from typing import *
 from random import randint
 from typing import Any
 from utils.constants import *
+import utils.asynclib as asynclib
 import utils.refs as refs
 import components.entities as entities
 import components.entities.plants as plants
@@ -19,34 +20,34 @@ class Spawner():
     def __init__(self, schedule_tick: int, *entities: entities.Entity):
         self.schedule = schedule_tick
         self.entities = entities
-        self.__used = False
+        self.is_used = False
 
     @property
     def entity(self):
         return self.entities[0]
 
     def is_spawnable(self, level: Level):
-        return not self.__used and self.schedule <= level.ticks
+        return not self.is_used and self.schedule <= level.ticks
 
     def spawn(self, level: Level):
-        if self.__used:
+        if self.is_used:
             raise 'Spawner has been used'
-        self.__used = True
+        self.is_used = True
         level.scene.add_element(*self.entities)
     
     def kill(self, *args: Any, **kwargs: Any):
-        self.__used = True
+        self.is_used = True
         for entity in self.entities:
             entity.kill(*args, **kwargs)
 
 class ZombieSpawner(Spawner):
     def __init__(self, schedule_tick: int, row: int, *zombies: zombies.Zombie):
         self.row = row
-        Spawner.__init__(self, schedule_tick, *zombies)
+        Spawner.__init__(self, max(1, schedule_tick), *zombies)
 
     def spawn(self, level: Level):
         for i, zombie in enumerate(self.entities):
-            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.get_row_bottom(self.row, 2))
+            zombie.rect.bottomleft = (WINDOW_WIDTH + i * ZOMBIES_GAP, level.get_row_bottom(self.row, -15))
         Spawner.spawn(self, level)
 
 class Tile(element.Element):
@@ -60,10 +61,10 @@ class Tile(element.Element):
         self.background_color = (0, 0, 0, 0)
         self.justify_content = CENTER
         self.align_items = CENTER
-        def _mouseenter(): self.background_color = (255, 255, 255, 55)
-        def _mouseleave(): self.background_color = (0, 0, 0, 0)
-        self.add_event_listener(events.MOUSEENTER, _mouseenter)
-        self.add_event_listener(events.MOUSELEAVE, _mouseleave)
+        if r % 2 == 0:
+            self.background_color = TILE_BG_1 if c % 2 == 0 else TILE_BG_2
+        else:
+            self.background_color = TILE_BG_3 if c % 2 == 0 else TILE_BG_4
 
     @property
     def plant(self):
@@ -103,6 +104,7 @@ class Level(element.Element):
 
         self.suns = refs.Ref(0)
         self.suns.add_event_listener(events.REF_CHANGE, lambda: self.dispatch_event(events.SunsChangeEvent(self)))
+        self.waiting_for_victory: bool = False
         self.__victory = refs.Ref(False)
         
         self.tiles = tuple(tuple(Tile(TILE_SIZE, r, c) for c in range(MAP_COLUMNS)) for r in range(MAP_ROWS))
@@ -120,13 +122,15 @@ class Level(element.Element):
                 element.Element.__init__(self)
                 self.price = plant_type().price
                 self.plant_type = plant_type
-                self.append_child(element.Element(image))
+                plant_image_el = element.Element(image)
+                plant_image_el.max_height = 100
+                self.append_child(plant_image_el)
                 self.append_child(element.TextBox(self.price, 20))
                 self.max_width = 100
                 self.max_height = 150
                 self.padding = (8, 6, 4)
                 self.spacing = 10
-                self.background_color = (0, 0, 0, 128)
+                self.background_color = (0, 0, 0, 127)
                 self.compose()
                 def _click():
                     for card in level.cards:
@@ -144,25 +148,28 @@ class Level(element.Element):
                         self.selected = False
                     if self.mask is None:
                         self.mask = element.Element(self.rect.size)
-                        self.mask.background_color = (0, 0, 0, 128)
+                        self.mask.background_color = (0, 0, 0, 127)
                         self.mask.z_index = 99
                         scene.add_element(self.mask)
                         self.cursor = None
                 if self.mask is not None:
                     self.mask.rect.center = self.rect.center
-                self.background_color = (40, 40, 40, 128) if self.selected else (0, 0, 0, 128)
+                self.background_color = (60, 50, 30) if self.selected else (48, 30, 24)
 
         self.cards = tuple(Card(i, p) for i, p in (
-            (media.load_image('demo/SunFlower_0.png', CARD_IMAGE_SIZE), plants.SunFlower),
-            (media.load_image('demo/PeaShooter_0.png', CARD_IMAGE_SIZE), plants.PeaShooter),
-            (media.load_image('demo/RepeaterPea_0.png', CARD_IMAGE_SIZE), plants.Repeater),
-            (media.load_image('demo/SnowPea_0.png', CARD_IMAGE_SIZE), plants.SnowPea),
-            (media.load_image('demo/WallNut_0.png', CARD_IMAGE_SIZE), plants.WallNut),
-            (media.load_image('demo/PotatoMine_0.png', CARD_IMAGE_SIZE), plants.PotatoMine),
+            (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.SunFlower),
+            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.PeaShooter),
+            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.GatlingPea),
+            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.SnowPea),
+            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.WallNut),
+            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.PotatoMine),
         ))
+        span = element.Element((8, 8))
+        span.background_color = (0, 0, 0, 0)
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
-                element.Element(media.load_image('demo/Sun_0.png', CARD_IMAGE_SIZE)),
+                element.Element(media.load_image('entities/sun.png', CARD_IMAGE_SIZE)),
+                span,
                 element.TextBox(self.suns)
             ]),
             element.Element(0),
@@ -170,7 +177,7 @@ class Level(element.Element):
         ])
         self.card_board.padding = 10
         self.card_board.spacing = 8
-        self.card_board.background_color = (0, 0, 0, 128)
+        self.card_board.background_color = (65, 60, 45)
         self.card_board.compose()
         scene.add_element(self.card_board)
 
@@ -211,12 +218,26 @@ class Level(element.Element):
         sun.move_limit = int(sun.rect.height / 2 + randint(map_rect.top, map_rect.bottom))
 
     def update(self):
+        if len(zombies.all_zombies) == 0 and len(self.spawners) == 0:
+            if not self.waiting_for_victory:
+                self.waiting_for_victory = True
+                def the_end():
+                    if not self.waiting_for_victory:
+                        return
+                    self.victory = True
+                    controller.goto_scene(controller.scenes.the_end)
+                    controller.unload_sceen(controller.scenes.main_game)
+                asynclib.set_timeout(the_end, 3000)
+        elif self.waiting_for_victory:
+            self.waiting_for_victory = False
+
         if self.__last_sun_drop + self.sun_drop_frequency_ticks < self.ticks:
             self.__last_sun_drop = self.ticks
             self.drop_sun()
-        for spawner in self.spawners:
+        for spawner in tuple(self.spawners):
             if spawner.is_spawnable(self):
                 spawner.spawn(self)
+                self.spawners.remove(spawner)
         selected_plant_type = self.selected_plant
         def grow_plant(_tile: Tile):
             def listener(e: events.ClickEvent):

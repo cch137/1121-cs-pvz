@@ -253,8 +253,15 @@ class Character(Entity):
 
     @property
     def is_touch_with_enemy(self):
-        return pygame.sprite.collide_circle(self, self.closest_enemy_on_row) \
-            or pygame.sprite.collide_circle(self, self.closest_enemy)
+        closest_enemy = self.closest_enemy_on_row
+        if closest_enemy is not None:
+            if pygame.sprite.collide_circle(self, closest_enemy):
+                return True
+        closest_enemy = self.closest_enemy
+        if closest_enemy is not None:
+            if pygame.sprite.collide_circle(self, closest_enemy):
+                return True
+        return False
     
     def is_on_same_horizontal(self, other: Character):
         other_rect: pygame.Rect = other.rect

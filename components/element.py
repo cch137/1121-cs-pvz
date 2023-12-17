@@ -749,6 +749,6 @@ class EventHandler():
                         el.remove_attribute(BUTTONDOWN_R)
             case pygame.KEYDOWN:
                 for el in self.get_playing_targets(KEYDOWN):
-                    el.dispatch_event(KeydownEvent(event, el))
+                    el.dispatch_event(KeydownEvent(event.key, el))
 
 event_handler = EventHandler()

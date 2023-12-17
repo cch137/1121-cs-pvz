@@ -11,12 +11,14 @@ def init():
 
     level: levels.Level = controller.level
 
-    if level.victory:
-        bg_image = media.load_image('scenes/victory.png', WINDOW_SIZE)
-    else:
-        bg_image = media.load_image('scenes/game_over.png', WINDOW_SIZE)
+    bg_image = media.load_image('scenes/victory.png' if level.victory else 'scenes/game_over.png', WINDOW_SIZE)
+    end_text = TextBox('你勝利了!' if level.victory else '你失敗了!', 56)
+    end_text.rect.center = (528, 360)
     bg = Element(bg_image)
     the_end.add_element(bg)
+    bg = Element(WINDOW_SIZE)
+    bg.background_color = (8, 8, 8, 64)
+    the_end.add_element(bg, end_text)
 
     ele = Element((315, 65))
     ele.background_color = (0,0,0,0)
