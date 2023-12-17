@@ -116,7 +116,8 @@ class Scene():
     def kill(self):
         for element in tuple(self.all_elements):
             element.kill()
-        controller.current_scene = None
+        if controller.current_scene is self:
+            controller.current_scene = None
     
     def reload(self):
         is_current_scene = self is controller.current_scene
