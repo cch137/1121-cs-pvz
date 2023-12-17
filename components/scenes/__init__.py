@@ -81,7 +81,7 @@ class Scene():
             for el in layer:
                 if isinstance(el, entities.Entity):
                     try: el.auto_update()
-                    except: pass
+                    except Exception as e: print(el, 'auto update error:', e)
                 try: el.update()
                 except Exception as e: print(el, 'update error:', e)
     
