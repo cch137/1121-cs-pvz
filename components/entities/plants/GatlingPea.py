@@ -11,7 +11,7 @@ class GatlingPea(Shooter):
             media.load_image('plants/gatlingpea.png', PLANT_SIZE),
             media.load_image('plants/gatlingpea_attack.png', PLANT_SIZE),
             200,
-            (0.5, 0.5),
+            (0.5, 0.35),
             pea_template,
             120,
         )

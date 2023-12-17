@@ -18,7 +18,7 @@ class PeaShooter(Shooter):
             media.load_image('plants/peashooter.png', PLANT_SIZE),
             media.load_image('plants/peashooter_attack.png', PLANT_SIZE),
             100,
-            (0.5, 0.4),
+            (0.5, 0.35),
             pea_template,
             120,
         )

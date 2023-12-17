@@ -20,7 +20,7 @@ class SnowPea(Shooter):
             media.load_image('plants/snowpea.png', PLANT_SIZE),
             media.load_image('plants/snowpea_attack.png', PLANT_SIZE),
             175,
-            (0.5, 0.4),
+            (0.5, 0.35),
             pea_ice_template,
             150,
         )
