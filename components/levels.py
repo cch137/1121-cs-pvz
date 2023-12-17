@@ -162,7 +162,7 @@ class Level(element.Element):
         ))
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
-                element.Element(media.load_image('demo/Sun_0.png', CARD_IMAGE_SIZE)),
+                element.Element(media.load_image('entities/sun.png', CARD_IMAGE_SIZE)),
                 element.TextBox(self.suns)
             ]),
             element.Element(0),

@@ -5,7 +5,7 @@ from components.entities.zombies import Zombie
 from components.entities import SlowDownEffect
 
 pea_ice_template = BulletTemplate(
-    media.load_image('demo/PeaIce_0.png', BULLET_SIZE) , 
+    media.load_image('entities/icepea.png', BULLET_SIZE),
     BULLET_SPEED,
     None,
     10,
@@ -20,7 +20,7 @@ class SnowPea(Shooter):
             media.load_image('plants/snowpea.png', PLANT_SIZE),
             media.load_image('plants/snowpea_attack.png', PLANT_SIZE),
             175,
-            (0.5, 0.5),
+            (0.5, 0.4),
             pea_ice_template,
             150,
         )

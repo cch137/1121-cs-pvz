@@ -13,11 +13,14 @@ def init():
     main_game.add_element(bg)
 
     level = levels.Level(main_game, [
-        levels.ZombieSpawner(1, 0, zombies.RegularZombie()),
-        levels.ZombieSpawner(1, 1, zombies.RegularZombie()),
-        levels.ZombieSpawner(1, 2, zombies.RegularZombie()),
-        levels.ZombieSpawner(1, 3, zombies.RegularZombie()),
-        levels.ZombieSpawner(1, 4, zombies.RegularZombie()),
+        levels.ZombieSpawner(1, 0, zombies.NewspaperZombie()),
+        levels.ZombieSpawner(1, 1, zombies.NewspaperZombie()),
+        levels.ZombieSpawner(1, 2, zombies.NewspaperZombie()),
+        levels.ZombieSpawner(1, 3, zombies.NewspaperZombie()),
+        levels.ZombieSpawner(1, 4, zombies.NewspaperZombie()),
+        # levels.ZombieSpawner(1, 2, zombies.RegularZombie()),
+        # levels.ZombieSpawner(1, 3, zombies.RegularZombie()),
+        # levels.ZombieSpawner(1, 4, zombies.RegularZombie()),
         # levels.ZombieSpawner(1*FPS, 3, zombies.RegularZombie()),
         # levels.ZombieSpawner(2*FPS, 4, zombies.RegularZombie()),
         # levels.ZombieSpawner(3*FPS, 0, zombies.RegularZombie()),

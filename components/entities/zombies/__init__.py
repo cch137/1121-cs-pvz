@@ -11,8 +11,13 @@ all_zombies: Set[Zombie] = set()
 import components.entities.plants as plants
 
 class Zombie(Character):
-    def __init__(self, image: pygame.Surface):
-        Character.__init__(self, image, all_zombies, all_plants)
+    def __init__(self, ori_image: pygame.Surface, attack1_image: pygame.Surface, attack2_image: pygame.Surface):
+        Character.__init__(self, ori_image, all_zombies, all_plants)
+        self.z_index = 999999
+        self.image_state: int = 0
+        self.ori_image = ori_image
+        self.attack1_image = attack1_image
+        self.attack2_image = attack2_image
         self.radius_scale = 0.25
         self.fov = 30
 

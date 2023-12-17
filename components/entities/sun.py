@@ -7,9 +7,9 @@ import components.events as events
 class Sun(Entity):
     def __init__(self, value=25):
         self.value = value
-        Entity.__init__(self, media.load_image('demo/Sun_0.png', 80))
+        Entity.__init__(self, media.load_image('entities/sun.png', 80))
         self.velocity_y = 3
-        self.velocity_a = 1 * (1 if randint(0, 1) else -1)
+        # self.velocity_a = 1 * (1 if randint(0, 1) else -1)
         self.z_index = 999
         self.radius_scale = 0.6
         self.cursor_r = 'hand'
