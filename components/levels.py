@@ -153,12 +153,12 @@ class Level(element.Element):
                 self.background_color = (40, 40, 40, 128) if self.selected else (0, 0, 0, 128)
 
         self.cards = tuple(Card(i, p) for i, p in (
-            (media.load_image('demo/SunFlower_0.png', CARD_IMAGE_SIZE), plants.SunFlower),
-            (media.load_image('demo/PeaShooter_0.png', CARD_IMAGE_SIZE), plants.PeaShooter),
-            (media.load_image('demo/RepeaterPea_0.png', CARD_IMAGE_SIZE), plants.GatlingPea),
-            (media.load_image('demo/SnowPea_0.png', CARD_IMAGE_SIZE), plants.SnowPea),
-            (media.load_image('demo/WallNut_0.png', CARD_IMAGE_SIZE), plants.WallNut),
-            (media.load_image('demo/PotatoMine_0.png', CARD_IMAGE_SIZE), plants.PotatoMine),
+            (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.SunFlower),
+            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.PeaShooter),
+            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.GatlingPea),
+            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.SnowPea),
+            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.WallNut),
+            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.PotatoMine),
         ))
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
