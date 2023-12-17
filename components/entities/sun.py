@@ -11,7 +11,7 @@ class Sun(Entity):
         self.velocity_y = 3
         # self.velocity_a = 1 * (1 if randint(0, 1) else -1)
         self.z_index = 999
-        self.radius_scale = 0.7
+        self.radius_scale = 1
         self.cursor_r = 'hand'
         self.add_event_listener(events.CLICK_R, lambda: controller.level.add_suns(self.kill()))
 

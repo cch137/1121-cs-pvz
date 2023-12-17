@@ -164,12 +164,15 @@ class Level(element.Element):
             (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.WallNut),
             (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.PotatoMine),
         ))
-        span = element.Element((8, 8))
-        span.background_color = (0, 0, 0, 0)
+        span1 = element.Element((8, 8))
+        span2 = element.Element((8, 8))
+        span1.background_color = (0, 0, 0, 0)
+        span2.background_color = (0, 0, 0, 0)
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
-                element.Element(media.load_image('entities/sun.png', CARD_IMAGE_SIZE)),
-                span,
+                span1,
+                element.Element(media.load_image('entities/sun.png', (CARD_IMAGE_SIZE[0] * 0.8, CARD_IMAGE_SIZE[1] * 0.8))),
+                span2,
                 element.TextBox(self.suns)
             ]),
             element.Element(0),
@@ -218,6 +221,7 @@ class Level(element.Element):
         sun.move_limit = int(sun.rect.height / 2 + randint(map_rect.top, map_rect.bottom))
 
     def update(self):
+        print('224', zombies.all_zombies, self.spawners)
         if len(zombies.all_zombies) == 0 and len(self.spawners) == 0:
             if not self.waiting_for_victory:
                 self.waiting_for_victory = True
@@ -225,8 +229,8 @@ class Level(element.Element):
                     if not self.waiting_for_victory:
                         return
                     self.victory = True
-                    controller.goto_scene(controller.scenes.the_end)
                     controller.unload_sceen(controller.scenes.main_game)
+                    controller.goto_scene(controller.scenes.the_end)
                 asynclib.set_timeout(the_end, 3000)
         elif self.waiting_for_victory:
             self.waiting_for_victory = False
@@ -237,6 +241,7 @@ class Level(element.Element):
         for spawner in tuple(self.spawners):
             if spawner.is_spawnable(self):
                 spawner.spawn(self)
+            elif spawner.is_used:
                 self.spawners.remove(spawner)
         selected_plant_type = self.selected_plant
         def grow_plant(_tile: Tile):
