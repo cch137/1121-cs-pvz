@@ -25,7 +25,10 @@ def init():
     ele.cursor = 'hand'
     ele.rect.center = (528, 490)
     the_end.add_element(ele)
-    ele.add_event_listener(events.CLICK, lambda: controller.goto_scene(controller.scenes.main_menu))
+    def back_to_main_menu():
+        controller.unload_sceen(controller.scenes.the_end)
+        controller.goto_scene(controller.scenes.main_menu)
+    ele.add_event_listener(events.CLICK, back_to_main_menu)
 
 the_end.init = init
 
