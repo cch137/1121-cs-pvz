@@ -2,6 +2,7 @@ from typing import *
 from random import randint
 from typing import Any
 from utils.constants import *
+import utils.asynclib as asynclib
 import utils.refs as refs
 import components.entities as entities
 import components.entities.plants as plants
@@ -19,23 +20,23 @@ class Spawner():
     def __init__(self, schedule_tick: int, *entities: entities.Entity):
         self.schedule = schedule_tick
         self.entities = entities
-        self.__used = False
+        self.is_used = False
 
     @property
     def entity(self):
         return self.entities[0]
 
     def is_spawnable(self, level: Level):
-        return not self.__used and self.schedule <= level.ticks
+        return not self.is_used and self.schedule <= level.ticks
 
     def spawn(self, level: Level):
-        if self.__used:
+        if self.is_used:
             raise 'Spawner has been used'
-        self.__used = True
+        self.is_used = True
         level.scene.add_element(*self.entities)
     
     def kill(self, *args: Any, **kwargs: Any):
-        self.__used = True
+        self.is_used = True
         for entity in self.entities:
             entity.kill(*args, **kwargs)
 
@@ -103,6 +104,7 @@ class Level(element.Element):
 
         self.suns = refs.Ref(0)
         self.suns.add_event_listener(events.REF_CHANGE, lambda: self.dispatch_event(events.SunsChangeEvent(self)))
+        self.waiting_for_victory: bool = False
         self.__victory = refs.Ref(False)
         
         self.tiles = tuple(tuple(Tile(TILE_SIZE, r, c) for c in range(MAP_COLUMNS)) for r in range(MAP_ROWS))
@@ -216,12 +218,26 @@ class Level(element.Element):
         sun.move_limit = int(sun.rect.height / 2 + randint(map_rect.top, map_rect.bottom))
 
     def update(self):
+        if len(zombies.all_zombies) == 0 and len(self.spawners) == 0:
+            if not self.waiting_for_victory:
+                self.waiting_for_victory = True
+                def the_end():
+                    if not self.waiting_for_victory:
+                        return
+                    self.victory = True
+                    controller.goto_scene(controller.scenes.the_end)
+                    controller.unload_sceen(controller.scenes.main_game)
+                asynclib.set_timeout(the_end, 3000)
+        elif self.waiting_for_victory:
+            self.waiting_for_victory = False
+
         if self.__last_sun_drop + self.sun_drop_frequency_ticks < self.ticks:
             self.__last_sun_drop = self.ticks
             self.drop_sun()
-        for spawner in self.spawners:
+        for spawner in tuple(self.spawners):
             if spawner.is_spawnable(self):
                 spawner.spawn(self)
+                self.spawners.remove(spawner)
         selected_plant_type = self.selected_plant
         def grow_plant(_tile: Tile):
             def listener(e: events.ClickEvent):

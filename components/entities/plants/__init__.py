@@ -13,6 +13,7 @@ import components.entities.zombies as zombies
 class Plant(Character):
     def __init__(self, image: pygame.Surface, price: int):
         Character.__init__(self, image, all_plants, all_zombies)
+        all_plants.add(self)
         self.price = price
 
     @property

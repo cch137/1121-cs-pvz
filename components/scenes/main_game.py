@@ -2,6 +2,7 @@ import pygame
 from typing import *
 from utils.constants import *
 import components.scenes as scenes
+from random import randint
 
 main_game = scenes.Scene()
 
@@ -11,19 +12,36 @@ def init():
 
     main_game.background_color = (0, 30, 0)
 
+    gap = 15 * FPS
+
     level = levels.Level(main_game, [
-        levels.ZombieSpawner(0, 0, zombies.NewspaperZombie()),
-        levels.ZombieSpawner(0, 1, zombies.NewspaperZombie()),
-        levels.ZombieSpawner(0, 2, zombies.NewspaperZombie()),
-        levels.ZombieSpawner(0, 3, zombies.NewspaperZombie()),
-        levels.ZombieSpawner(0, 4, zombies.NewspaperZombie()),
-        # levels.ZombieSpawner(1, 2, zombies.RegularZombie()),
-        # levels.ZombieSpawner(1, 3, zombies.RegularZombie()),
-        # levels.ZombieSpawner(1, 4, zombies.RegularZombie()),
-        # levels.ZombieSpawner(1*FPS, 3, zombies.RegularZombie()),
-        # levels.ZombieSpawner(2*FPS, 4, zombies.RegularZombie()),
-        # levels.ZombieSpawner(3*FPS, 0, zombies.RegularZombie()),
-        # levels.ZombieSpawner(4*FPS, 1, zombies.RegularZombie()),
+        levels.ZombieSpawner(0 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(1 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(2 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(3 * gap, randint(0, 1), zombies.RegularZombie()),
+        levels.ZombieSpawner(3 * gap, randint(3, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(3 * gap, randint(2, 2), zombies.BucketHeadZombie()),
+        levels.ZombieSpawner(4 * gap, randint(1, 4), zombies.BucketHeadZombie(), zombies.RegularZombie(), zombies.RegularZombie()),
+        levels.ZombieSpawner(4 * gap, randint(4, 4), zombies.NewspaperZombie()),
+        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.BucketHeadZombie()),
+        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(6 * gap, randint(0, 4), zombies.BucketHeadZombie()),
+        levels.ZombieSpawner(6 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(7 * gap, randint(0, 0), zombies.NewspaperZombie()),
+        levels.ZombieSpawner(8 * gap, randint(1, 1), zombies.BucketHeadZombie(), zombies.BucketHeadZombie()),
+        levels.ZombieSpawner(9 * gap, randint(2, 2), zombies.NewspaperZombie()),
+        levels.ZombieSpawner(10 * gap, randint(3, 3), zombies.BucketHeadZombie(), zombies.BucketHeadZombie()),
+        levels.ZombieSpawner(10 * gap, randint(4, 4), zombies.NewspaperZombie()),
+        levels.ZombieSpawner(10.25 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(10.5 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(10.75 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(11 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(11.5 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(12 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(12.25 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(12.5 * gap, randint(0, 4), zombies.RegularZombie()),
+        levels.ZombieSpawner(12.75 * gap, randint(0, 4), zombies.RegularZombie()),
     ])
     controller.level = level
 
@@ -31,7 +49,7 @@ def init():
     level.card_board.rect.topleft = (level.game_map.rect.left, 18)
 
     def PauseButton():
-        button_text = TextBox('PAUSE')
+        button_text = TextBox('暫停遊戲')
         button = Element(None, None, [button_text])
         button.padding = 4
         def _mouseenter():

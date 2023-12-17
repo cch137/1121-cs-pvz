@@ -16,14 +16,14 @@ class NewspaperZombie(Zombie):
             media.load_image('zombies/newspaper_zombie_attack.png', ZOMBIE_SIZE),
             media.load_image('zombies/newspaper_zombie_speedup.png', ZOMBIE_SIZE),
         )
-        self.health = 200
+        self.health = 500
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
     
     @property
     def is_angry(self):
-        return self.health <= 100
+        return self.health <= 200
 
     def update(self):
         now = controller.level_ticks
