@@ -221,7 +221,6 @@ class Level(element.Element):
         sun.move_limit = int(sun.rect.height / 2 + randint(map_rect.top, map_rect.bottom))
 
     def update(self):
-        print('224', zombies.all_zombies, self.spawners)
         if len(zombies.all_zombies) == 0 and len(self.spawners) == 0:
             if not self.waiting_for_victory:
                 self.waiting_for_victory = True
