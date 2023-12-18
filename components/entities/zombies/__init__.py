@@ -29,8 +29,9 @@ class Zombie(Character):
             controller.goto_scene(controller.scenes.the_end)
             controller.unload_sceen(controller.scenes.main_game)
 
-def zombie_mover(zombie: Zombie, rate: float = -0.75):
+def zombie_mover(zombie: Zombie, rate: float = -.75):
     zombie.velocity_x = 0
+    sleeping_gap = 1
     sleeping = 0
     velocity_sign = 0
     if rate < 0: velocity_sign = 1
@@ -38,10 +39,11 @@ def zombie_mover(zombie: Zombie, rate: float = -0.75):
     a = 0.6 * rate
     b = -0.1 * rate
     def zombie_move():
+        nonlocal sleeping_gap
         nonlocal sleeping
         nonlocal velocity_sign
         nonlocal forward
-        if sleeping < 60:
+        if sleeping < sleeping_gap:
             sleeping += 1
             return
         if rate >= 0:

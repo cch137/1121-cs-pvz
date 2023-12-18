@@ -13,7 +13,8 @@ pygame.mixer.init()
 pygame.init()
 process.clear_caches()
 
-def main():
+def main(scene = controller.scenes.main_menu):
+    controller.goto_scene(scene)
     while controller.running:
         controller.play()
         process.update()
@@ -22,5 +23,4 @@ print(f'Started in {time.time() - t0} seconds')
 del t0
 
 if __name__ == '__main__':
-    controller.goto_scene(controller.scenes.main_menu)
     main()
