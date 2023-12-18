@@ -20,7 +20,8 @@ def __create_index():
     return __index
 
 def __delete_index(index: int):
-    del __runnings[index]
+    if index in __runnings:
+        __runnings.pop(index)
 
 def __is_running(index: int):
     return index in __runnings
