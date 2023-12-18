@@ -728,6 +728,8 @@ class EventHandler():
             case pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 # mousedown 與 mouseup 之間的間隔在 1 秒內，且按下的按鍵相同，就會被判定為 click 事件
+                clicked_targets_0 = []
+                clicked_targets_r = []
                 for el in self.get_playing_targets(CLICK):
                     if el.has_attribute(BUTTONDOWN):
                         button, mousedown_at = el.get_attribute(BUTTONDOWN)
@@ -735,7 +737,7 @@ class EventHandler():
                             and button == event.button \
                             and now - mousedown_at < 1:
                             if event.button == pygame.BUTTON_LEFT:
-                                el.dispatch_event(ClickEvent(event.pos, el))
+                                clicked_targets_0.append(el)
                         el.remove_attribute(BUTTONDOWN)
                 # click in radius 的判斷與 click 相同
                 for el in self.get_playing_targets(CLICK_R):
@@ -745,8 +747,12 @@ class EventHandler():
                             and button == event.button \
                             and now - mousedown_at < 1:
                             if event.button == pygame.BUTTON_LEFT:
+                                clicked_targets_r.append(el)
                                 el.dispatch_event(ClickREvent(event.pos, el))
                         el.remove_attribute(BUTTONDOWN_R)
+                clicked_targets = tuple({ *clicked_targets_0, *clicked_targets_r })
+                for el in clicked_targets_0: el.dispatch_event(ClickEvent(event.pos, el, clicked_targets))
+                for el in clicked_targets_r: el.dispatch_event(ClickREvent(event.pos, el, clicked_targets))
             case pygame.KEYDOWN:
                 for el in self.get_playing_targets(KEYDOWN):
                     el.dispatch_event(KeydownEvent(event.key, el))

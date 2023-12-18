@@ -1,12 +1,9 @@
-from typing import Set, Iterable
 from utils.constants import *
-import pygame
-from components.entities import Entity, Character, Effect
-import components.events as events
-from components.entities.plants import Plant
 from components.media import media
 from components.entities.zombies import Zombie, zombie_mover
-import utils.process as process
+
+health = 300
+atk = 30
 
 class NewspaperZombie(Zombie):
     def __init__(self):
@@ -16,14 +13,14 @@ class NewspaperZombie(Zombie):
             media.load_image('zombies/newspaper_zombie_attack.png', ZOMBIE_SIZE),
             media.load_image('zombies/newspaper_zombie_speedup.png', ZOMBIE_SIZE),
         )
-        self.health = 200
+        self.health = health
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
     
     @property
     def is_angry(self):
-        return self.health <= 100
+        return self.health <= health * 0.5
 
     def update(self):
         now = controller.level_ticks
@@ -46,7 +43,7 @@ class NewspaperZombie(Zombie):
             if self.__last_attack + self.__cooldown_ticks <= now:
                 self.__last_attack = now
                 self.image_state = 1
-                self.closest_enemy.damage(25)
+                self.closest_enemy.damage(atk)
             return
         if self.image_state == 0:
             if self.is_angry:

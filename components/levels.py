@@ -51,7 +51,7 @@ class ZombieSpawner(Spawner):
         Spawner.spawn(self, level)
 
 class Tile(element.Element):
-    grow_type: type[plants.Plant] | None = None
+    planter: plants.Planter | None = None
 
     def __init__(self, size: Coordinate, r: int, c: int):
         element.Element.__init__(self, size)
@@ -77,18 +77,19 @@ class Tile(element.Element):
     def growable(self):
         return self.plant is None
 
-    def grow(self, plant: plants.Plant):
+    def grow(self):
         if not self.growable:
             raise 'Tile is not growable'
-        self.append_child(plant)
-        return plant
+        planter = self.planter
+        if planter is None:
+            raise 'Planter is not selected'
+        self.append_child(planter.create())
+        controller.level.add_suns(-planter.price)
+        self.planter = None
 
     def update(self):
-        if self.grow_type is not None:
-            plant = self.grow_type()
-            self.grow(plant)
-            self.grow_type = None
-            controller.level.add_suns(-plant.price)
+        if self.planter is not None:
+            self.grow()
 
 class Level(element.Element):
     def __init__(self, scene: scenes.Scene, spawners: Iterable[Spawner] = tuple()):
@@ -114,14 +115,12 @@ class Level(element.Element):
         scene.add_element(self.game_map)
 
         class Card(element.Element):
-            price: int
             selected: bool = False
             mask: element.Element | None = None
 
-            def __init__(self, image: pygame.Surface, plant_type: type[plants.Plant]):
+            def __init__(self, image: pygame.Surface, planter: plants.Planter):
                 element.Element.__init__(self)
-                self.price = plant_type().price
-                self.plant_type = plant_type
+                self.planter = planter
                 plant_image_el = element.Element(image)
                 plant_image_el.max_height = 100
                 self.append_child(plant_image_el)
@@ -132,10 +131,17 @@ class Level(element.Element):
                 self.spacing = 10
                 self.background_color = (0, 0, 0, 127)
                 self.compose()
-                def _click():
+                def _click(e: events.ClickEvent):
+                    for i in e.clicked_targets:
+                        if isinstance(i, entities.Sun):
+                            return
                     for card in level.cards:
                         card.selected = card is self and not card.selected
                 self.add_event_listener(events.CLICK, _click)
+
+            @property
+            def price(self):
+                return self.planter.price
             
             def update(self):
                 if level.has_suns(self.price):
@@ -157,12 +163,12 @@ class Level(element.Element):
                 self.background_color = (60, 50, 30) if self.selected else (48, 30, 24)
 
         self.cards = tuple(Card(i, p) for i, p in (
-            (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.SunFlower),
-            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.PeaShooter),
-            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.GatlingPea),
-            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.SnowPea),
-            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.WallNut),
-            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.PotatoMine),
+            (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.sun_flower.planter),
+            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.pea_shooter.planter),
+            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.gatling_pea.planter),
+            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.snow_pea.planter),
+            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.wall_nut.planter),
+            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.potato_mine.planter),
         ))
         span1 = element.Element((8, 8))
         span2 = element.Element((8, 8))
@@ -199,10 +205,10 @@ class Level(element.Element):
         self.__victory.value = value
     
     @property
-    def selected_plant(self):
+    def selected_planter(self):
         for card in self.cards:
             if card.selected:
-                return card.plant_type
+                return card.planter
         return None
 
     def has_suns(self, value: int):
@@ -242,19 +248,19 @@ class Level(element.Element):
                 spawner.spawn(self)
             elif spawner.is_used:
                 self.spawners.remove(spawner)
-        selected_plant_type = self.selected_plant
+        selected_planter = self.selected_planter
         def grow_plant(_tile: Tile):
             def listener(e: events.ClickEvent):
                 target_tile: Tile = e.target
                 if _tile is target_tile and _tile.growable:
-                    _tile.grow_type = selected_plant_type
+                    _tile.planter = selected_planter
                     for card in self.cards:
                         card.selected = False
             return listener
         for row in self.tiles:
             for tile in row:
                 if tile.growable:
-                    if selected_plant_type is not None:
+                    if selected_planter is not None:
                         tile.cursor = 'hand'
                         tile.add_event_listener(events.CLICK, grow_plant(tile))
                     else:
