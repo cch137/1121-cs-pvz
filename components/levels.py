@@ -103,10 +103,10 @@ class Level(element.Element):
         self.__last_sun_drop = 0
         self.sun_drop_frequency_ticks = 300
 
-        self.suns = refs.Ref(0)
+        self.suns = refs.Ref(1000)
         self.suns.add_event_listener(events.REF_CHANGE, lambda: self.dispatch_event(events.SunsChangeEvent(self)))
         self.waiting_for_victory: bool = False
-        self.__victory = refs.Ref(False)
+        self.__victory: refs.Ref[bool|None] = refs.Ref(None)
         
         self.tiles = tuple(tuple(Tile(TILE_SIZE, r, c) for c in range(MAP_COLUMNS)) for r in range(MAP_ROWS))
         self.__rows = tuple(element.Element(None, ROW, r) for r in self.tiles)
@@ -177,20 +177,21 @@ class Level(element.Element):
 
         self.cards = tuple(Card(i, p) for i, p in (
             (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.sun_flower.planter),
-            # (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.pea_shooter.planter),
-            # (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.gatling_pea.planter),
-            # (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.snow_pea.planter),
-            # (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.wall_nut.planter),
-            # (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.potato_mine.planter),
+            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.pea_shooter.planter),
+            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.gatling_pea.planter),
+            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.snow_pea.planter),
+            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.wall_nut.planter),
+            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.potato_mine.planter),
         ))
         span1 = element.Element((8, 8))
         span2 = element.Element((8, 8))
         span1.background_color = (0, 0, 0, 0)
         span2.background_color = (0, 0, 0, 0)
+        self.card_board_sun_icon = element.Element(media.load_image('entities/sun.png', (CARD_IMAGE_SIZE[0] * 0.8, CARD_IMAGE_SIZE[1] * 0.8)))
         self.card_board = element.Element(None, ROW, [
             element.Element(None, None, [
                 span1,
-                element.Element(media.load_image('entities/sun.png', (CARD_IMAGE_SIZE[0] * 0.8, CARD_IMAGE_SIZE[1] * 0.8))),
+                self.card_board_sun_icon,
                 span2,
                 element.TextBox(self.suns)
             ]),
@@ -210,11 +211,11 @@ class Level(element.Element):
         return self.scene.get_element_by_id(f'tile-{row}-{col}')
 
     @property
-    def victory(self) -> bool:
+    def victory(self) -> bool | None:
         return self.__victory.value
     
     @victory.setter
-    def victory(self, value: bool):
+    def victory(self, value: bool | None):
         self.__victory.value = value
     
     @property
@@ -247,7 +248,6 @@ class Level(element.Element):
                     if not self.waiting_for_victory:
                         return
                     self.victory = True
-                    controller.unload_sceen(controller.scenes.main_game)
                     controller.goto_scene(controller.scenes.the_end)
                 asynclib.set_timeout(the_end, 3000)
         elif self.waiting_for_victory:

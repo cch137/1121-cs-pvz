@@ -27,7 +27,6 @@ class Zombie(Character):
         if self.rect.right < 0:
             controller.level.victory = False
             controller.goto_scene(controller.scenes.the_end)
-            controller.unload_sceen(controller.scenes.main_game)
 
 def zombie_mover(zombie: Zombie, rate: float = -.75):
     zombie.velocity_x = 0

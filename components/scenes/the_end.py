@@ -9,6 +9,8 @@ def init():
     from components import Element, TextBox, media, \
         events, Entity, plants, zombies, controller, levels
 
+    controller.unload_sceen(controller.scenes.main_game)
+
     level: levels.Level = controller.level
 
     bg_image = media.load_image('scenes/victory.png' if level.victory else 'scenes/game_over.png', WINDOW_SIZE)
