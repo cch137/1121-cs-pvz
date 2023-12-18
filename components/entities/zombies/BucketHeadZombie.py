@@ -17,7 +17,7 @@ class BucketHeadZombie(Zombie):
             media.load_image('zombies/buckethead_zombie_attack_2.png', ZOMBIE_SIZE),
         )
         self.is_buckethead = True
-        self.health = 800
+        self.health = 300
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
@@ -32,7 +32,7 @@ class BucketHeadZombie(Zombie):
             self.image_state = 2
         if self.image_state == 2 and self.__last_attack + 40 <= now:
             self.image_state = 0
-        if self.is_buckethead and self.health <= 300:
+        if self.is_buckethead and self.health <= 100:
             self.ori_image = media.load_image('zombies/zombie.png', ZOMBIE_SIZE)
             self.attack1_image = media.load_image('zombies/zombie_attack_1.png', ZOMBIE_SIZE)
             self.attack2_image = media.load_image('zombies/zombie_attack_2.png', ZOMBIE_SIZE)

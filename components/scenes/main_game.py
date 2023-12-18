@@ -2,7 +2,7 @@ import pygame
 from typing import *
 from utils.constants import *
 import components.scenes as scenes
-from random import randint
+from random import randint, sample
 
 main_game = scenes.Scene()
 
@@ -12,37 +12,39 @@ def init():
 
     main_game.background_color = (0, 30, 0)
 
-    gap = 15 * FPS
+    schedule: list[levels.Spawner] = []
 
-    level = levels.Level(main_game, [
-        levels.ZombieSpawner(0 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(1 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(2 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(3 * gap, randint(0, 1), zombies.RegularZombie()),
-        levels.ZombieSpawner(3 * gap, randint(3, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(3 * gap, randint(2, 2), zombies.BucketHeadZombie()),
-        levels.ZombieSpawner(4 * gap, randint(1, 4), zombies.BucketHeadZombie(), zombies.RegularZombie(), zombies.RegularZombie()),
-        levels.ZombieSpawner(4 * gap, randint(4, 4), zombies.NewspaperZombie()),
-        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.BucketHeadZombie()),
-        levels.ZombieSpawner(5 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(6 * gap, randint(0, 4), zombies.BucketHeadZombie()),
-        levels.ZombieSpawner(6 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(7 * gap, randint(0, 0), zombies.NewspaperZombie()),
-        levels.ZombieSpawner(8 * gap, randint(1, 1), zombies.BucketHeadZombie(), zombies.BucketHeadZombie()),
-        levels.ZombieSpawner(9 * gap, randint(2, 2), zombies.NewspaperZombie()),
-        levels.ZombieSpawner(10 * gap, randint(3, 3), zombies.BucketHeadZombie(), zombies.BucketHeadZombie()),
-        levels.ZombieSpawner(10 * gap, randint(4, 4), zombies.NewspaperZombie()),
-        levels.ZombieSpawner(10.25 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(10.5 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(10.75 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(11 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(11.5 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(12 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(12.25 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(12.5 * gap, randint(0, 4), zombies.RegularZombie()),
-        levels.ZombieSpawner(12.75 * gap, randint(0, 4), zombies.RegularZombie()),
-    ])
+    # 0 - 30 seconds: 4zombie, 1bucket = 5
+    for i in range(5):
+        schedule.append(levels.ZombieSpawner(i * 5 * FPS, randint(0, 4), zombies.RegularZombie()))
+    for i in sample(range(5), k=1):
+        schedule.append(levels.ZombieSpawner(randint(30, 30) * FPS, i, zombies.BucketHeadZombie()))
+
+    # 40 - 60 seconds: 2zombie, 2bucket, 1newpaper = 5
+    for i in sample(range(5), k=2):
+        schedule.append(levels.ZombieSpawner(randint(40, 60) * FPS, i, zombies.RegularZombie()))
+    for i in sample(range(5), k=2):
+        schedule.append(levels.ZombieSpawner(randint(40, 50) * FPS, i, zombies.BucketHeadZombie()))
+    for i in sample(range(5), k=1):
+        schedule.append(levels.ZombieSpawner(randint(50, 60) * FPS, i, zombies.NewspaperZombie()))
+
+    # 60 - 120 seconds: 4zombie, 4bucket, 2newpaper = 10
+    for i in sample(range(5), k=4):
+        schedule.append(levels.ZombieSpawner(randint(70, 120) * FPS, i, zombies.RegularZombie()))
+    for i in sample(range(5), k=4):
+        schedule.append(levels.ZombieSpawner(randint(60, 100) * FPS, i, zombies.BucketHeadZombie()))
+    for i in sample(range(5), k=2):
+        schedule.append(levels.ZombieSpawner(randint(90, 120) * FPS, i, zombies.NewspaperZombie()))
+
+    # 120 - 180 seconds: 10zombie, 6bucket, 4newpaper = 20
+    for i in range(10):
+        schedule.append(levels.ZombieSpawner(randint(140, 180) * FPS, randint(0, 4), zombies.RegularZombie()))
+    for i in range(6):
+        schedule.append(levels.ZombieSpawner(randint(120, 150) * FPS, randint(0, 4), zombies.BucketHeadZombie()))
+    for i in range(4):
+        schedule.append(levels.ZombieSpawner(randint(150, 180) * FPS, randint(0, 4), zombies.NewspaperZombie()))
+
+    level = levels.Level(main_game, schedule)
     controller.level = level
 
     level.game_map.rect.center = (471, 462)

@@ -15,7 +15,7 @@ class RegularZombie(Zombie):
             media.load_image('zombies/zombie_attack_1.png', ZOMBIE_SIZE),
             media.load_image('zombies/zombie_attack_2.png', ZOMBIE_SIZE),
         )
-        self.health = 300
+        self.health = 100
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
