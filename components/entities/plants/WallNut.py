@@ -3,7 +3,7 @@ from components.entities import Effect
 from components.entities.plants import Plant, Planter
 from components.media import media
 
-health = 500
+health = 1000
 price = 50
 plant_cooldown_ticks = 10 * FPS
 

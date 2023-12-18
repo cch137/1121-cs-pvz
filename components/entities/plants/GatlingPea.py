@@ -3,7 +3,7 @@ from components.entities.plants import Shooter, Planter
 from components.media import media
 import utils.asynclib as asynclib
 
-health = 100
+health = 350
 price = 200
 plant_cooldown_ticks = 5 * FPS
 

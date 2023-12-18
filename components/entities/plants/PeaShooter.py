@@ -3,7 +3,7 @@ from components.entities.plants import Shooter, BulletTemplate, Planter
 from components.media import media
 from components.entities.zombies import Zombie
 
-health = 100
+health = 200
 price = 100
 plant_cooldown_ticks = 3 * FPS
 

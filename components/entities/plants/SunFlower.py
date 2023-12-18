@@ -4,7 +4,7 @@ from components.media import media
 from components.entities.Sun import Sun
 from random import randint
 
-health = 50
+health = 100
 price = 50
 plant_cooldown_ticks = 5 * FPS
 

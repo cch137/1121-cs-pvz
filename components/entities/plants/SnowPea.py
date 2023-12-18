@@ -4,7 +4,7 @@ from components.media import media
 from components.entities.zombies import Zombie
 from components.entities import SlowDownEffect
 
-health = 75
+health = 250
 price = 175
 plant_cooldown_ticks = 4 * FPS
 
