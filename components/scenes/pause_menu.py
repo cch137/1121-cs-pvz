@@ -23,9 +23,14 @@ def init():
             return button
         return _()
 
+    def restart_level():
+        controller.level.victory = False
+        controller.unload_sceen(scenes.main_game)
+        controller.goto_scene(scenes.main_game)
+
     button_group = Element(None, None, [Button(t, l) for t, l in [
         ('繼續遊戲', lambda: controller.goto_scene(scenes.main_game)),
-        ('重啟關卡', lambda: (scenes.main_game.reload(), controller.goto_scene(scenes.main_game))),
+        ('重啟關卡', restart_level),
         ('返回主選單', lambda: controller.goto_scene(scenes.main_menu)),
     ]])
     button_group.background_color = (180 / 3.5, 134 / 3.5, 68 / 3.5)
