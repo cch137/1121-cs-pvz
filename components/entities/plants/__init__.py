@@ -101,14 +101,16 @@ class Shooter(Plant):
             self.__last_shoot_tick = now
             self.shoot()
 
-class Planter:
+class Planter(events.EventTarget):
     def __init__(self, plant_type: type[Plant], price: int, cooldown_ticks: int) -> None:
-        self.__type = plant_type
+        self.type = plant_type
         self.price = price
         self.cooldown_ticks = cooldown_ticks
 
     def create(self):
-        return self.__type()
+        plant = self.type()
+        self.dispatch_event(events.UserEvent('plant', plant))
+        return plant
 
 from components.entities.zombies import all_zombies
 

@@ -121,6 +121,7 @@ class Level(element.Element):
             def __init__(self, image: pygame.Surface, planter: plants.Planter):
                 element.Element.__init__(self)
                 self.planter = planter
+                self.last_planted_lvl_ticks = -planter.cooldown_ticks
                 plant_image_el = element.Element(image)
                 plant_image_el.max_height = 100
                 self.append_child(plant_image_el)
@@ -136,39 +137,51 @@ class Level(element.Element):
                         if isinstance(i, entities.Sun):
                             return
                     for card in level.cards:
-                        card.selected = card is self and not card.selected
+                        card.selected = card is self and not card.selected and self.cd_percentage == 1 and level.has_suns(self.price)
                 self.add_event_listener(events.CLICK, _click)
+                mask1 = element.Element(self.rect.size)
+                mask1.background_color = (0, 0, 0, 95)
+                mask1.z_index = 99
+                mask2 = element.Element((0, 0))
+                mask2.background_color = (0, 0, 0, 95)
+                mask2.z_index = 99
+                def update():
+                    mask1.rect.topleft = self.rect.topleft
+                    mask1.background_color = (0, 0, 0, 0) if level.has_suns(self.price) else (0, 0, 0, 95 if self.cd_percentage < 1 else 127)
+                    mask_height = mask1.rect.height * (1 - self.cd_percentage)
+                    mask2.image = pygame.Surface((self.rect.width, mask_height))
+                    mask2.rect.topleft = self.rect.topleft
+                    if not level.has_suns(self.price) or self.cd_percentage < 1:
+                        self.cursor = None
+                        if self.selected:
+                            self.selected = None
+                    else:
+                        self.cursor = 'hand'
+                    self.background_color = (60, 50, 30) if self.selected else (48, 30, 24)
+                def onplant(e: events.UserEvent):
+                    if type(e.target) is planter.type:
+                        self.last_planted_lvl_ticks = level.ticks
+                planter.add_event_listener('plant', onplant)
+                self.update = update
+                scene.add_element(mask1)
+                scene.add_element(mask2)
 
             @property
             def price(self):
                 return self.planter.price
-            
-            def update(self):
-                if level.has_suns(self.price):
-                    if self.mask is not None:
-                        self.cursor = 'hand'
-                        self.mask.kill()
-                        self.mask = None
-                else:
-                    if self.selected:
-                        self.selected = False
-                    if self.mask is None:
-                        self.mask = element.Element(self.rect.size)
-                        self.mask.background_color = (0, 0, 0, 127)
-                        self.mask.z_index = 99
-                        scene.add_element(self.mask)
-                        self.cursor = None
-                if self.mask is not None:
-                    self.mask.rect.center = self.rect.center
-                self.background_color = (60, 50, 30) if self.selected else (48, 30, 24)
+
+            @property
+            def cd_percentage(self):
+                passed_ticks = level.ticks - self.last_planted_lvl_ticks
+                return min(1, passed_ticks / self.planter.cooldown_ticks)
 
         self.cards = tuple(Card(i, p) for i, p in (
             (media.load_image('plants/sunflower.png', CARD_IMAGE_SIZE), plants.sun_flower.planter),
-            (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.pea_shooter.planter),
-            (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.gatling_pea.planter),
-            (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.snow_pea.planter),
-            (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.wall_nut.planter),
-            (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.potato_mine.planter),
+            # (media.load_image('plants/peashooter.png', CARD_IMAGE_SIZE), plants.pea_shooter.planter),
+            # (media.load_image('plants/gatlingpea.png', CARD_IMAGE_SIZE), plants.gatling_pea.planter),
+            # (media.load_image('plants/snowpea.png', CARD_IMAGE_SIZE), plants.snow_pea.planter),
+            # (media.load_image('plants/wallnut.png', CARD_IMAGE_SIZE), plants.wall_nut.planter),
+            # (media.load_image('plants/potatomine.png', CARD_IMAGE_SIZE), plants.potato_mine.planter),
         ))
         span1 = element.Element((8, 8))
         span2 = element.Element((8, 8))
