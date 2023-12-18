@@ -11,7 +11,7 @@ all_plants: Set[Plant] = set()
 import components.entities.zombies as zombies
 
 class Plant(Character):
-    def __init__(self, image: pygame.Surface, price: int):
+    def __init__(self, image: pygame.Surface = None, price: int = 0):
         Character.__init__(self, image, all_plants, all_zombies)
         all_plants.add(self)
         self.price = price
@@ -101,13 +101,24 @@ class Shooter(Plant):
             self.__last_shoot_tick = now
             self.shoot()
 
+class Planter(events.EventTarget):
+    def __init__(self, plant_type: type[Plant], price: int, cooldown_ticks: int) -> None:
+        self.type = plant_type
+        self.price = price
+        self.cooldown_ticks = cooldown_ticks
+
+    def create(self):
+        plant = self.type()
+        self.dispatch_event(events.UserEvent('plant', plant))
+        return plant
+
 from components.entities.zombies import all_zombies
 
-from components.entities.plants.SunFlower import SunFlower
-from components.entities.plants.WallNut import WallNut
-from components.entities.plants.PeaShooter import PeaShooter
-from components.entities.plants.GatlingPea import GatlingPea
-from components.entities.plants.SnowPea import SnowPea
-from components.entities.plants.PotatoMine import PotatoMine
+import components.entities.plants.SunFlower as sun_flower
+import components.entities.plants.WallNut as wall_nut
+import components.entities.plants.PeaShooter as pea_shooter
+import components.entities.plants.GatlingPea as gatling_pea
+import components.entities.plants.SnowPea as snow_pea
+import components.entities.plants.PotatoMine as potato_mine
 
 from components import controller

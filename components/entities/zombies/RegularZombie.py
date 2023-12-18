@@ -1,11 +1,9 @@
-from typing import Set, Iterable
 from utils.constants import *
-import pygame
-from components.entities import Entity, Character, Effect
-import components.events as events
-from components.entities.plants import Plant
 from components.media import media
 from components.entities.zombies import Zombie, zombie_mover
+
+health = 200
+atk = 25
 
 class RegularZombie(Zombie):
     def __init__(self):
@@ -15,7 +13,7 @@ class RegularZombie(Zombie):
             media.load_image('zombies/zombie_attack_1.png', ZOMBIE_SIZE),
             media.load_image('zombies/zombie_attack_2.png', ZOMBIE_SIZE),
         )
-        self.health = 100
+        self.health = health
         self.move = zombie_mover(self)
         self.__last_attack = 0
         self.__cooldown_ticks = 60
@@ -35,7 +33,7 @@ class RegularZombie(Zombie):
             if self.__last_attack + self.__cooldown_ticks <= now:
                 self.__last_attack = now
                 self.image_state = 1
-                self.closest_enemy.damage(25)
+                self.closest_enemy.damage(atk)
             return
         if self.image_state == 0:
             self.move()

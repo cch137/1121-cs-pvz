@@ -1,4 +1,4 @@
-from typing import Callable, Any, Set, Dict
+from typing import Callable, Any, Set, Dict, Tuple
 from utils.constants import Coordinate
 import asyncio
 import utils.asynclib as asynclib
@@ -56,8 +56,9 @@ class MouseLeaveEvent(MouseEvent):
         MouseEvent.__init__(self, MOUSELEAVE, pos, target)
 
 class ClickEvent(MouseEvent):
-    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None, clicked_targets: Tuple[EventTarget] = tuple()):
         MouseEvent.__init__(self, CLICK, pos, target)
+        self.clicked_targets = clicked_targets
 
 class HoverREvent(MouseEvent):
     def __init__(self, pos: Coordinate, target: EventTarget | None = None):
@@ -72,8 +73,9 @@ class MouseLeaveREvent(MouseEvent):
         MouseEvent.__init__(self, MOUSELEAVE_R, pos, target)
 
 class ClickREvent(MouseEvent):
-    def __init__(self, pos: Coordinate, target: EventTarget | None = None):
+    def __init__(self, pos: Coordinate, target: EventTarget | None = None, clicked_targets: Tuple[EventTarget] = tuple()):
         MouseEvent.__init__(self, CLICK_R, pos, target)
+        self.clicked_targets = clicked_targets
 
 class KeydownEvent(UserEvent):
     def __init__(self, key: Any, target: EventTarget | None = None):

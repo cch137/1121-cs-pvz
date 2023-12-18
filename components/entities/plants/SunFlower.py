@@ -1,17 +1,21 @@
 from utils.constants import *
-from components.entities.plants import Plant
+from components.entities.plants import Plant, Planter
 from components.media import media
 from components.entities.Sun import Sun
 from random import randint
 
+health = 50
+price = 50
+plant_cooldown_ticks = 5 * FPS
+
 class SunFlower(Plant):
     def __init__(self):
         rest_image = media.load_image('plants/sunflower.png', PLANT_SIZE)
-        Plant.__init__(self, rest_image, 50)
+        Plant.__init__(self, rest_image, price)
         self.rest_image = rest_image
         self.active_image = media.load_image('plants/sunflower_uuewk.png', PLANT_SIZE)
         self.__is_activated = False
-        self.health = 40
+        self.health = health
         self.__last_produced = controller.level_ticks
         self.__cooldown_ticks = 15 * 60 # 15 seconds
 
@@ -30,5 +34,7 @@ class SunFlower(Plant):
         if self.__is_activated and self.__last_produced + 60 <= now:
             self.image = self.rest_image
             self.__is_activated = False
+
+planter = Planter(SunFlower, price, plant_cooldown_ticks)
 
 from components import controller
