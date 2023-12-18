@@ -2,10 +2,9 @@ import math
 from pygame.transform import scale
 from components.media import media
 from components.entities import Entity
-from random import randint
-from typing import Tuple, Any
-from utils.constants import Coordinate, FPS
+from utils.constants import FPS
 import components.events as events
+import utils.asynclib as asynclib
 
 size = (80, 80)
 
@@ -19,9 +18,14 @@ class Sun(Entity):
         self.radius_scale = 1
         self.cursor_r = 'hand'
         self.add_event_listener(events.CLICK_R, lambda: controller.level.add_suns(self.kill()))
+        def autopick():
+            if self.scene is not None:
+                self.kill()
+        self.autopick_taskid = asynclib.set_timeout(autopick, 5000)
 
     def kill(self):
         '''Returns sun value.'''
+        asynclib.clear_timeout(self.autopick_taskid)
         if controller.level.victory is not None:
             Entity.kill(self)
             return self.value
