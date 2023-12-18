@@ -17,14 +17,12 @@ class Sun(Entity):
         self.z_index = 999
         self.radius_scale = 1
         self.cursor_r = 'hand'
-        self.add_event_listener(events.CLICK_R, lambda: controller.level.add_suns(self.kill()))
-        def autopick():
-            if self.scene is not None:
-                self.kill()
-        self.autopick_taskid = asynclib.set_timeout(autopick, 5000)
+        self.add_event_listener(events.CLICK_R, lambda: self.kill())
+        self.autopick_taskid = asynclib.set_timeout(lambda: self.kill() if self.scene is not None else None, 5000)
 
     def kill(self):
         '''Returns sun value.'''
+        controller.level.add_suns(self.value)
         asynclib.clear_timeout(self.autopick_taskid)
         if controller.level.victory is not None:
             Entity.kill(self)
