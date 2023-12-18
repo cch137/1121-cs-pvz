@@ -103,7 +103,7 @@ class Level(element.Element):
         self.__last_sun_drop = 0
         self.sun_drop_frequency_ticks = 300
 
-        self.suns = refs.Ref(1000)
+        self.suns = refs.Ref(0)
         self.suns.add_event_listener(events.REF_CHANGE, lambda: self.dispatch_event(events.SunsChangeEvent(self)))
         self.waiting_for_victory: bool = False
         self.__victory: refs.Ref[bool|None] = refs.Ref(None)
