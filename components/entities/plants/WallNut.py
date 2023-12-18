@@ -5,7 +5,7 @@ from components.media import media
 
 health = 1000
 price = 50
-plant_cooldown_ticks = 10 * FPS
+plant_cooldown_ticks = 20 * FPS
 
 class WallNut(Plant):
     def __init__(self):

@@ -6,7 +6,7 @@ import utils.asynclib as asynclib
 
 health = 1000
 price = 25
-plant_cooldown_ticks = 3 * FPS
+plant_cooldown_ticks = 5 * FPS
 
 class Explosion(Character):
     def __init__(self):

@@ -5,7 +5,7 @@ import utils.asynclib as asynclib
 
 health = 350
 price = 200
-plant_cooldown_ticks = 5 * FPS
+plant_cooldown_ticks = 7.5 * FPS
 
 class GatlingPea(Shooter):
     def __init__(self):

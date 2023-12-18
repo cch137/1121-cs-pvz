@@ -6,7 +6,7 @@ from components.entities import SlowDownEffect
 
 health = 250
 price = 175
-plant_cooldown_ticks = 4 * FPS
+plant_cooldown_ticks = 7.5 * FPS
 
 pea_ice_template = BulletTemplate(
     media.load_image('entities/icepea.png', BULLET_SIZE),

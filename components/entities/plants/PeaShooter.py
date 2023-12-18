@@ -5,7 +5,7 @@ from components.entities.zombies import Zombie
 
 health = 200
 price = 100
-plant_cooldown_ticks = 3 * FPS
+plant_cooldown_ticks = 5 * FPS
 
 pea_template = BulletTemplate(
     media.load_image('entities/pea.png', BULLET_SIZE),
